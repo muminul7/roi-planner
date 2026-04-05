@@ -138,6 +138,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </div>
   <nav>
     <div class="nav-item active" data-page="dashboard">📊 ড্যাশবোর্ড</div>
+    <div class="nav-item" data-page="planner">🧭 প্ল্যানার মোড</div>
     <div class="nav-item" data-page="capex">🏗️ প্রাথমিক বিনিয়োগ</div>
     <div class="nav-item" data-page="opex">💸 মাসিক খরচ</div>
     <div class="nav-item" data-page="revenue">💰 আয়ের উৎস</div>
@@ -165,6 +166,47 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">১২ মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
       <div class="card chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><canvas id="chartCostDonut"></canvas></div>
+    </div>
+  </div>
+
+  <!-- PLANNER MODE -->
+  <div class="page" id="page-planner">
+    <div class="page-header">
+      <div><div class="page-title">নতুন উদ্যোক্তা প্ল্যানার</div><div class="page-subtitle">ধাপে ধাপে ইনপুট দিন, আমরা পুরো financial plan auto তৈরি করে দিবো</div></div>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">ধাপ ১: ব্যবসার বেসিক</div>
+        <div class="form-group"><label class="form-label">ব্যবসার নাম</label><input class="form-input" id="planBusinessName" placeholder="যেমন: ABC Fashion"></div>
+        <div class="form-group"><label class="form-label">প্রতি ইউনিট/সার্ভিস দাম (৳)</label><input class="form-input" id="planPrice" type="number" value="1500"></div>
+        <div class="form-group"><label class="form-label">মাসে সম্ভাব্য ইউনিট বিক্রি</label><input class="form-input" id="planQty" type="number" value="120"></div>
+        <div class="form-group"><label class="form-label">Expected Utilization (%)</label><input class="form-input" id="planUtil" type="number" value="75"></div>
+        <div class="form-group"><label class="form-label">মাসিক গ্রোথ লক্ষ্য (%)</label><input class="form-input" id="planGrowth" type="number" value="4"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">ধাপ ২: খরচ ও ফান্ড</div>
+        <div class="form-group"><label class="form-label">প্রাথমিক সেটআপ CAPEX (৳)</label><input class="form-input" id="planCapex" type="number" value="300000"></div>
+        <div class="form-group"><label class="form-label">মাসিক ফিক্সড খরচ (৳)</label><input class="form-input" id="planFixedCost" type="number" value="80000"></div>
+        <div class="form-group"><label class="form-label">Variable Cost (% of sales)</label><input class="form-input" id="planVariableRate" type="number" value="30"></div>
+        <div class="form-group"><label class="form-label">Founder মাসিক ড্র (৳)</label><input class="form-input" id="planOwnerDraw" type="number" value="25000"></div>
+        <div class="form-group"><label class="form-label">শুরুতে হাতে নগদ (Working Capital) (৳)</label><input class="form-input" id="planOpeningCash" type="number" value="200000"></div>
+      </div>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">ধাপ ৩: ঋণ ও ট্যাক্স</div>
+        <div class="form-group"><label class="form-label">ঋণের পরিমাণ (৳)</label><input class="form-input" id="planLoanAmount" type="number" value="0"></div>
+        <div class="form-group"><label class="form-label">ঋণের বার্ষিক সুদ (%)</label><input class="form-input" id="planLoanRate" type="number" value="12"></div>
+        <div class="form-group"><label class="form-label">ঋণের মেয়াদ (মাস)</label><input class="form-input" id="planLoanMonths" type="number" value="24"></div>
+        <div class="form-group"><label class="form-label">ট্যাক্স (%)</label><input class="form-input" id="planTaxRate" type="number" value="15"></div>
+        <div class="form-group"><label class="form-label">কত মাসের emergency reserve রাখতে চান</label><input class="form-input" id="planReserveMonths" type="number" value="3"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">ধাপ ৪: এক ক্লিকে প্ল্যান</div>
+        <div class="hero-sub" style="margin-bottom:12px">এই বাটন চাপলে CAPEX/OPEX/Revenue অটো-ফিল হবে, সাথে runway, funding gap আর break-even insight আপডেট হবে।</div>
+        <button class="btn btn-primary" onclick="applyPlannerPreset()">পূর্ণ Financial Plan বানাও</button>
+        <div id="planSummary" style="margin-top:16px; color:var(--text2); font-size:13px; line-height:1.7;"></div>
+      </div>
     </div>
   </div>
 
@@ -208,15 +250,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <div class="card-title">সহজ সেটিংস</div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">ট্যাক্স (%)</span><span style="color:var(--accent)" id="taxLabel">15%</span></div>
-          <input type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); document.getElementById('taxLabel').innerText=this.value+'%'">
+          <input id="taxRange" type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); document.getElementById('taxLabel').innerText=this.value+'%'">
         </div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">গড় Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
-          <input type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); document.getElementById('utilLabel').innerText=this.value+'%'">
+          <input id="utilRange" type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); document.getElementById('utilLabel').innerText=this.value+'%'">
         </div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">মাসিক গ্রোথ (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
-          <input type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); document.getElementById('growthLabel').innerText=this.value+'%'">
+          <input id="growthRange" type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); document.getElementById('growthLabel').innerText=this.value+'%'">
         </div>
       </div>
     </div>
@@ -269,7 +311,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 let state = {
   businessName: 'My Business', currency: 'BDT',
   globalUtil: 80, globalGrowth: 3, taxRate: 15,
-  capex: [], opex: [], revenue: []
+  capex: [], opex: [], revenue: [],
+  variableCostRate: 0,
+  openingCash: 0,
+  reserveMonths: 3
 };
 const CURRENCIES = { BDT:'৳' };
 let currentModalType = null;
@@ -291,6 +336,33 @@ function normalizeCurrency() { state.currency = 'BDT'; }
 function totalCapex() { return state.capex.reduce((a,c)=>a+c.amount,0); }
 function capexMonthly() { return state.capex.reduce((a,c)=>a+(c.amount/(c.amortization*12)),0); }
 function totalOpex() { return state.opex.reduce((a,c)=>a+c.monthly,0); }
+function variableCosts(monthIdx=0, revMult=1) {
+  return monthlyRev(monthIdx, revMult) * ((state.variableCostRate || 0) / 100);
+}
+function loanEMI(amount, annualRate, months) {
+  if (!amount || amount <= 0 || !months || months <= 0) return 0;
+  const monthlyRate = (annualRate || 0) / 1200;
+  if (monthlyRate === 0) return amount / months;
+  const pow = Math.pow(1 + monthlyRate, months);
+  return (amount * monthlyRate * pow) / (pow - 1);
+}
+function breakEvenMonths(netProfit) {
+  if (netProfit > 0 && totalCapex() > 0) return Math.ceil(totalCapex() / netProfit);
+  return null;
+}
+function cashRunwayMonths(netProfit) {
+  if (netProfit >= 0) return 'সেফ (cash burn নেই)';
+  if (!state.openingCash || state.openingCash <= 0) return '০ মাস';
+  return `${(state.openingCash / Math.abs(netProfit)).toFixed(1)} মাস`;
+}
+function reserveTarget() {
+  return (state.reserveMonths || 0) * totalOpex();
+}
+function fundingGap(netProfit) {
+  const reserveGap = Math.max(0, reserveTarget() - (state.openingCash || 0));
+  const capexGap = netProfit < 0 ? totalCapex() : 0;
+  return reserveGap + capexGap;
+}
 
 function monthlyRev(monthIdx, revMult=1) {
   return state.revenue.reduce((a,r) => {
@@ -302,11 +374,12 @@ function monthlyRev(monthIdx, revMult=1) {
 
 function getFinancials(monthIdx, revMult=1, costMult=1) {
   let rev = monthlyRev(monthIdx, revMult);
-  let costs = (totalOpex() + capexMonthly()) * costMult;
+  let variable = variableCosts(monthIdx, revMult);
+  let costs = ((totalOpex() + capexMonthly()) + variable) * costMult;
   let grossProfit = rev - costs;
   let tax = grossProfit > 0 ? grossProfit * (state.taxRate/100) : 0;
   let netProfit = grossProfit - tax;
-  return { rev, costs, grossProfit, tax, netProfit };
+  return { rev, costs, variable, grossProfit, tax, netProfit };
 }
 
 // ==================== RENDER ENGINES ====================
@@ -321,7 +394,9 @@ function renderDashboard() {
   let f = getFinancials(0);
   let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
   const margin = f.rev > 0 ? (f.netProfit / f.rev) * 100 : 0;
-  const breakEven = f.netProfit > 0 && totalCapex() > 0 ? Math.ceil(totalCapex() / f.netProfit) : null;
+  const breakEven = breakEvenMonths(f.netProfit);
+  const runway = cashRunwayMonths(f.netProfit);
+  const gap = fundingGap(f.netProfit);
   document.getElementById('dashKPIs').innerHTML = `
     <div class="kpi"><div class="kpi-label">মাসিক আয়</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
     <div class="kpi"><div class="kpi-label">মাসিক মোট খরচ</div><div class="kpi-value">${fmt(f.costs)}</div></div>
@@ -340,6 +415,18 @@ function renderDashboard() {
     <div class="insight-item">
       <h4>উদ্যোক্তা টিপস</h4>
       <p>${margin >= 20 ? 'মার্জিন ভালো আছে। এখন recurring client বাড়ালে cashflow আরও stable হবে।' : 'মার্জিন কম। কম লাভের সেবা বাদ দিয়ে premium package push করুন।'}</p>
+    </div>
+    <div class="insight-item">
+      <h4>Cash Runway</h4>
+      <p>${runway} · জরুরি তহবিল লক্ষ্য: ${fmt(reserveTarget())}</p>
+    </div>
+    <div class="insight-item">
+      <h4>Funding Gap</h4>
+      <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}. খরচ কমানো/অতিরিক্ত ফান্ড লাগবে।` : 'বর্তমান প্ল্যানে বড় funding gap নেই।'}</p>
+    </div>
+    <div class="insight-item">
+      <h4>Variable Cost Pressure</h4>
+      <p>বর্তমান variable খরচ: ${fmt(f.variable)} (${(state.variableCostRate || 0).toFixed(0)}% of sales)</p>
     </div>
   `;
 }
@@ -500,6 +587,73 @@ function saveEntry() {
 
 function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); renderAll(); }
 function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
+function toNumber(id, fallback=0) {
+  const el = document.getElementById(id);
+  const value = el ? parseFloat(el.value) : NaN;
+  return Number.isFinite(value) ? value : fallback;
+}
+function switchToPage(page) {
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
+  const pageEl = document.getElementById('page-' + page);
+  if (nav) nav.classList.add('active');
+  if (pageEl) pageEl.classList.add('active');
+  requestAnimationFrame(() => drawCharts());
+}
+function applyPlannerPreset() {
+  const planName = (document.getElementById('planBusinessName')?.value || '').trim();
+  const price = toNumber('planPrice', 1500);
+  const qty = toNumber('planQty', 120);
+  const util = Math.max(1, Math.min(100, toNumber('planUtil', 75)));
+  const growth = Math.max(0, Math.min(60, toNumber('planGrowth', 4)));
+  const capex = Math.max(0, toNumber('planCapex', 300000));
+  const fixedCost = Math.max(0, toNumber('planFixedCost', 80000));
+  const variableRate = Math.max(0, Math.min(95, toNumber('planVariableRate', 30)));
+  const ownerDraw = Math.max(0, toNumber('planOwnerDraw', 25000));
+  const openingCash = Math.max(0, toNumber('planOpeningCash', 200000));
+  const loanAmount = Math.max(0, toNumber('planLoanAmount', 0));
+  const loanRate = Math.max(0, toNumber('planLoanRate', 12));
+  const loanMonths = Math.max(1, Math.round(toNumber('planLoanMonths', 24)));
+  const taxRate = Math.max(0, Math.min(40, toNumber('planTaxRate', 15)));
+  const reserveMonths = Math.max(1, Math.round(toNumber('planReserveMonths', 3)));
+  const emi = loanEMI(loanAmount, loanRate, loanMonths);
+
+  if (planName) state.businessName = planName;
+  state.globalUtil = util;
+  state.globalGrowth = growth;
+  state.taxRate = taxRate;
+  state.variableCostRate = variableRate;
+  state.openingCash = openingCash;
+  state.reserveMonths = reserveMonths;
+
+  state.capex = capex > 0 ? [{ id: uid(), name: 'Setup Investment', category: 'Setup', amount: capex, amortization: 3 }] : [];
+  state.opex = [
+    { id: uid(), name: 'Fixed Operations', category: 'Operations', monthly: fixedCost },
+    { id: uid(), name: 'Founder Draw', category: 'Owner', monthly: ownerDraw },
+    ...(emi > 0 ? [{ id: uid(), name: 'Loan EMI', category: 'Loan', monthly: emi }] : [])
+  ].filter(item => item.monthly > 0);
+  state.revenue = [{ id: uid(), name: 'Main Product/Service', price, qty, useGlobal: true, utilization: util, growth }];
+
+  const f = getFinancials(0);
+  const be = breakEvenMonths(f.netProfit);
+  const summary = `
+    প্ল্যান তৈরি হয়েছে। সম্ভাব্য মাসিক আয় ${fmt(f.rev)}, নিট লাভ ${fmt(f.netProfit)}।
+    ${be ? `Break-even আনুমানিক ${be} মাসে।` : 'এই ইনপুটে এখনো break-even কঠিন, আয়/মার্জিন বাড়ানো দরকার।'}
+  `;
+  const summaryEl = document.getElementById('planSummary');
+  if (summaryEl) summaryEl.innerText = summary;
+  document.getElementById('businessName').value = state.businessName;
+  document.getElementById('taxLabel').innerText = `${taxRate}%`;
+  document.getElementById('utilLabel').innerText = `${util}%`;
+  document.getElementById('growthLabel').innerText = `${growth}%`;
+  document.getElementById('taxRange').value = taxRate;
+  document.getElementById('utilRange').value = util;
+  document.getElementById('growthRange').value = Math.min(growth, 30);
+  renderAll();
+  switchToPage('dashboard');
+  showFlash('✅ পূর্ণ financial plan তৈরি হয়েছে');
+}
 
 // ==================== PDF & CLOUD SAVING ====================
 function reportHealthScore(annualROI, margin, breakEvenMonths) {
@@ -661,6 +815,7 @@ async function downloadProfessionalPDF() {
 
   [
     ['page-dashboard', 'ড্যাশবোর্ড'],
+    ['page-planner', 'নতুন উদ্যোক্তা প্ল্যানার ইনপুট'],
     ['page-capex', 'প্রাথমিক বিনিয়োগ (CAPEX)'],
     ['page-opex', 'মাসিক অপারেটিং খরচ (OPEX)'],
     ['page-revenue', 'আয়ের উৎস ও গ্লোবাল সেটিংস'],
@@ -709,6 +864,9 @@ function loadState() {
     if(s) Object.assign(state, JSON.parse(s));
   }
   normalizeCurrency();
+  if (!Number.isFinite(state.variableCostRate)) state.variableCostRate = 0;
+  if (!Number.isFinite(state.openingCash)) state.openingCash = 0;
+  if (!Number.isFinite(state.reserveMonths)) state.reserveMonths = 3;
 }
 
 function showFlash(msg) {
@@ -730,6 +888,15 @@ document.getElementById('businessName').addEventListener('input', e => { state.b
 window.onload = () => {
   loadState();
   document.getElementById('businessName').value = state.businessName;
+  if (document.getElementById('planBusinessName')) {
+    document.getElementById('planBusinessName').value = state.businessName;
+  }
+  document.getElementById('taxLabel').innerText = `${state.taxRate}%`;
+  document.getElementById('utilLabel').innerText = `${state.globalUtil}%`;
+  document.getElementById('growthLabel').innerText = `${state.globalGrowth}%`;
+  document.getElementById('taxRange').value = state.taxRate;
+  document.getElementById('utilRange').value = state.globalUtil;
+  document.getElementById('growthRange').value = Math.min(state.globalGrowth, 30);
   if(state.capex.length===0) {
     // Seed Data
     state.capex = [{id:uid(), name:'Equipment', category:'Equipment', amount:150000, amortization:3}];
