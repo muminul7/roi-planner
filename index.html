@@ -521,7 +521,31 @@ function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); 
 function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
 
 // ==================== PDF & CLOUD SAVING ====================
-function buildReportPageClone(pageId, sectionLabel) {
+function reportHealthScore(annualROI, margin, breakEvenMonths) {
+  let score = 50;
+  if (annualROI >= 60) score += 25;
+  else if (annualROI >= 30) score += 18;
+  else if (annualROI >= 10) score += 10;
+  else if (annualROI < 0) score -= 15;
+  if (margin >= 30) score += 15;
+  else if (margin >= 15) score += 8;
+  else if (margin < 5) score -= 10;
+  if (breakEvenMonths && breakEvenMonths <= 12) score += 10;
+  if (!breakEvenMonths) score -= 8;
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function buildActionNotes(monthZero, annualROI, margin, breakEvenMonths) {
+  const notes = [];
+  if (monthZero.netProfit < 0) notes.push('খরচ নিয়ন্ত্রণ জরুরি: কম মার্জিন সেবা কমিয়ে high-ticket offer বাড়ান।');
+  if (annualROI < 20) notes.push('ROI বাড়াতে বিক্রয়মূল্য ও recurring package structure পুনরায় সাজান।');
+  if (margin < 15) notes.push('প্রতি সেবার কস্ট-টু-রেভিনিউ ratio audit করুন।');
+  if (breakEvenMonths && breakEvenMonths > 18) notes.push('ব্রেক-ইভেন দেরি হচ্ছে: fixed cost কমানো বা volume বাড়ানো দরকার।');
+  if (notes.length === 0) notes.push('বর্তমান প্রক্ষেপণ শক্তিশালী। এখন client retention ও cash reserve strategy-তে ফোকাস দিন।');
+  return notes.slice(0, 3);
+}
+
+function buildReportPageClone(pageId, sectionLabel, sectionIndex) {
   const sourcePage = document.getElementById(pageId);
   if (!sourcePage) return null;
   const clone = sourcePage.cloneNode(true);
@@ -575,11 +599,19 @@ function buildReportPageClone(pageId, sectionLabel) {
     canvasClone.replaceWith(img);
   });
   const wrapper = document.createElement('section');
-  wrapper.style.padding = '0 0 24px';
-  wrapper.style.marginBottom = '24px';
-  wrapper.style.borderBottom = '1px solid #2b303b';
+  wrapper.style.padding = '20px 18px 22px';
+  wrapper.style.marginBottom = '20px';
+  wrapper.style.background = '#141b25';
+  wrapper.style.border = '1px solid #2b3647';
+  wrapper.style.borderRadius = '16px';
   wrapper.style.pageBreakInside = 'avoid';
-  wrapper.innerHTML = `<div style="font:600 11px Inter,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#00e5a0; margin-bottom:12px;">${sectionLabel}</div>`;
+  if (sectionIndex > 0) wrapper.style.pageBreakBefore = 'always';
+  wrapper.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font:600 11px Inter,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#00e5a0;">Section ${sectionIndex + 1}</div>
+      <div style="font:500 12px Inter,sans-serif; color:#9cb0cc;">${sectionLabel}</div>
+    </div>
+  `;
   wrapper.appendChild(clone);
   return wrapper;
 }
@@ -590,9 +622,9 @@ async function downloadProfessionalPDF() {
     return;
   }
   drawCharts();
-  showFlash('Generating PDF...');
+  showFlash('Premium report তৈরি হচ্ছে...');
   const exportRoot = document.createElement('div');
-  exportRoot.style.background = '#101318';
+  exportRoot.style.background = 'linear-gradient(180deg,#0c121a,#101822)';
   exportRoot.style.padding = '32px';
   exportRoot.style.width = '794px';
   exportRoot.style.color = '#f8f9fa';
@@ -600,13 +632,26 @@ async function downloadProfessionalPDF() {
 
   const monthZero = getFinancials(0);
   const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
+  const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
+  const breakEvenMonths = monthZero.netProfit > 0 && totalCapex() > 0 ? Math.ceil(totalCapex() / monthZero.netProfit) : null;
+  const health = reportHealthScore(annualROI, margin, breakEvenMonths);
+  const actionNotes = buildActionNotes(monthZero, annualROI, margin, breakEvenMonths);
   const header = document.createElement('div');
   header.style.marginBottom = '24px';
   header.style.padding = '0 0 20px';
   header.style.borderBottom = '1px solid #2b303b';
   header.innerHTML = `
-    <div style="font:700 28px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
-    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0; margin-bottom:16px;">বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4</div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
+      <div>
+        <div style="font:700 30px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
+        <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#7f92ad; text-transform:uppercase;">Business Health</div>
+        <div style="font:700 30px Inter,sans-serif; color:${health >= 70 ? '#00e5a0' : health >= 45 ? '#f4b942' : '#ff5c5c'};">${health}/100</div>
+      </div>
+    </div>
+    <div style="font:500 12px Inter,sans-serif; color:#8fa2be; margin-bottom:16px;">Generated: ${new Date().toLocaleDateString('en-GB')} · Currency: BDT</div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
         <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">মাসিক আয়</div>
@@ -625,6 +670,11 @@ async function downloadProfessionalPDF() {
         <div style="font-size:24px; font-weight:700; color:${annualROI >= 0 ? '#00e5a0' : '#ff5c5c'};">${annualROI.toFixed(1)}%</div>
       </div>
     </div>
+    <div style="margin-top:14px; background:#141b25; border:1px solid #2b3647; border-radius:12px; padding:12px 14px;">
+      <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#00e5a0; text-transform:uppercase; margin-bottom:8px;">Executive Notes</div>
+      ${actionNotes.map((n, i) => `<div style="font-size:12px;color:#c8d3e4;line-height:1.7;">${i + 1}. ${n}</div>`).join('')}
+      <div style="font-size:12px;color:#8fa2be;line-height:1.6;margin-top:6px;">আনুমানিক Break-even: ${breakEvenMonths ? breakEvenMonths + ' মাস' : 'Not reached'} · Net Margin: ${margin.toFixed(1)}%</div>
+    </div>
   `;
   exportRoot.appendChild(header);
 
@@ -635,8 +685,8 @@ async function downloadProfessionalPDF() {
     ['page-revenue', 'আয়ের উৎস ও গ্লোবাল সেটিংস'],
     ['page-roi', 'ROI সারসংক্ষেপ ও প্রক্ষেপণ'],
     ['page-scenarios', 'সিনারিও বিশ্লেষণ'],
-  ].forEach(([pageId, label]) => {
-    const section = buildReportPageClone(pageId, label);
+  ].forEach(([pageId, label], idx) => {
+    const section = buildReportPageClone(pageId, label, idx);
     if (section) exportRoot.appendChild(section);
   });
 
