@@ -267,7 +267,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 // ==================== STATE & CONFIG ====================
 const SUPABASE_URL = 'https://duzorgwgbpohahrbtrtf.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1em9yZ3dnYnBvaGFocmJ0cnRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTA2NjgsImV4cCI6MjA5MDc2NjY2OH0.iSa0rG6n5TyRUCciaXPPY6wibrJYjX7lYNFNqq87q9k';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = globalThis.supabase && typeof globalThis.supabase.createClient === 'function'
+  ? globalThis.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
 
 let state = {
   businessName: 'My Business', currency: 'BDT',
@@ -352,6 +354,7 @@ Chart.defaults.color = '#a1a5b0';
 Chart.defaults.font.family = 'Inter';
 
 function initChart(id, type, data, options) {
+  if (typeof Chart === 'undefined') return;
   const canvas = document.getElementById(id);
   if (!canvas) return;
   if (charts[id]) charts[id].destroy();
@@ -482,6 +485,10 @@ function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
 
 // ==================== PDF & CLOUD SAVING ====================
 function downloadProfessionalPDF() {
+  if (typeof html2pdf === 'undefined') {
+    showFlash('PDF library failed to load');
+    return;
+  }
   showFlash('Generating High Quality PDF...');
   const element = document.getElementById('main');
   const opt = {
@@ -497,6 +504,11 @@ function downloadProfessionalPDF() {
 async function saveToCloud() {
   showFlash('Saving to Cloud...');
   try {
+    if (!supabaseClient) {
+      localStorage.setItem('roi_cloud_backup', JSON.stringify(state));
+      showFlash('Saved locally. Cloud unavailable.');
+      return;
+    }
     // Note: For real auth, you'd use supabase.auth.signInWithPassword()
     // Since we don't have a specific table structure from you, we'll save it to local first, 
     // but the API is ready if you create a 'saved_projects' table in Supabase.
@@ -520,9 +532,13 @@ function shareLink() {
 async function loadLeads() {
   let pass = document.getElementById('adminPass').value;
   if(pass !== 'socialgeek2025') return showFlash('❌ Wrong Password');
+  if (!supabaseClient) {
+    document.getElementById('leadsContainer').innerHTML = 'Supabase failed to load.';
+    return;
+  }
   
   document.getElementById('leadsContainer').innerHTML = 'Loading...';
-  const { data, error } = await supabase.from('roi_leads').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabaseClient.from('roi_leads').select('*').order('created_at', { ascending: false });
   
   if(error) return document.getElementById('leadsContainer').innerHTML = 'Failed to load leads.';
   
