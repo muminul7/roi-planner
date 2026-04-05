@@ -61,7 +61,7 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .page-title{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--heading);font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .page-subtitle{font-size:14px;color:var(--text2);margin-top:4px;line-height:1.6}
 
-.card-grid{display:grid;gap:20px}
+.card-grid{display:grid;gap:20px;align-items:start}
 .grid-2{grid-template-columns:1fr 1fr}
 .grid-3{grid-template-columns:1fr 1fr 1fr}
 .grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
@@ -82,8 +82,9 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .chart-card canvas{display:block;width:100% !important;height:260px !important;position:relative;z-index:1}
 .chart-card.chart-tall canvas{height:320px !important}
 .donut-chart-card{display:flex;flex-direction:column}
-.donut-chart-wrap{position:relative;width:min(100%,520px);aspect-ratio:1/1;margin:4px auto 0}
+.donut-chart-wrap{position:relative;width:min(100%,430px);aspect-ratio:1/1;margin:8px auto 2px}
 .donut-chart-wrap canvas{width:100% !important;height:100% !important}
+.combo-chart-card canvas{height:320px !important}
 
 .kpi{background:linear-gradient(180deg,var(--surface2),#17202d);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
 .kpi::before{content:"";position:absolute;left:0;top:0;height:2px;width:100%;background:linear-gradient(90deg,var(--accent),transparent)}
@@ -170,6 +171,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .card[style*="grid-column: span 2"]{grid-column:auto !important}
   .page-title{font-size:clamp(20px,6vw,24px)}
   .chart-card canvas{height:220px !important}
+  .combo-chart-card canvas{height:240px !important}
   .chart-card.chart-tall canvas{height:250px !important}
   .donut-chart-wrap{width:min(100%,360px)}
   #page-roi .roi-hero-card{padding:24px 14px}
@@ -262,7 +264,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="card"><div class="card-title">Expense Leak Finder</div><div id="expenseLeakFinder"></div></div>
     </div>
     <div class="card-grid grid-2">
-      <div class="card chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
+      <div class="card chart-card combo-chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
       <div class="card chart-card donut-chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><div class="donut-chart-wrap"><canvas id="chartCostDonut"></canvas></div></div>
     </div>
   </div>
