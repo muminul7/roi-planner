@@ -195,6 +195,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="nav-item" data-page="capex"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/></svg></span>প্রাথমিক বিনিয়োগ</div>
     <div class="nav-item" data-page="opex"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M6 6h9a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h9"/></svg></span>মাসিক খরচ</div>
     <div class="nav-item" data-page="revenue"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>আয়ের উৎস</div>
+    <div class="nav-item" data-page="settings"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg></span>সেটিংস</div>
     <div class="nav-item" data-page="roi"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M7 16l4-4 3 3 5-7"/></svg></span>ROI সারাংশ</div>
     <div class="nav-item" data-page="scenarios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 16l3-4 2 2 3-5"/></svg></span>কী হলে কী হবে</div>
   </nav>
@@ -240,14 +241,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-2">
       <div class="card">
         <div class="card-title">যেগুলো এখানে এডিট করা যাবে</div>
-        <div class="form-group"><label class="form-label">কত মাসে প্রফিটে যেতে চান</label><input class="form-input" id="planTargetMonths" type="number" min="1" value="12"></div>
-        <div class="form-group"><label class="form-label">মাসভিত্তিক growth লক্ষ্য (%)</label><input class="form-input" id="planGrowthInput" type="number" min="0" max="30" value="3"></div>
         <div class="form-group"><label class="form-label">CAPEX কত বছরে amortize হবে</label><input class="form-input" id="planAmortizationYears" type="number" min="1" max="10" value="3"></div>
         <div class="planner-actions">
           <button class="btn btn-primary" onclick="applyPlannerControls()">Planner Update করুন</button>
           <button class="btn btn-outline" onclick="switchToPage('dashboard')">ড্যাশবোর্ডে দেখুন</button>
         </div>
-        <div id="planSummary" class="plan-summary-box">টার্গেট অনুযায়ী প্ল্যান স্ট্যাটাস এখানে দেখা যাবে।</div>
+        <div id="planSummary" class="plan-summary-box">Tax, inflation, payback target, growth ও buffer `সেটিংস` ট্যাব থেকে নিয়ন্ত্রণ করুন।</div>
       </div>
       <div class="card">
         <div class="card-title">Revenue/OPEX/CAPEX (Read-only)</div>
@@ -294,19 +293,48 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">আয়ের পূর্বাভাস</div><canvas id="chartRevenue"></canvas></div>
       <div class="card">
-        <div class="card-title">সহজ সেটিংস</div>
+        <div class="card-title">গ্লোবাল প্যারামিটার</div>
+        <div class="readonly-hint">Tax, inflation, payback target, growth, utilization এবং working capital buffer `সেটিংস` ট্যাব থেকে নিয়ন্ত্রণ করুন।</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="page-settings">
+    <div class="page-header">
+      <div><div class="page-title">গ্লোবাল সেটিংস</div><div class="page-subtitle">ট্যাক্স, মুদ্রাস্ফীতি, payback target এবং buffer এক জায়গা থেকে নিয়ন্ত্রণ</div></div>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">Financial Controls</div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">ট্যাক্স (%)</span><span style="color:var(--accent)" id="taxLabel">15%</span></div>
-          <input id="taxRange" type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); document.getElementById('taxLabel').innerText=this.value+'%'">
+          <input id="taxRange" type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); renderSettingsPanel()">
+        </div>
+        <div class="slider-group">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">বার্ষিক মুদ্রাস্ফীতি (%)</span><span style="color:var(--accent)" id="inflationLabel">5%</span></div>
+          <input id="inflationRange" type="range" min="0" max="20" value="5" oninput="updateState('inflationRate', this.value); renderSettingsPanel()">
+        </div>
+        <div class="slider-group">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Payback Target (মাস)</span><span style="color:var(--accent)" id="paybackLabel">12</span></div>
+          <input id="paybackRange" type="range" min="3" max="48" value="12" oninput="updateState('targetProfitMonths', this.value); renderSettingsPanel()">
+        </div>
+        <div class="slider-group">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">মাসিক Growth (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
+          <input id="growthRange" type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); renderSettingsPanel()">
         </div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">গড় Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
-          <input id="utilRange" type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); document.getElementById('utilLabel').innerText=this.value+'%'">
+          <input id="utilRange" type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); renderSettingsPanel()">
         </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Capital Buffer</div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">মাসিক গ্রোথ (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
-          <div class="readonly-hint">এই অপশন `প্ল্যানার মোড` থেকে এডিট হবে</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Working Capital Buffer (মাস)</span><span style="color:var(--accent)" id="bufferLabel">3</span></div>
+          <input id="bufferRange" type="range" min="1" max="12" value="3" oninput="updateState('reserveMonths', this.value); renderSettingsPanel()">
         </div>
+        <div id="settingsSummary" class="plan-summary-box">Global settings summary এখানে দেখাবে।</div>
       </div>
     </div>
   </div>
@@ -329,6 +357,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card chart-card chart-tall">
       <div class="card-title">3 বছরের মোট নিট লাভ (Break-even Tracker)</div>
       <canvas id="chart3Year"></canvas>
+    </div>
+    <div class="card chart-card chart-tall">
+      <div class="card-title">Break-even Chart (Cumulative Revenue vs Cumulative Total Cost)</div>
+      <canvas id="chartBreakEven"></canvas>
     </div>
   </div>
 
@@ -357,7 +389,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 // ==================== STATE & CONFIG ====================
 let state = {
   businessName: 'My Business', currency: 'BDT',
-  globalUtil: 80, globalGrowth: 3, taxRate: 15,
+  globalUtil: 80, globalGrowth: 3, taxRate: 15, inflationRate: 5,
   capex: [], opex: [], revenue: [],
   variableCostRate: 0,
   openingCash: 0,
@@ -387,6 +419,11 @@ function normalizeCurrency() { state.currency = 'BDT'; }
 function totalCapex() { return state.capex.reduce((a,c)=>a+c.amount,0); }
 function capexMonthly() { return state.capex.reduce((a,c)=>a+(c.amount/(c.amortization*12)),0); }
 function totalOpex() { return state.opex.reduce((a,c)=>a+c.monthly,0); }
+function inflationFactor(monthIdx=0) {
+  const annual = (state.inflationRate || 0) / 100;
+  const monthly = Math.pow(1 + annual, 1 / 12) - 1;
+  return Math.pow(1 + monthly, monthIdx);
+}
 function variableCosts(monthIdx=0, revMult=1) {
   return monthlyRev(monthIdx, revMult) * ((state.variableCostRate || 0) / 100);
 }
@@ -459,19 +496,20 @@ function monthlyRev(monthIdx, revMult=1) {
 
 function getFinancials(monthIdx, revMult=1, costMult=1) {
   let rev = monthlyRev(monthIdx, revMult);
+  let opexInflated = totalOpex() * inflationFactor(monthIdx);
   let variable = variableCosts(monthIdx, revMult);
-  let costs = ((totalOpex() + capexMonthly()) + variable) * costMult;
+  let costs = ((opexInflated + capexMonthly()) + variable) * costMult;
   let grossProfit = rev - costs;
   let tax = grossProfit > 0 ? grossProfit * (state.taxRate/100) : 0;
   let netProfit = grossProfit - tax;
-  return { rev, costs, variable, grossProfit, tax, netProfit };
+  return { rev, costs, variable, opexInflated, grossProfit, tax, netProfit };
 }
 
 // ==================== RENDER ENGINES ====================
 function renderAll() {
   normalizeCurrency();
   document.getElementById('dashTitle').innerText = state.businessName;
-  renderDashboard(); renderTables(); renderROI(); renderPlannerPanel();
+  renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel();
   drawCharts(); saveStateLocal();
 }
 
@@ -591,10 +629,8 @@ function renderROI() {
 function renderPlannerPanel() {
   const readonlyRoot = document.getElementById('plannerReadonly');
   const summaryEl = document.getElementById('planSummary');
-  const targetMonthsInput = document.getElementById('planTargetMonths');
-  const growthInput = document.getElementById('planGrowthInput');
   const amortInput = document.getElementById('planAmortizationYears');
-  if (!readonlyRoot || !summaryEl || !targetMonthsInput || !growthInput || !amortInput) return;
+  if (!readonlyRoot || !summaryEl || !amortInput) return;
 
   const monthlyRevNow = monthlyRev(0);
   const f = getFinancials(0);
@@ -603,8 +639,6 @@ function renderPlannerPanel() {
   const maxAmo = state.capex.length ? Math.max(...state.capex.map(c => c.amortization || 1)) : 3;
   const amortizedCapexMonthly = capexMonthly();
 
-  targetMonthsInput.value = target;
-  growthInput.value = state.globalGrowth;
   amortInput.value = maxAmo;
 
   readonlyRoot.innerHTML = `
@@ -635,6 +669,41 @@ function renderPlannerPanel() {
       ? `দারুণ। বর্তমান প্ল্যানে আপনি টার্গেট ${target} মাসের আগেই profit zone-এ যেতে পারেন।`
       : `বর্তমান হিসাবে break-even আনুমানিক ${be} মাসে। আপনার টার্গেট ${target} মাসে যেতে হলে growth বা margin বাড়াতে হবে।`)
     : `এখনো break-even আসছে না। growth বাড়ানো, opex কমানো, বা capex amortization period adjust করা দরকার।`;
+}
+
+function renderSettingsPanel() {
+  const taxLabel = document.getElementById('taxLabel');
+  const inflationLabel = document.getElementById('inflationLabel');
+  const paybackLabel = document.getElementById('paybackLabel');
+  const growthLabel = document.getElementById('growthLabel');
+  const utilLabel = document.getElementById('utilLabel');
+  const bufferLabel = document.getElementById('bufferLabel');
+  const settingsSummary = document.getElementById('settingsSummary');
+  if (!taxLabel || !inflationLabel || !paybackLabel || !growthLabel || !utilLabel || !bufferLabel || !settingsSummary) return;
+
+  taxLabel.innerText = `${state.taxRate.toFixed(0)}%`;
+  inflationLabel.innerText = `${state.inflationRate.toFixed(1)}%`;
+  paybackLabel.innerText = `${state.targetProfitMonths.toFixed(0)}`;
+  growthLabel.innerText = `${state.globalGrowth.toFixed(0)}%`;
+  utilLabel.innerText = `${state.globalUtil.toFixed(0)}%`;
+  bufferLabel.innerText = `${state.reserveMonths.toFixed(0)}`;
+
+  const taxRange = document.getElementById('taxRange');
+  const inflationRange = document.getElementById('inflationRange');
+  const paybackRange = document.getElementById('paybackRange');
+  const growthRange = document.getElementById('growthRange');
+  const utilRange = document.getElementById('utilRange');
+  const bufferRange = document.getElementById('bufferRange');
+  if (taxRange) taxRange.value = state.taxRate;
+  if (inflationRange) inflationRange.value = state.inflationRate;
+  if (paybackRange) paybackRange.value = state.targetProfitMonths;
+  if (growthRange) growthRange.value = state.globalGrowth;
+  if (utilRange) utilRange.value = state.globalUtil;
+  if (bufferRange) bufferRange.value = state.reserveMonths;
+
+  const f = getFinancials(0);
+  const be = breakEvenMonths(f.netProfit);
+  settingsSummary.innerText = `Inflation-adjusted projection active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'Not reached'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())}`;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
@@ -712,6 +781,26 @@ function drawCharts() {
     }]
   });
 
+  // 3b. Break-even Cumulative Revenue vs Cost
+  let cumRevenue = 0;
+  let cumTotalCost = totalCapex();
+  let cumRevenueData = [];
+  let cumCostData = [];
+  for (let i = 0; i < 36; i++) {
+    const f = getFinancials(i);
+    cumRevenue += f.rev;
+    cumTotalCost += f.costs + f.tax;
+    cumRevenueData.push(cumRevenue);
+    cumCostData.push(cumTotalCost);
+  }
+  initChart('chartBreakEven', 'line', {
+    labels: year3Labels,
+    datasets: [
+      { label: 'Cumulative Revenue', data: cumRevenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: false, tension: 0.25 },
+      { label: 'Cumulative Total Cost', data: cumCostData, borderColor: '#ff5c5c', backgroundColor: 'rgba(255,92,92,0.08)', fill: false, tension: 0.25 }
+    ]
+  });
+
   // 4. Scenarios
   let baseData = [], pessData = [], optData = [];
   for(let i=0; i<12; i++){
@@ -780,22 +869,13 @@ function switchToPage(page) {
   requestAnimationFrame(() => drawCharts());
 }
 function applyPlannerControls() {
-  const targetInput = document.getElementById('planTargetMonths');
-  const growthInput = document.getElementById('planGrowthInput');
   const amortInput = document.getElementById('planAmortizationYears');
-  if (!targetInput || !growthInput || !amortInput) return;
-
-  const targetMonths = Math.max(1, parseInt(targetInput.value || '12', 10));
-  const growth = Math.max(0, Math.min(30, parseFloat(growthInput.value || '3')));
+  if (!amortInput) return;
   const amortYears = Math.max(1, Math.min(10, parseInt(amortInput.value || '3', 10)));
 
-  state.targetProfitMonths = targetMonths;
-  state.globalGrowth = growth;
   state.capex = state.capex.map(item => ({ ...item, amortization: amortYears }));
-
-  document.getElementById('growthLabel').innerText = `${growth}%`;
   renderAll();
-  showFlash('Planner setting আপডেট হয়েছে');
+  showFlash('Planner setting আপডেট হয়েছে (amortization)');
 }
 
 // ==================== PDF & CLOUD SAVING ====================
