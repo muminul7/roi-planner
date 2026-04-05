@@ -807,36 +807,40 @@ function drawCharts() {
     revData.push(f.rev); costData.push(f.costs + f.tax); profitData.push(f.netProfit);
   }
 
-  // 1. Cashflow Minimal
+  // 1. Cashflow Combo (Clustered Column + Line)
   initChart('chartCashflow', 'bar', {
     labels: months,
     datasets: [
       {
-        type: 'line',
+        type: 'bar',
         label: 'Revenue',
         data: revData,
-        borderColor: '#35d6a0',
-        backgroundColor: 'rgba(53,214,160,.12)',
-        fill: false,
-        tension: 0.34
+        backgroundColor: 'rgba(80,171,230,.86)',
+        borderRadius: 7,
+        borderSkipped: false,
+        maxBarThickness: 22
       },
       {
-        type: 'line',
+        type: 'bar',
         label: 'Total Cost',
         data: costData,
-        borderColor: '#6b7a91',
-        backgroundColor: 'rgba(107,122,145,.08)',
-        fill: false,
-        tension: 0.34
+        backgroundColor: 'rgba(136,206,96,.86)',
+        borderRadius: 7,
+        borderSkipped: false,
+        maxBarThickness: 22
       },
       {
         type: 'line',
         label: 'Net Profit',
         data: profitData,
-        borderColor: '#ff6b6b',
-        backgroundColor: 'rgba(255,107,107,.12)',
-        fill: true,
-        tension: 0.3
+        yAxisID: 'y1',
+        borderColor: '#ffb35c',
+        backgroundColor: 'rgba(255,179,92,.2)',
+        fill: false,
+        tension: 0.35,
+        borderWidth: 2.2,
+        pointRadius: 2,
+        pointHoverRadius: 4
       }
     ]
   }, {
@@ -844,6 +848,11 @@ function drawCharts() {
       x: { grid: { display: false }, ticks: { color: '#93a0b3' } },
       y: {
         grid: { color: 'rgba(116,132,152,.10)' },
+        ticks: { color: '#93a0b3', maxTicksLimit: 5, callback: (v) => fmt(Number(v)).replace('৳', '') }
+      },
+      y1: {
+        position: 'right',
+        grid: { drawOnChartArea: false },
         ticks: { color: '#93a0b3', maxTicksLimit: 5, callback: (v) => fmt(Number(v)).replace('৳', '') }
       }
     },
