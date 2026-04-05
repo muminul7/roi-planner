@@ -254,7 +254,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         </div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">মাসিক গ্রোথ (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
-          <input id="growthRange" type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); document.getElementById('growthLabel').innerText=this.value+'%'">
+          <div class="readonly-hint">এই অপশন `প্ল্যানার মোড` থেকে এডিট হবে</div>
         </div>
       </div>
     </div>
@@ -662,7 +662,6 @@ function applyPlannerControls() {
   state.capex = state.capex.map(item => ({ ...item, amortization: amortYears }));
 
   document.getElementById('growthLabel').innerText = `${growth}%`;
-  document.getElementById('growthRange').value = growth;
   renderAll();
   showFlash('✅ Planner setting আপডেট হয়েছে');
 }
@@ -906,7 +905,6 @@ window.onload = () => {
   document.getElementById('growthLabel').innerText = `${state.globalGrowth}%`;
   document.getElementById('taxRange').value = state.taxRate;
   document.getElementById('utilRange').value = state.globalUtil;
-  document.getElementById('growthRange').value = Math.min(state.globalGrowth, 30);
   if(state.capex.length===0) {
     // Seed Data
     state.capex = [{id:uid(), name:'Equipment', category:'Equipment', amount:150000, amortization:3}];
