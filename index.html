@@ -87,6 +87,13 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .expert-card{border:1px solid rgba(0,229,160,.2);background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,229,160,.02))}
 .expert-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:10px}
 .expert-body{font-size:13px;color:var(--text2);line-height:1.8}
+.alert-item{padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface3);margin-bottom:8px}
+.alert-item:last-child{margin-bottom:0}
+.alert-item.warn{border-color:rgba(244,185,66,.35)}
+.alert-item.danger{border-color:rgba(255,92,92,.35)}
+.alert-item.success{border-color:rgba(22,163,74,.35)}
+.alert-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:4px}
+.alert-body{font-size:12px;color:var(--text2);line-height:1.6}
 #page-roi .roi-hero-card{text-align:center;padding:40px 20px}
 #page-roi #roiBig{font-size:64px;font-weight:800;line-height:1}
 #page-roi .roi-pl-card .table-wrap .data-table{min-width:0;table-layout:auto}
@@ -124,7 +131,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .nav-item{border-left:none;border:1px solid var(--border);border-radius:999px;white-space:nowrap;flex:0 0 auto;padding:10px 14px;margin-left:8px;min-height:42px}
   .nav-item:first-child{margin-left:0}
   .nav-item.active{border-left-color:transparent}
-  .sidebar-footer{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr}
+  .sidebar-footer{padding:12px 16px;display:grid;grid-template-columns:1fr}
   #main{min-width:0}
   .page{padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));gap:16px}
   .page-header{flex-direction:column;align-items:flex-start;gap:12px}
@@ -193,6 +200,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </nav>
   <div class="sidebar-footer">
     <button class="btn btn-primary" onclick="downloadProfessionalPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>পূর্ণ রিপোর্ট PDF</button>
+    <button class="btn btn-outline" onclick="downloadInvestorBankPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V6l7-3 7 3v4"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M3 21h18"/></svg></span>Investor/Bank রিপোর্ট</button>
     <button class="btn btn-outline" onclick="shareLink()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 1 0 7 7l1-1"/></svg></span>লিংক শেয়ার</button>
   </div>
 </aside>
@@ -210,6 +218,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-4" id="dashKPIs"></div>
     <div class="insight-grid" id="dashTips"></div>
     <div class="card expert-card" id="expertSuggestion"></div>
+    <div class="card-grid grid-2">
+      <div class="card"><div class="card-title">Alert System</div><div id="alertSystem"></div></div>
+      <div class="card"><div class="card-title">Expense Leak Finder</div><div id="expenseLeakFinder"></div></div>
+    </div>
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">১২ মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
       <div class="card chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><canvas id="chartCostDonut"></canvas></div>
@@ -389,10 +401,21 @@ function breakEvenMonths(netProfit) {
   if (netProfit > 0 && totalCapex() > 0) return Math.ceil(totalCapex() / netProfit);
   return null;
 }
+function breakEvenDateLabel(months) {
+  if (!months) return 'নির্ধারণ হয়নি';
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' });
+}
 function cashRunwayMonths(netProfit) {
   if (netProfit >= 0) return 'সেফ (cash burn নেই)';
   if (!state.openingCash || state.openingCash <= 0) return '০ মাস';
   return `${(state.openingCash / Math.abs(netProfit)).toFixed(1)} মাস`;
+}
+function runwayMonthsNumber(netProfit) {
+  if (netProfit >= 0) return Infinity;
+  if (!state.openingCash || state.openingCash <= 0) return 0;
+  return state.openingCash / Math.abs(netProfit);
 }
 function reserveTarget() {
   return (state.reserveMonths || 0) * totalOpex();
@@ -401,6 +424,29 @@ function fundingGap(netProfit) {
   const reserveGap = Math.max(0, reserveTarget() - (state.openingCash || 0));
   const capexGap = netProfit < 0 ? totalCapex() : 0;
   return reserveGap + capexGap;
+}
+function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
+  const items = [];
+  if (netProfit < 0) items.push({ level: 'danger', title: 'Loss Alert', body: 'ব্যবসা এখনো লোকসানে। আগামী ৩০ দিনে cost cut + high-margin sale দরকার।' });
+  if (margin < 12) items.push({ level: 'warn', title: 'Low Margin', body: `Net margin ${margin.toFixed(1)}%। ১৫%+ টার্গেট করুন।` });
+  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'Break-even Delay', body: `Target ${target} মাস, projected ${breakEven} মাস। growth বা price revise করুন।` });
+  if (gap > 0) items.push({ level: 'danger', title: 'Funding Gap', body: `আনুমানিক ঘাটতি ${fmt(gap)}। phase-wise funding plan দরকার।` });
+  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'Runway Critical', body: `Runway ${runwayNum.toFixed(1)} মাস। জরুরি ক্যাশ প্ল্যান করুন।` });
+  if (items.length === 0) items.push({ level: 'success', title: 'Stable Zone', body: 'বড় risk alert নেই। controlled scale-up করা নিরাপদ।' });
+  return items;
+}
+function getExpenseLeakItems() {
+  const total = totalOpex();
+  if (!total) return [{ title: 'ডাটা নেই', body: 'OPEX আইটেম যোগ করলে leak analysis দেখাবে।' }];
+  const ranked = [...state.opex]
+    .map(item => ({ ...item, share: (item.monthly / total) * 100 }))
+    .sort((a, b) => b.monthly - a.monthly);
+  const leaks = ranked.filter(item => item.share >= 25).slice(0, 3);
+  if (!leaks.length) return [{ title: 'Healthy Mix', body: 'OPEX distribution balanced আছে। বড় leak দেখা যাচ্ছে না।' }];
+  return leaks.map(item => ({
+    title: `${item.name} (${item.share.toFixed(1)}%)`,
+    body: `মাসিক ${fmt(item.monthly)}। এই খাতে ৮-১২% optimize করলে cashflow improve হবে।`
+  }));
 }
 
 function monthlyRev(monthIdx, revMult=1) {
@@ -434,8 +480,10 @@ function renderDashboard() {
   let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
   const margin = f.rev > 0 ? (f.netProfit / f.rev) * 100 : 0;
   const breakEven = breakEvenMonths(f.netProfit);
+  const breakEvenDate = breakEvenDateLabel(breakEven);
   const target = state.targetProfitMonths || 12;
   const runway = cashRunwayMonths(f.netProfit);
+  const runwayNum = runwayMonthsNumber(f.netProfit);
   const gap = fundingGap(f.netProfit);
   document.getElementById('dashKPIs').innerHTML = `
     <div class="kpi"><div class="kpi-label">মাসিক আয়</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
@@ -450,7 +498,7 @@ function renderDashboard() {
     </div>
     <div class="insight-item">
       <h4>Break-even দিকনির্দেশনা</h4>
-      <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে প্রাথমিক বিনিয়োগ উঠে আসবে।` : 'বর্তমান লাভের হার দিয়ে break-even করা কঠিন। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
+      <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে (সম্ভাব্য ${breakEvenDate}) break-even হবে।` : 'বর্তমান লাভের হার দিয়ে break-even করা কঠিন। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
     </div>
     <div class="insight-item">
       <h4>Target vs Actual</h4>
@@ -487,6 +535,33 @@ function renderDashboard() {
       <div class="expert-title">Financial Expert Suggestion</div>
       <div class="expert-body">${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}</div>
     `;
+  }
+  const alertRoot = document.getElementById('alertSystem');
+  if (alertRoot) {
+    const alertItems = buildAlertItems({
+      netProfit: f.netProfit,
+      margin,
+      breakEven,
+      target,
+      gap,
+      runwayNum
+    });
+    alertRoot.innerHTML = alertItems.map(item => `
+      <div class="alert-item ${item.level}">
+        <div class="alert-title">${item.title}</div>
+        <div class="alert-body">${item.body}</div>
+      </div>
+    `).join('');
+  }
+  const leakRoot = document.getElementById('expenseLeakFinder');
+  if (leakRoot) {
+    const leaks = getExpenseLeakItems();
+    leakRoot.innerHTML = leaks.map((item, idx) => `
+      <div class="alert-item warn">
+        <div class="alert-title">${idx + 1}. ${item.title}</div>
+        <div class="alert-body">${item.body}</div>
+      </div>
+    `).join('');
   }
 }
 
@@ -819,7 +894,11 @@ function buildReportPageClone(pageId, sectionLabel, sectionIndex) {
   return wrapper;
 }
 
-async function downloadProfessionalPDF() {
+function downloadInvestorBankPDF() {
+  return downloadProfessionalPDF('investor');
+}
+
+async function downloadProfessionalPDF(mode = 'full') {
   if (typeof html2pdf === 'undefined') {
     showFlash('PDF library failed to load');
     return;
@@ -837,6 +916,12 @@ async function downloadProfessionalPDF() {
   const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
   const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
   const breakEvenMonths = monthZero.netProfit > 0 && totalCapex() > 0 ? Math.ceil(totalCapex() / monthZero.netProfit) : null;
+  const breakEvenDate = breakEvenDateLabel(breakEvenMonths);
+  const fundingNeed = Math.max(0, fundingGap(monthZero.netProfit));
+  const loanService = state.opex
+    .filter(item => /loan/i.test(item.name || '') || /loan/i.test(item.category || ''))
+    .reduce((sum, item) => sum + item.monthly, 0);
+  const dscr = loanService > 0 ? (monthZero.netProfit + loanService) / loanService : null;
   const health = reportHealthScore(annualROI, margin, breakEvenMonths);
   const actionNotes = buildActionNotes(monthZero, annualROI, margin, breakEvenMonths);
   const header = document.createElement('div');
@@ -847,7 +932,7 @@ async function downloadProfessionalPDF() {
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
       <div>
         <div style="font:700 30px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
-        <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4</div>
+        <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">${mode === 'investor' ? 'Investor/Bank Ready Financial Report · A4' : 'বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4'}</div>
       </div>
       <div style="text-align:right;">
         <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#7f92ad; text-transform:uppercase;">Business Health</div>
@@ -876,9 +961,22 @@ async function downloadProfessionalPDF() {
     <div style="margin-top:14px; background:#141b25; border:1px solid #2b3647; border-radius:12px; padding:12px 14px;">
       <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#00e5a0; text-transform:uppercase; margin-bottom:8px;">Executive Notes</div>
       ${actionNotes.map((n, i) => `<div style="font-size:12px;color:#c8d3e4;line-height:1.7;">${i + 1}. ${n}</div>`).join('')}
-      <div style="font-size:12px;color:#8fa2be;line-height:1.6;margin-top:6px;">আনুমানিক Break-even: ${breakEvenMonths ? breakEvenMonths + ' মাস' : 'Not reached'} · Net Margin: ${margin.toFixed(1)}%</div>
+      <div style="font-size:12px;color:#8fa2be;line-height:1.6;margin-top:6px;">আনুমানিক Break-even: ${breakEvenMonths ? breakEvenMonths + ' মাস' : 'Not reached'} (${breakEvenDate}) · Net Margin: ${margin.toFixed(1)}%</div>
     </div>
   `;
+  if (mode === 'investor') {
+    header.innerHTML += `
+      <div style="margin-top:14px; background:#101a26; border:1px solid #314055; border-radius:12px; padding:12px 14px;">
+        <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#00e5a0; text-transform:uppercase; margin-bottom:8px;">Investor / Bank Snapshot</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="font-size:12px;color:#c8d3e4;">Annual Net Profit: <strong>${fmt(monthZero.netProfit * 12)}</strong></div>
+          <div style="font-size:12px;color:#c8d3e4;">Funding Need: <strong>${fmt(fundingNeed)}</strong></div>
+          <div style="font-size:12px;color:#c8d3e4;">Break-even Target: <strong>${breakEvenDate}</strong></div>
+          <div style="font-size:12px;color:#c8d3e4;">DSCR: <strong>${dscr ? dscr.toFixed(2) : 'N/A'}</strong></div>
+        </div>
+      </div>
+    `;
+  }
   exportRoot.appendChild(header);
 
   [
@@ -899,7 +997,7 @@ async function downloadProfessionalPDF() {
   try {
     const opt = {
       margin: [6, 6, 6, 6],
-      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}_full_report.pdf`,
+      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}${mode === 'investor' ? '_investor_bank_report' : '_full_report'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#181b21', scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
