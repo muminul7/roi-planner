@@ -84,6 +84,10 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .readonly-value{font-size:20px;font-weight:700;color:#fff}
 .readonly-hint{font-size:12px;color:var(--text2);line-height:1.6}
 .plan-summary-box{margin-top:16px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text2);font-size:13px;line-height:1.7}
+#page-roi .roi-hero-card{text-align:center;padding:40px 20px}
+#page-roi #roiBig{font-size:64px;font-weight:800;line-height:1}
+#page-roi .roi-pl-card .table-wrap .data-table{min-width:0;table-layout:auto}
+#page-roi .roi-pl-card .data-table td{padding:12px 10px}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border)}
@@ -128,6 +132,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page-title{font-size:clamp(20px,6vw,24px)}
   .chart-card canvas{height:220px !important}
   .chart-card.chart-tall canvas{height:250px !important}
+  #page-roi .roi-hero-card{padding:24px 14px}
+  #page-roi #roiBig{font-size:48px}
+  #page-roi .roi-pl-card .table-wrap{overflow-x:visible}
+  #page-roi .roi-pl-card .data-table td{font-size:13px;padding:10px 8px}
+  #page-roi .chart-card.chart-tall canvas{height:220px !important}
   .modal{width:calc(100vw - 24px);padding:20px;max-height:90vh;overflow-y:auto}
   .table-wrap .data-table{min-width:520px}
   .form-input,.business-name-input,.btn{font-size:16px;min-height:44px}
@@ -142,11 +151,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page{padding:14px}
   .card{padding:14px}
   .table-wrap .data-table{min-width:480px}
+  #page-roi #roiBig{font-size:42px}
+  #page-roi .roi-pl-card .data-table td{font-size:12px;padding:9px 6px}
+  #page-roi .chart-card.chart-tall canvas{height:200px !important}
 }
 
 @media(max-width:390px){
   .table-wrap .data-table{min-width:430px}
   .nav-item{padding:9px 12px}
+  #page-roi #roiBig{font-size:36px}
 }
 
 /* PDF Print styles */
@@ -287,12 +300,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="page-header"><div><div class="page-title">ROI সারাংশ</div><div class="page-subtitle">লাভ-ক্ষতির সহজ সারাংশ</div></div></div>
     
     <div class="card-grid grid-3">
-      <div class="card" style="text-align:center; padding:40px 20px">
+      <div class="card roi-hero-card">
         <div class="card-title">বার্ষিক Return on Investment</div>
-        <div style="font-size:64px; font-weight:800; color:var(--accent); line-height:1" id="roiBig">0%</div>
+        <div style="color:var(--accent)" id="roiBig">0%</div>
         <div class="kpi-sub" id="roiSub">Calculating...</div>
       </div>
-      <div class="card" style="grid-column: span 2;">
+      <div class="card roi-pl-card" style="grid-column: span 2;">
         <div class="card-title">লাভ-ক্ষতির টেবিল</div>
         <div class="table-wrap"><table class="data-table"><tbody id="plBody"></tbody></table></div>
       </div>
