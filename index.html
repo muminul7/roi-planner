@@ -70,6 +70,9 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .insight-item{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px}
 .insight-item h4{font-size:12px;color:#fff;margin-bottom:6px}
 .insight-item p{font-size:12px;color:var(--text2);line-height:1.6}
+.planner-actions{display:flex;gap:10px;flex-wrap:wrap}
+.planner-actions .btn{min-width:180px}
+.plan-summary-box{margin-top:16px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text2);font-size:13px;line-height:1.7}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border)}
@@ -172,24 +175,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- PLANNER MODE -->
   <div class="page" id="page-planner">
     <div class="page-header">
-      <div><div class="page-title">নতুন উদ্যোক্তা প্ল্যানার</div><div class="page-subtitle">ধাপে ধাপে ইনপুট দিন, আমরা পুরো financial plan auto তৈরি করে দিবো</div></div>
+      <div><div class="page-title">নতুন উদ্যোক্তা প্ল্যানার</div><div class="page-subtitle">শুরু থেকে শেষ পর্যন্ত ব্যবসার আর্থিক প্ল্যান এক জায়গায়</div></div>
+    </div>
+    <div class="hero-brief">
+      <div class="hero-title">সহজ ৪ ধাপের প্ল্যান</div>
+      <div class="hero-sub">আপনার বাস্তব ইনপুট দিন। সিস্টেম নিজে CAPEX, OPEX, Revenue সাজিয়ে dashboard-ready পরিকল্পনা তৈরি করবে।</div>
     </div>
     <div class="card-grid grid-2">
       <div class="card">
-        <div class="card-title">ধাপ ১: ব্যবসার বেসিক</div>
+        <div class="card-title">ধাপ ১: ব্যবসার মূল তথ্য</div>
         <div class="form-group"><label class="form-label">ব্যবসার নাম</label><input class="form-input" id="planBusinessName" placeholder="যেমন: ABC Fashion"></div>
         <div class="form-group"><label class="form-label">প্রতি ইউনিট/সার্ভিস দাম (৳)</label><input class="form-input" id="planPrice" type="number" value="1500"></div>
         <div class="form-group"><label class="form-label">মাসে সম্ভাব্য ইউনিট বিক্রি</label><input class="form-input" id="planQty" type="number" value="120"></div>
-        <div class="form-group"><label class="form-label">Expected Utilization (%)</label><input class="form-input" id="planUtil" type="number" value="75"></div>
+        <div class="form-group"><label class="form-label">ব্যবহার/বিক্রির সক্ষমতা (%)</label><input class="form-input" id="planUtil" type="number" value="75"></div>
         <div class="form-group"><label class="form-label">মাসিক গ্রোথ লক্ষ্য (%)</label><input class="form-input" id="planGrowth" type="number" value="4"></div>
       </div>
       <div class="card">
         <div class="card-title">ধাপ ২: খরচ ও ফান্ড</div>
         <div class="form-group"><label class="form-label">প্রাথমিক সেটআপ CAPEX (৳)</label><input class="form-input" id="planCapex" type="number" value="300000"></div>
         <div class="form-group"><label class="form-label">মাসিক ফিক্সড খরচ (৳)</label><input class="form-input" id="planFixedCost" type="number" value="80000"></div>
-        <div class="form-group"><label class="form-label">Variable Cost (% of sales)</label><input class="form-input" id="planVariableRate" type="number" value="30"></div>
-        <div class="form-group"><label class="form-label">Founder মাসিক ড্র (৳)</label><input class="form-input" id="planOwnerDraw" type="number" value="25000"></div>
-        <div class="form-group"><label class="form-label">শুরুতে হাতে নগদ (Working Capital) (৳)</label><input class="form-input" id="planOpeningCash" type="number" value="200000"></div>
+        <div class="form-group"><label class="form-label">ভ্যারিয়েবল খরচ (মোট বিক্রির %)</label><input class="form-input" id="planVariableRate" type="number" value="30"></div>
+        <div class="form-group"><label class="form-label">উদ্যোক্তার মাসিক ড্র/বেতন (৳)</label><input class="form-input" id="planOwnerDraw" type="number" value="25000"></div>
+        <div class="form-group"><label class="form-label">শুরুতে হাতে নগদ (ওয়ার্কিং ক্যাপিটাল) (৳)</label><input class="form-input" id="planOpeningCash" type="number" value="200000"></div>
       </div>
     </div>
     <div class="card-grid grid-2">
@@ -203,9 +210,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
       <div class="card">
         <div class="card-title">ধাপ ৪: এক ক্লিকে প্ল্যান</div>
-        <div class="hero-sub" style="margin-bottom:12px">এই বাটন চাপলে CAPEX/OPEX/Revenue অটো-ফিল হবে, সাথে runway, funding gap আর break-even insight আপডেট হবে।</div>
-        <button class="btn btn-primary" onclick="applyPlannerPreset()">পূর্ণ Financial Plan বানাও</button>
-        <div id="planSummary" style="margin-top:16px; color:var(--text2); font-size:13px; line-height:1.7;"></div>
+        <div class="hero-sub" style="margin-bottom:12px">এই বাটন চাপলেই CAPEX, OPEX, Revenue অটো সেট হবে, আর সাথে সাথে break-even, runway, funding gap রেডি হবে।</div>
+        <div class="planner-actions">
+          <button class="btn btn-primary" onclick="applyPlannerPreset()">পূর্ণ ফাইন্যান্স প্ল্যান বানাও</button>
+          <button class="btn btn-outline" onclick="switchToPage('dashboard')">ড্যাশবোর্ডে দেখুন</button>
+        </div>
+        <div id="planSummary" class="plan-summary-box">এখানে আপনার প্ল্যানের সারাংশ দেখা যাবে।</div>
       </div>
     </div>
   </div>
@@ -425,8 +435,8 @@ function renderDashboard() {
       <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}. খরচ কমানো/অতিরিক্ত ফান্ড লাগবে।` : 'বর্তমান প্ল্যানে বড় funding gap নেই।'}</p>
     </div>
     <div class="insight-item">
-      <h4>Variable Cost Pressure</h4>
-      <p>বর্তমান variable খরচ: ${fmt(f.variable)} (${(state.variableCostRate || 0).toFixed(0)}% of sales)</p>
+      <h4>ভ্যারিয়েবল খরচ চাপ</h4>
+      <p>বর্তমান ভ্যারিয়েবল খরচ: ${fmt(f.variable)} (বিক্রির ${(state.variableCostRate || 0).toFixed(0)}%)</p>
     </div>
   `;
 }
@@ -630,17 +640,14 @@ function applyPlannerPreset() {
   state.capex = capex > 0 ? [{ id: uid(), name: 'Setup Investment', category: 'Setup', amount: capex, amortization: 3 }] : [];
   state.opex = [
     { id: uid(), name: 'Fixed Operations', category: 'Operations', monthly: fixedCost },
-    { id: uid(), name: 'Founder Draw', category: 'Owner', monthly: ownerDraw },
+    { id: uid(), name: 'উদ্যোক্তার ড্র', category: 'Owner', monthly: ownerDraw },
     ...(emi > 0 ? [{ id: uid(), name: 'Loan EMI', category: 'Loan', monthly: emi }] : [])
   ].filter(item => item.monthly > 0);
   state.revenue = [{ id: uid(), name: 'Main Product/Service', price, qty, useGlobal: true, utilization: util, growth }];
 
   const f = getFinancials(0);
   const be = breakEvenMonths(f.netProfit);
-  const summary = `
-    প্ল্যান তৈরি হয়েছে। সম্ভাব্য মাসিক আয় ${fmt(f.rev)}, নিট লাভ ${fmt(f.netProfit)}।
-    ${be ? `Break-even আনুমানিক ${be} মাসে।` : 'এই ইনপুটে এখনো break-even কঠিন, আয়/মার্জিন বাড়ানো দরকার।'}
-  `;
+  const summary = `প্ল্যান তৈরি হয়েছে। সম্ভাব্য মাসিক আয় ${fmt(f.rev)}, নিট লাভ ${fmt(f.netProfit)}। ${be ? `Break-even আনুমানিক ${be} মাসে।` : 'এই ইনপুটে এখনো break-even কঠিন, আয়/মার্জিন বাড়ানো দরকার।'}`;
   const summaryEl = document.getElementById('planSummary');
   if (summaryEl) summaryEl.innerText = summary;
   document.getElementById('businessName').value = state.businessName;
@@ -652,7 +659,7 @@ function applyPlannerPreset() {
   document.getElementById('growthRange').value = Math.min(growth, 30);
   renderAll();
   switchToPage('dashboard');
-  showFlash('✅ পূর্ণ financial plan তৈরি হয়েছে');
+  showFlash('✅ পূর্ণ ফাইন্যান্স প্ল্যান তৈরি হয়েছে');
 }
 
 // ==================== PDF & CLOUD SAVING ====================
