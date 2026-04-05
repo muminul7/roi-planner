@@ -1086,6 +1086,15 @@ function initChart(id, type, data, options) {
   });
 }
 
+let chartDrawTimer = null;
+function scheduleChartDraw(delay = 80) {
+  if (chartDrawTimer) clearTimeout(chartDrawTimer);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => drawCharts());
+  });
+  chartDrawTimer = setTimeout(() => drawCharts(), delay);
+}
+
 function drawCharts() {
   const isMobile = window.innerWidth <= 768;
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1266,6 +1275,15 @@ function drawCharts() {
       backgroundColor: 'rgba(0,229,160,0.1)', 
       fill: true, tension: 0.4 
     }]
+  }, {
+    plugins: {
+      legend: { display: false },
+      depthFx: { enabled: true, color: 'rgba(18,34,60,.32)', blur: 10, offsetY: 6 }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#93a0b3', maxTicksLimit: isMobile ? 6 : 12, font: { size: isMobile ? 10 : 12 } } },
+      y: { grid: { color: 'rgba(116,132,152,.10)' }, ticks: { color: '#93a0b3', maxTicksLimit: 5, callback: (v) => fmt(Number(v)).replace('৳', '') } }
+    }
   });
 
   // 3b. Break-even Cumulative Revenue vs Cost
@@ -1286,6 +1304,15 @@ function drawCharts() {
       { label: 'Cumulative Revenue', data: cumRevenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: false, tension: 0.25 },
       { label: 'Cumulative Total Cost', data: cumCostData, borderColor: '#ff5c5c', backgroundColor: 'rgba(255,92,92,0.08)', fill: false, tension: 0.25 }
     ]
+  }, {
+    plugins: {
+      legend: { position: 'top', align: 'start', labels: { color: '#cbd4e5', boxWidth: isMobile ? 8 : 10, boxHeight: isMobile ? 8 : 10, padding: isMobile ? 8 : 12, font: { size: isMobile ? 10 : 12 } } },
+      depthFx: { enabled: true, color: 'rgba(18,34,60,.32)', blur: 10, offsetY: 6 }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#93a0b3', maxTicksLimit: isMobile ? 6 : 12, font: { size: isMobile ? 10 : 12 } } },
+      y: { grid: { color: 'rgba(116,132,152,.10)' }, ticks: { color: '#93a0b3', maxTicksLimit: 5, callback: (v) => fmt(Number(v)).replace('৳', '') } }
+    }
   });
 
   // 4. Scenarios
@@ -1359,7 +1386,7 @@ function switchToPage(page) {
   const pageEl = document.getElementById('page-' + page);
   if (nav) nav.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
-  requestAnimationFrame(() => drawCharts());
+  scheduleChartDraw();
 }
 function applyPlannerControls() {
   const amortInput = document.getElementById('planAmortizationYears');
@@ -1621,14 +1648,14 @@ document.querySelectorAll('.nav-item').forEach(el => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('page-' + el.dataset.page).classList.add('active');
-    requestAnimationFrame(() => drawCharts());
+    scheduleChartDraw();
   });
 });
 
 let resizeTimer = null;
 window.addEventListener('resize', () => {
   if (resizeTimer) clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => drawCharts(), 120);
+  resizeTimer = setTimeout(() => scheduleChartDraw(20), 120);
 });
 
 document.getElementById('businessName').addEventListener('input', e => { state.businessName = e.target.value; renderAll(); });
@@ -1647,6 +1674,7 @@ window.onload = () => {
     state.revenue = [{id:uid(), name:'Web Design', price:40000, qty:3, useGlobal:true}];
   }
   renderAll();
+  scheduleChartDraw();
 };
 </script>
 </body>
