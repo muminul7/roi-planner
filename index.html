@@ -62,7 +62,7 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .page-subtitle{font-size:14px;color:var(--text2);margin-top:4px;line-height:1.6}
 
 .card-grid{display:grid;gap:20px;align-items:start}
-.dashboard-chart-grid{margin-top:4px}
+.dashboard-chart-grid{margin-top:4px;align-items:stretch}
 .grid-2{grid-template-columns:1fr 1fr}
 .grid-3{grid-template-columns:1fr 1fr 1fr}
 .grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
@@ -84,10 +84,13 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 }
 .chart-card canvas{display:block;width:100% !important;height:260px !important;position:relative;z-index:1}
 .chart-card.chart-tall canvas{height:320px !important}
-.donut-chart-card{display:flex;flex-direction:column}
-.donut-chart-wrap{position:relative;width:min(100%,430px);aspect-ratio:1/1;margin:8px auto 2px}
+.combo-chart-card,.donut-chart-card{display:flex;flex-direction:column}
+.combo-chart-wrap{position:relative;flex:1;display:flex;align-items:center}
+.combo-chart-wrap canvas{height:100% !important}
+.donut-chart-wrap{position:relative;width:min(100%,390px);aspect-ratio:1/1;margin:8px auto 2px}
 .donut-chart-wrap canvas{width:100% !important;height:100% !important}
-.combo-chart-card canvas{height:320px !important}
+.dashboard-chart-grid > .chart-card{min-height:460px}
+.combo-chart-card canvas{height:350px !important}
 
 .kpi{background:linear-gradient(180deg,var(--surface2),#17202d);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
 .kpi::before{content:"";position:absolute;left:0;top:0;height:2px;width:100%;background:linear-gradient(90deg,var(--accent),transparent)}
@@ -176,6 +179,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .quick-actions .btn{width:100%;padding-inline:12px}
   .card{padding:15px;border-radius:14px}
   .dashboard-chart-grid{margin-top:8px}
+  .dashboard-chart-grid > .chart-card{min-height:auto}
   .card[style*="grid-column: span 2"]{grid-column:auto !important}
   .card-title{margin-bottom:12px}
   .page-title{font-size:clamp(20px,6vw,23px)}
@@ -290,7 +294,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="card"><div class="card-title">Expense Leak Finder</div><div id="expenseLeakFinder"></div></div>
     </div>
     <div class="card-grid grid-2 dashboard-chart-grid">
-      <div class="card chart-card combo-chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
+      <div class="card chart-card combo-chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><div class="combo-chart-wrap"><canvas id="chartCashflow"></canvas></div></div>
       <div class="card chart-card donut-chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><div class="donut-chart-wrap"><canvas id="chartCostDonut"></canvas></div></div>
     </div>
   </div>
