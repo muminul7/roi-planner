@@ -823,75 +823,119 @@ function buildActionNotes(monthZero, annualROI, margin, breakEvenMonths) {
   return notes.slice(0, 3);
 }
 
-function buildReportPageClone(pageId, sectionLabel, sectionIndex) {
-  const sourcePage = document.getElementById(pageId);
-  if (!sourcePage) return null;
-  const clone = sourcePage.cloneNode(true);
-  clone.style.display = 'flex';
-  clone.style.padding = '0';
-  clone.style.gap = '16px';
-  clone.style.minHeight = 'auto';
-  clone.style.background = 'transparent';
-  clone.style.color = '#f8f9fa';
-  clone.querySelectorAll('[data-html2canvas-ignore="true"], button').forEach(el => el.remove());
-  clone.querySelectorAll('.page-header').forEach(el => {
-    el.style.display = 'block';
-    el.style.marginBottom = '16px';
+function buildDocTable(headers, rows) {
+  const thead = `<thead><tr>${headers.map(h => `<th style="text-align:left;padding:8px;border:1px solid #333;background:#f2f2f2;">${h}</th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${rows.map(row => `<tr>${row.map(c => `<td style="padding:8px;border:1px solid #333;vertical-align:top;">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  return `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">${thead}${tbody}</table>`;
+}
+
+function buildPrintableReport(mode = 'full') {
+  const monthZero = getFinancials(0);
+  const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
+  const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
+  const breakEven = breakEvenMonths(monthZero.netProfit);
+  const breakEvenDate = breakEvenDateLabel(breakEven);
+  const fundingNeed = Math.max(0, fundingGap(monthZero.netProfit));
+  const loanService = state.opex
+    .filter(item => /loan/i.test(item.name || '') || /loan/i.test(item.category || ''))
+    .reduce((sum, item) => sum + item.monthly, 0);
+  const dscr = loanService > 0 ? (monthZero.netProfit + loanService) / loanService : null;
+  const notes = buildActionNotes(monthZero, annualROI, margin, breakEven);
+
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + i);
+    const f = getFinancials(i);
+    return [d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }), fmt(f.rev), fmt(f.costs), fmt(f.netProfit)];
   });
-  clone.querySelectorAll('.page-title').forEach(el => {
-    el.style.fontSize = '22px';
-    el.style.marginBottom = '6px';
-  });
-  clone.querySelectorAll('.page-subtitle').forEach(el => {
-    el.style.fontSize = '13px';
-  });
-  clone.querySelectorAll('.card-grid.grid-4').forEach(el => {
-    el.style.gridTemplateColumns = '1fr 1fr';
-  });
-  clone.querySelectorAll('.card-grid.grid-3').forEach(el => {
-    el.style.gridTemplateColumns = '1fr 1fr';
-  });
-  clone.querySelectorAll('.card-grid.grid-2').forEach(el => {
-    el.style.gridTemplateColumns = '1fr 1fr';
-  });
-  clone.querySelectorAll('.table-wrap').forEach(el => {
-    el.style.overflow = 'visible';
-  });
-  clone.querySelectorAll('.data-table').forEach(el => {
-    el.style.minWidth = '0';
-    el.style.width = '100%';
-    el.style.tableLayout = 'fixed';
-  });
-  clone.querySelectorAll('canvas').forEach(canvasClone => {
-    const original = document.getElementById(canvasClone.id);
-    if (!original) {
-      canvasClone.remove();
-      return;
-    }
-    const img = document.createElement('img');
-    img.src = original.toDataURL('image/png', 1);
-    img.style.width = '100%';
-    img.style.height = canvasClone.closest('.chart-tall') ? '280px' : '220px';
-    img.style.objectFit = 'contain';
-    img.style.display = 'block';
-    canvasClone.replaceWith(img);
-  });
-  const wrapper = document.createElement('section');
-  wrapper.style.padding = '20px 18px 22px';
-  wrapper.style.marginBottom = '20px';
-  wrapper.style.background = '#141b25';
-  wrapper.style.border = '1px solid #2b3647';
-  wrapper.style.borderRadius = '16px';
-  wrapper.style.pageBreakInside = 'avoid';
-  if (sectionIndex > 0) wrapper.style.pageBreakBefore = 'always';
-  wrapper.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div style="font:600 11px Inter,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#00e5a0;">Section ${sectionIndex + 1}</div>
-      <div style="font:500 12px Inter,sans-serif; color:#9cb0cc;">${sectionLabel}</div>
+
+  const root = document.createElement('div');
+  root.style.background = '#fff';
+  root.style.color = '#000';
+  root.style.padding = '24px';
+  root.style.width = '794px';
+  root.style.fontFamily = 'Arial, Hind Siliguri, sans-serif';
+  root.innerHTML = `
+    <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
+      <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
+      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'Investor/Bank Ready Financial Report' : 'Financial Planning Report'}</div>
+      <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">Executive Summary</div>
+      <div style="font-size:12px;line-height:1.8;margin-top:6px;">
+        Monthly Revenue: <strong>${fmt(monthZero.rev)}</strong> |
+        Monthly Net Profit: <strong>${fmt(monthZero.netProfit)}</strong> |
+        Annual ROI: <strong>${annualROI.toFixed(1)}%</strong><br>
+        Break-even: <strong>${breakEven ? `${breakEven} months (${breakEvenDate})` : 'Not reached'}</strong> |
+        Net Margin: <strong>${margin.toFixed(1)}%</strong>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">Financial Expert Notes</div>
+      <div style="font-size:12px;line-height:1.8;margin-top:6px;">${notes.map((n, i) => `${i + 1}. ${n}`).join('<br>')}</div>
     </div>
   `;
-  wrapper.appendChild(clone);
-  return wrapper;
+
+  root.innerHTML += `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">CAPEX Details</div>
+      ${buildDocTable(
+        ['Item', 'Category', 'Amount', 'Amortization (Years)', 'Monthly Amortized'],
+        (state.capex.length ? state.capex : [{ name: '-', category: '-', amount: 0, amortization: 1 }]).map(c => [
+          c.name, c.category, fmt(c.amount), String(c.amortization), fmt(c.amount / (c.amortization * 12))
+        ])
+      )}
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">OPEX Details</div>
+      ${buildDocTable(
+        ['Expense', 'Category', 'Monthly', 'Annual'],
+        (state.opex.length ? state.opex : [{ name: '-', category: '-', monthly: 0 }]).map(o => [
+          o.name, o.category, fmt(o.monthly), fmt(o.monthly * 12)
+        ])
+      )}
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">Revenue Details</div>
+      ${buildDocTable(
+        ['Stream', 'Unit Price', 'Qty', 'Utilization', 'Growth', 'Monthly Revenue'],
+        (state.revenue.length ? state.revenue : [{ name: '-', price: 0, qty: 0, useGlobal: true, utilization: 0, growth: 0 }]).map(r => [
+          r.name,
+          fmt(r.price),
+          String(r.qty),
+          r.useGlobal ? `${state.globalUtil}%` : `${r.utilization}%`,
+          r.useGlobal ? `${state.globalGrowth}%` : `${r.growth}%`,
+          fmt(r.price * r.qty * ((r.useGlobal ? state.globalUtil : r.utilization) / 100))
+        ])
+      )}
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">12-Month Projection</div>
+      ${buildDocTable(['Month', 'Revenue', 'Total Cost', 'Net Profit'], months)}
+    </div>
+  `;
+
+  if (mode === 'investor') {
+    root.innerHTML += `
+      <div style="margin-bottom:16px;page-break-before:always;">
+        <div style="font-size:16px;font-weight:700;">Investor/Bank Snapshot</div>
+        ${buildDocTable(
+          ['Metric', 'Value'],
+          [
+            ['Annual Net Profit', fmt(monthZero.netProfit * 12)],
+            ['Funding Need', fmt(fundingNeed)],
+            ['Break-even Target', breakEven ? `${breakEven} months (${breakEvenDate})` : 'Not reached'],
+            ['DSCR', dscr ? dscr.toFixed(2) : 'N/A'],
+            ['Opening Cash', fmt(state.openingCash || 0)],
+            ['Reserve Target', fmt(reserveTarget())]
+          ]
+        )}
+      </div>
+    `;
+  }
+
+  return root;
 }
 
 function downloadInvestorBankPDF() {
@@ -903,103 +947,16 @@ async function downloadProfessionalPDF(mode = 'full') {
     showFlash('PDF library failed to load');
     return;
   }
-  drawCharts();
-  showFlash('Premium report তৈরি হচ্ছে...');
-  const exportRoot = document.createElement('div');
-  exportRoot.style.background = 'linear-gradient(180deg,#0c121a,#101822)';
-  exportRoot.style.padding = '32px';
-  exportRoot.style.width = '794px';
-  exportRoot.style.color = '#f8f9fa';
-  exportRoot.style.fontFamily = 'Inter, sans-serif';
-
-  const monthZero = getFinancials(0);
-  const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
-  const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
-  const breakEvenMonths = monthZero.netProfit > 0 && totalCapex() > 0 ? Math.ceil(totalCapex() / monthZero.netProfit) : null;
-  const breakEvenDate = breakEvenDateLabel(breakEvenMonths);
-  const fundingNeed = Math.max(0, fundingGap(monthZero.netProfit));
-  const loanService = state.opex
-    .filter(item => /loan/i.test(item.name || '') || /loan/i.test(item.category || ''))
-    .reduce((sum, item) => sum + item.monthly, 0);
-  const dscr = loanService > 0 ? (monthZero.netProfit + loanService) / loanService : null;
-  const health = reportHealthScore(annualROI, margin, breakEvenMonths);
-  const actionNotes = buildActionNotes(monthZero, annualROI, margin, breakEvenMonths);
-  const header = document.createElement('div');
-  header.style.marginBottom = '24px';
-  header.style.padding = '0 0 20px';
-  header.style.borderBottom = '1px solid #2b303b';
-  header.innerHTML = `
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;">
-      <div>
-        <div style="font:700 30px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
-        <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">${mode === 'investor' ? 'Investor/Bank Ready Financial Report · A4' : 'বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4'}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#7f92ad; text-transform:uppercase;">Business Health</div>
-        <div style="font:700 30px Inter,sans-serif; color:${health >= 70 ? '#00e5a0' : health >= 45 ? '#f4b942' : '#ff5c5c'};">${health}/100</div>
-      </div>
-    </div>
-    <div style="font:500 12px Inter,sans-serif; color:#8fa2be; margin-bottom:16px;">Generated: ${new Date().toLocaleDateString('en-GB')} · Currency: BDT</div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">মাসিক আয়</div>
-        <div style="font-size:24px; font-weight:700; color:#00e5a0;">${fmt(monthZero.rev)}</div>
-      </div>
-      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">ট্যাক্স পর নিট লাভ</div>
-        <div style="font-size:24px; font-weight:700; color:${monthZero.netProfit >= 0 ? '#16a34a' : '#ff5c5c'};">${fmt(monthZero.netProfit)}</div>
-      </div>
-      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">মোট CAPEX</div>
-        <div style="font-size:24px; font-weight:700; color:#fff;">${fmt(totalCapex())}</div>
-      </div>
-      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">বার্ষিক ROI</div>
-        <div style="font-size:24px; font-weight:700; color:${annualROI >= 0 ? '#00e5a0' : '#ff5c5c'};">${annualROI.toFixed(1)}%</div>
-      </div>
-    </div>
-    <div style="margin-top:14px; background:#141b25; border:1px solid #2b3647; border-radius:12px; padding:12px 14px;">
-      <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#00e5a0; text-transform:uppercase; margin-bottom:8px;">Executive Notes</div>
-      ${actionNotes.map((n, i) => `<div style="font-size:12px;color:#c8d3e4;line-height:1.7;">${i + 1}. ${n}</div>`).join('')}
-      <div style="font-size:12px;color:#8fa2be;line-height:1.6;margin-top:6px;">আনুমানিক Break-even: ${breakEvenMonths ? breakEvenMonths + ' মাস' : 'Not reached'} (${breakEvenDate}) · Net Margin: ${margin.toFixed(1)}%</div>
-    </div>
-  `;
-  if (mode === 'investor') {
-    header.innerHTML += `
-      <div style="margin-top:14px; background:#101a26; border:1px solid #314055; border-radius:12px; padding:12px 14px;">
-        <div style="font:600 11px Inter,sans-serif; letter-spacing:.1em; color:#00e5a0; text-transform:uppercase; margin-bottom:8px;">Investor / Bank Snapshot</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div style="font-size:12px;color:#c8d3e4;">Annual Net Profit: <strong>${fmt(monthZero.netProfit * 12)}</strong></div>
-          <div style="font-size:12px;color:#c8d3e4;">Funding Need: <strong>${fmt(fundingNeed)}</strong></div>
-          <div style="font-size:12px;color:#c8d3e4;">Break-even Target: <strong>${breakEvenDate}</strong></div>
-          <div style="font-size:12px;color:#c8d3e4;">DSCR: <strong>${dscr ? dscr.toFixed(2) : 'N/A'}</strong></div>
-        </div>
-      </div>
-    `;
-  }
-  exportRoot.appendChild(header);
-
-  [
-    ['page-dashboard', 'ড্যাশবোর্ড'],
-    ['page-planner', 'নতুন উদ্যোক্তা প্ল্যানার ইনপুট'],
-    ['page-capex', 'প্রাথমিক বিনিয়োগ (CAPEX)'],
-    ['page-opex', 'মাসিক অপারেটিং খরচ (OPEX)'],
-    ['page-revenue', 'আয়ের উৎস ও গ্লোবাল সেটিংস'],
-    ['page-roi', 'ROI সারসংক্ষেপ ও প্রক্ষেপণ'],
-    ['page-scenarios', 'সিনারিও বিশ্লেষণ'],
-  ].forEach(([pageId, label], idx) => {
-    const section = buildReportPageClone(pageId, label, idx);
-    if (section) exportRoot.appendChild(section);
-  });
-
+  showFlash('Printable PDF তৈরি হচ্ছে...');
+  const exportRoot = buildPrintableReport(mode);
   document.body.appendChild(exportRoot);
 
   try {
     const opt = {
-      margin: [6, 6, 6, 6],
+      margin: [10, 10, 10, 10],
       filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}${mode === 'investor' ? '_investor_bank_report' : '_full_report'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#181b21', scrollX: 0, scrollY: 0 },
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['css', 'legacy'] }
     };
