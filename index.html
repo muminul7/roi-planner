@@ -486,42 +486,131 @@ function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); 
 function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
 
 // ==================== PDF & CLOUD SAVING ====================
+function buildReportPageClone(pageId, sectionLabel) {
+  const sourcePage = document.getElementById(pageId);
+  if (!sourcePage) return null;
+  const clone = sourcePage.cloneNode(true);
+  clone.style.display = 'flex';
+  clone.style.padding = '0';
+  clone.style.gap = '16px';
+  clone.style.minHeight = 'auto';
+  clone.style.background = 'transparent';
+  clone.style.color = '#f8f9fa';
+  clone.querySelectorAll('[data-html2canvas-ignore="true"], button').forEach(el => el.remove());
+  clone.querySelectorAll('.page-header').forEach(el => {
+    el.style.display = 'block';
+    el.style.marginBottom = '16px';
+  });
+  clone.querySelectorAll('.page-title').forEach(el => {
+    el.style.fontSize = '22px';
+    el.style.marginBottom = '6px';
+  });
+  clone.querySelectorAll('.page-subtitle').forEach(el => {
+    el.style.fontSize = '13px';
+  });
+  clone.querySelectorAll('.card-grid.grid-4').forEach(el => {
+    el.style.gridTemplateColumns = '1fr 1fr';
+  });
+  clone.querySelectorAll('.card-grid.grid-3').forEach(el => {
+    el.style.gridTemplateColumns = '1fr 1fr';
+  });
+  clone.querySelectorAll('.card-grid.grid-2').forEach(el => {
+    el.style.gridTemplateColumns = '1fr 1fr';
+  });
+  clone.querySelectorAll('.table-wrap').forEach(el => {
+    el.style.overflow = 'visible';
+  });
+  clone.querySelectorAll('.data-table').forEach(el => {
+    el.style.minWidth = '0';
+    el.style.width = '100%';
+    el.style.tableLayout = 'fixed';
+  });
+  clone.querySelectorAll('canvas').forEach(canvasClone => {
+    const original = document.getElementById(canvasClone.id);
+    if (!original) {
+      canvasClone.remove();
+      return;
+    }
+    const img = document.createElement('img');
+    img.src = original.toDataURL('image/png', 1);
+    img.style.width = '100%';
+    img.style.height = canvasClone.closest('.chart-tall') ? '280px' : '220px';
+    img.style.objectFit = 'contain';
+    img.style.display = 'block';
+    canvasClone.replaceWith(img);
+  });
+  const wrapper = document.createElement('section');
+  wrapper.style.padding = '0 0 24px';
+  wrapper.style.marginBottom = '24px';
+  wrapper.style.borderBottom = '1px solid #2b303b';
+  wrapper.style.pageBreakInside = 'avoid';
+  wrapper.innerHTML = `<div style="font:600 11px Inter,sans-serif; letter-spacing:.12em; text-transform:uppercase; color:#00e5a0; margin-bottom:12px;">${sectionLabel}</div>`;
+  wrapper.appendChild(clone);
+  return wrapper;
+}
+
 async function downloadProfessionalPDF() {
   if (typeof html2pdf === 'undefined') {
     showFlash('PDF library failed to load');
     return;
   }
-  const activePage = document.querySelector('.page.active');
-  if (!activePage) {
-    showFlash('Nothing to export');
-    return;
-  }
+  drawCharts();
   showFlash('Generating PDF...');
   const exportRoot = document.createElement('div');
-  exportRoot.style.background = '#181b21';
-  exportRoot.style.padding = '24px';
-  exportRoot.style.width = '1200px';
+  exportRoot.style.background = '#101318';
+  exportRoot.style.padding = '32px';
+  exportRoot.style.width = '794px';
   exportRoot.style.color = '#f8f9fa';
+  exportRoot.style.fontFamily = 'Inter, sans-serif';
 
+  const monthZero = getFinancials(0);
+  const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
   const header = document.createElement('div');
-  header.style.marginBottom = '20px';
+  header.style.marginBottom = '24px';
+  header.style.padding = '0 0 20px';
+  header.style.borderBottom = '1px solid #2b303b';
   header.innerHTML = `
-    <div style="font:700 24px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
-    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">${activePage.querySelector('.page-title')?.textContent || 'Planner Export'}</div>
+    <div style="font:700 28px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
+    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0; margin-bottom:16px;">Complete ROI planning report · A4 export</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Monthly Revenue</div>
+        <div style="font-size:24px; font-weight:700; color:#00e5a0;">${fmt(monthZero.rev)}</div>
+      </div>
+      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Net Profit After Tax</div>
+        <div style="font-size:24px; font-weight:700; color:${monthZero.netProfit >= 0 ? '#16a34a' : '#ff5c5c'};">${fmt(monthZero.netProfit)}</div>
+      </div>
+      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Total CAPEX</div>
+        <div style="font-size:24px; font-weight:700; color:#fff;">${fmt(totalCapex())}</div>
+      </div>
+      <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Annual ROI</div>
+        <div style="font-size:24px; font-weight:700; color:${annualROI >= 0 ? '#00e5a0' : '#ff5c5c'};">${annualROI.toFixed(1)}%</div>
+      </div>
+    </div>
   `;
   exportRoot.appendChild(header);
 
-  const pageClone = activePage.cloneNode(true);
-  pageClone.style.display = 'flex';
-  pageClone.style.padding = '0';
-  pageClone.querySelectorAll('[data-html2canvas-ignore="true"], button').forEach(el => el.remove());
-  exportRoot.appendChild(pageClone);
+  [
+    ['page-dashboard', 'Dashboard'],
+    ['page-capex', 'Capital Expenditure'],
+    ['page-opex', 'Operating Expenses'],
+    ['page-revenue', 'Revenue & Global Settings'],
+    ['page-roi', 'ROI Summary & Forecast'],
+    ['page-scenarios', 'Scenario Analysis'],
+  ].forEach(([pageId, label]) => {
+    const section = buildReportPageClone(pageId, label);
+    if (section) exportRoot.appendChild(section);
+  });
+
   document.body.appendChild(exportRoot);
 
   try {
     const opt = {
-      margin: [8, 8, 8, 8],
-      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}_${(activePage.id || 'page').replace('page-','')}.pdf`,
+      margin: [6, 6, 6, 6],
+      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}_full_report.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#181b21', scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
