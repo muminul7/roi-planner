@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RoI Planner Pro - Ultimate Edition</title>
-<!-- Libraries: Chart.js, html2pdf & Supabase -->
+<title>Uddokta ROI Studio</title>
+<!-- Libraries: Chart.js, html2pdf -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -142,14 +141,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="nav-item" data-page="capex">🏗️ প্রাথমিক বিনিয়োগ</div>
     <div class="nav-item" data-page="opex">💸 মাসিক খরচ</div>
     <div class="nav-item" data-page="revenue">💰 আয়ের উৎস</div>
-    <div class="nav-item" data-page="roi">📈 ROI ও ৩ বছরের প্রক্ষেপণ</div>
-    <div class="nav-item" data-page="scenarios">🔮 সিনারিও বিশ্লেষণ</div>
-    <div class="nav-item" data-page="admin">🔐 লিড প্যানেল</div>
+    <div class="nav-item" data-page="roi">📈 ROI সারাংশ</div>
+    <div class="nav-item" data-page="scenarios">🔮 কী হলে কী হবে</div>
   </nav>
   <div class="sidebar-footer">
     <button class="btn btn-primary" onclick="downloadProfessionalPDF()">📥 পূর্ণ রিপোর্ট PDF</button>
     <button class="btn btn-outline" onclick="shareLink()">🔗 লিংক শেয়ার</button>
-    <button class="btn btn-outline" style="font-size:11px; padding:8px" onclick="saveToCloud()">☁️ ক্লাউডে সেভ</button>
   </div>
 </aside>
 
@@ -174,51 +171,51 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- CAPEX -->
   <div class="page" id="page-capex">
     <div class="page-header">
-      <div><div class="page-title">Capital Expenditure (CAPEX)</div><div class="page-subtitle">One-time investments & assets</div></div>
-      <button class="btn btn-primary" onclick="openModal('capex')" data-html2canvas-ignore="true">+ Add CAPEX</button>
+      <div><div class="page-title">প্রাথমিক বিনিয়োগ (CAPEX)</div><div class="page-subtitle">শুরুতে একবার যে টাকা লাগবে</div></div>
+      <button class="btn btn-primary" onclick="openModal('capex')" data-html2canvas-ignore="true">+ নতুন আইটেম</button>
     </div>
     <div class="card">
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>Item</th><th>Category</th><th>Amount</th><th>Amortization</th><th>Monthly Cost</th><th data-html2canvas-ignore="true">Action</th></tr></thead><tbody id="capexBody"></tbody></table></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>আইটেম</th><th>ক্যাটাগরি</th><th>টাকার পরিমাণ</th><th>কত বছরে ভাগ</th><th>মাসিক হিসাব</th><th data-html2canvas-ignore="true">অ্যাকশন</th></tr></thead><tbody id="capexBody"></tbody></table></div>
     </div>
   </div>
 
   <!-- OPEX -->
   <div class="page" id="page-opex">
     <div class="page-header">
-      <div><div class="page-title">Operating Expenses (OPEX)</div><div class="page-subtitle">Monthly recurring costs</div></div>
-      <button class="btn btn-primary" onclick="openModal('opex')" data-html2canvas-ignore="true">+ Add Expense</button>
+      <div><div class="page-title">মাসিক অপারেটিং খরচ (OPEX)</div><div class="page-subtitle">প্রতি মাসে নিয়মিত যে খরচ হয়</div></div>
+      <button class="btn btn-primary" onclick="openModal('opex')" data-html2canvas-ignore="true">+ নতুন খরচ</button>
     </div>
     <div class="card-grid grid-2">
       <div class="card">
-        <div class="table-wrap"><table class="data-table"><thead><tr><th>Expense</th><th>Category</th><th>Monthly</th><th>Annual</th><th data-html2canvas-ignore="true">Action</th></tr></thead><tbody id="opexBody"></tbody></table></div>
+        <div class="table-wrap"><table class="data-table"><thead><tr><th>খরচের নাম</th><th>ক্যাটাগরি</th><th>মাসিক</th><th>বার্ষিক</th><th data-html2canvas-ignore="true">অ্যাকশন</th></tr></thead><tbody id="opexBody"></tbody></table></div>
       </div>
-      <div class="card chart-card"><div class="card-title">OPEX Distribution</div><canvas id="chartOpex"></canvas></div>
+      <div class="card chart-card"><div class="card-title">খরচের বন্টন</div><canvas id="chartOpex"></canvas></div>
     </div>
   </div>
 
   <!-- REVENUE & SETTINGS -->
   <div class="page" id="page-revenue">
     <div class="page-header">
-      <div><div class="page-title">Revenue Streams & Settings</div><div class="page-subtitle">Services, products & global financial rules</div></div>
-      <button class="btn btn-primary" onclick="openModal('revenue')" data-html2canvas-ignore="true">+ Add Stream</button>
+      <div><div class="page-title">আয়ের উৎস ও সেটিংস</div><div class="page-subtitle">কোথা থেকে আয় আসবে সেটা সেট করুন</div></div>
+      <button class="btn btn-primary" onclick="openModal('revenue')" data-html2canvas-ignore="true">+ নতুন আয় উৎস</button>
     </div>
     <div class="card">
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>Stream</th><th>Price</th><th>Qty</th><th>Utilization</th><th>Growth/Mo</th><th>Monthly Rev</th><th data-html2canvas-ignore="true">Action</th></tr></thead><tbody id="revenueBody"></tbody></table></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>সেবা/পণ্য</th><th>দাম</th><th>পরিমাণ</th><th>ব্যবহারের হার</th><th>মাসিক গ্রোথ</th><th>মাসিক আয়</th><th data-html2canvas-ignore="true">অ্যাকশন</th></tr></thead><tbody id="revenueBody"></tbody></table></div>
     </div>
     <div class="card-grid grid-2">
-      <div class="card chart-card"><div class="card-title">Revenue Projections</div><canvas id="chartRevenue"></canvas></div>
+      <div class="card chart-card"><div class="card-title">আয়ের পূর্বাভাস</div><canvas id="chartRevenue"></canvas></div>
       <div class="card">
-        <div class="card-title">Global Variables & Taxes</div>
+        <div class="card-title">সহজ সেটিংস</div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Corporate Tax Rate (%)</span><span style="color:var(--accent)" id="taxLabel">15%</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">ট্যাক্স (%)</span><span style="color:var(--accent)" id="taxLabel">15%</span></div>
           <input type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); document.getElementById('taxLabel').innerText=this.value+'%'">
         </div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Global Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">গড় Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
           <input type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); document.getElementById('utilLabel').innerText=this.value+'%'">
         </div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Monthly Growth (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">মাসিক গ্রোথ (%)</span><span style="color:var(--accent)" id="growthLabel">3%</span></div>
           <input type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); document.getElementById('growthLabel').innerText=this.value+'%'">
         </div>
       </div>
@@ -227,50 +224,40 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
   <!-- ROI & 3-YEAR FORECAST -->
   <div class="page" id="page-roi">
-    <div class="page-header"><div><div class="page-title">RoI Summary & Forecast</div><div class="page-subtitle">Long-term financial projection (Including Taxes)</div></div></div>
+    <div class="page-header"><div><div class="page-title">ROI সারাংশ</div><div class="page-subtitle">লাভ-ক্ষতির সহজ সারাংশ</div></div></div>
     
     <div class="card-grid grid-3">
       <div class="card" style="text-align:center; padding:40px 20px">
-        <div class="card-title">Annual Return on Investment</div>
+        <div class="card-title">বার্ষিক Return on Investment</div>
         <div style="font-size:64px; font-weight:800; color:var(--accent); line-height:1" id="roiBig">0%</div>
         <div class="kpi-sub" id="roiSub">Calculating...</div>
       </div>
       <div class="card" style="grid-column: span 2;">
-        <div class="card-title">Net Profit & Loss Table</div>
+        <div class="card-title">লাভ-ক্ষতির টেবিল</div>
         <div class="table-wrap"><table class="data-table"><tbody id="plBody"></tbody></table></div>
       </div>
     </div>
     <div class="card chart-card chart-tall">
-      <div class="card-title">3-Year Cumulative Net Profit (Break-even Tracker)</div>
+      <div class="card-title">৩ বছরের মোট নিট লাভ (Break-even Tracker)</div>
       <canvas id="chart3Year"></canvas>
     </div>
   </div>
 
   <!-- SCENARIOS -->
   <div class="page" id="page-scenarios">
-    <div class="page-header"><div><div class="page-title">Scenario Analysis</div><div class="page-subtitle">Stress testing your business model</div></div></div>
-    <div class="card chart-card"><div class="card-title">Pessimistic vs Base vs Optimistic</div><canvas id="chartScenarios"></canvas></div>
-  </div>
-
-  <!-- ADMIN LEADS -->
-  <div class="page" id="page-admin">
-    <div class="page-header"><div><div class="page-title">Lead Gen Admin</div><div class="page-subtitle">Client ROI Report Requests</div></div></div>
-    <div class="card">
-      <div class="form-group"><label class="form-label">Admin Password</label><input type="password" id="adminPass" class="form-input" placeholder="Enter password to view leads"></div>
-      <button class="btn btn-primary" onclick="loadLeads()">Load Leads</button>
-      <div id="leadsContainer" style="margin-top:20px;"></div>
-    </div>
+    <div class="page-header"><div><div class="page-title">কি হলে কী হবে</div><div class="page-subtitle">খারাপ-মাঝারি-ভালো অবস্থায় লাভ কত হয় দেখুন</div></div></div>
+    <div class="card chart-card"><div class="card-title">সিনারিও তুলনা</div><canvas id="chartScenarios"></canvas></div>
   </div>
 </main>
 
 <!-- Generic Modal Form -->
 <div class="modal-backdrop" id="entryModal" onclick="if(event.target===this) this.classList.remove('open')">
   <div class="modal">
-    <h3 class="page-title" id="modalTitle" style="margin-bottom:20px; font-size:20px">Add Item</h3>
+    <h3 class="page-title" id="modalTitle" style="margin-bottom:20px; font-size:20px">নতুন আইটেম</h3>
     <div id="modalFormContent"></div>
     <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px">
-      <button class="btn btn-outline" onclick="document.getElementById('entryModal').classList.remove('open')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEntry()">Save Item</button>
+      <button class="btn btn-outline" onclick="document.getElementById('entryModal').classList.remove('open')">বাতিল</button>
+      <button class="btn btn-primary" onclick="saveEntry()">সেভ করুন</button>
     </div>
   </div>
 </div>
@@ -279,12 +266,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <script>
 // ==================== STATE & CONFIG ====================
-const SUPABASE_URL = 'https://duzorgwgbpohahrbtrtf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1em9yZ3dnYnBvaGFocmJ0cnRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTA2NjgsImV4cCI6MjA5MDc2NjY2OH0.iSa0rG6n5TyRUCciaXPPY6wibrJYjX7lYNFNqq87q9k';
-const supabaseClient = globalThis.supabase && typeof globalThis.supabase.createClient === 'function'
-  ? globalThis.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
-
 let state = {
   businessName: 'My Business', currency: 'BDT',
   globalUtil: 80, globalGrowth: 3, taxRate: 15,
@@ -364,9 +345,9 @@ function renderDashboard() {
 }
 
 function renderTables() {
-  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${c.category}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization}Y</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">🗑️</button></td></tr>`).join('');
+  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${c.category}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">🗑️</button></td></tr>`).join('');
   document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${o.category}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">🗑️</button></td></tr>`).join('');
-  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'Global':r.utilization+'%'}</td><td>${r.useGlobal?'Global':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">🗑️</button></td></tr>`).join('');
+  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">🗑️</button></td></tr>`).join('');
 }
 
 function renderROI() {
@@ -378,17 +359,17 @@ function renderROI() {
   document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট CAPEX ${fmt(totalCapex())} ভিত্তিতে হিসাব` : 'ROI দেখতে CAPEX যোগ করুন';
 
   document.getElementById('plBody').innerHTML = `
-    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/mo</td><td>${fmt(f.rev*12)}/yr</td></tr>
-    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/mo</td><td>${fmt(f.costs*12)}/yr</td></tr>
-    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/mo</td><td>${fmt(f.grossProfit*12)}/yr</td></tr>
-    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/mo</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/yr</td></tr>
-    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/mo</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/yr</td></tr>
+    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(f.rev*12)}/বছর</td></tr>
+    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/মাস</td><td>${fmt(f.costs*12)}/বছর</td></tr>
+    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(f.grossProfit*12)}/বছর</td></tr>
+    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/বছর</td></tr>
+    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/বছর</td></tr>
   `;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
 Chart.defaults.color = '#a1a5b0';
-Chart.defaults.font.family = 'Inter';
+Chart.defaults.font.family = 'Plus Jakarta Sans, Hind Siliguri, sans-serif';
 
 function initChart(id, type, data, options) {
   if (typeof Chart === 'undefined') return;
@@ -483,21 +464,21 @@ function openModal(type) {
   currentModalType = type;
   let html = '';
   if(type==='capex') html = `
-    <div class="form-group"><label class="form-label">Item Name</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">Category</label><select class="form-input" id="mCat"><option>Equipment</option><option>Software</option><option>Furniture</option><option>Other</option></select></div>
-    <div class="form-group"><label class="form-label">Amount</label><input class="form-input" type="number" id="mVal"></div>
-    <div class="form-group"><label class="form-label">Amortization (Years)</label><input class="form-input" type="number" id="mAmo" value="3"></div>
+    <div class="form-group"><label class="form-label">আইটেমের নাম</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>Equipment</option><option>Software</option><option>Furniture</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">টাকার পরিমাণ</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">কত বছরে ভাগ হবে</label><input class="form-input" type="number" id="mAmo" value="3"></div>
   `;
   else if(type==='opex') html = `
-    <div class="form-group"><label class="form-label">Expense Name</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">Category</label><select class="form-input" id="mCat"><option>Rent</option><option>Salaries</option><option>Marketing</option><option>Other</option></select></div>
-    <div class="form-group"><label class="form-label">Monthly Amount</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">খরচের নাম</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>Rent</option><option>Salaries</option><option>Marketing</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">মাসিক খরচ</label><input class="form-input" type="number" id="mVal"></div>
   `;
   else if(type==='revenue') html = `
-    <div class="form-group"><label class="form-label">Stream Name</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">Price per unit</label><input class="form-input" type="number" id="mVal"></div>
-    <div class="form-group"><label class="form-label">Quantity per month</label><input class="form-input" type="number" id="mQty" value="1"></div>
-    <div style="margin-top:10px"><input type="checkbox" id="mGlobal" checked> <label class="form-label">Use Global Utilization & Growth</label></div>
+    <div class="form-group"><label class="form-label">আয়ের উৎসের নাম</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">প্রতি ইউনিট দাম</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">মাসে ইউনিট সংখ্যা</label><input class="form-input" type="number" id="mQty" value="1"></div>
+    <div style="margin-top:10px"><input type="checkbox" id="mGlobal" checked> <label class="form-label">গ্লোবাল utilization + growth ব্যবহার করুন</label></div>
   `;
   
   document.getElementById('modalFormContent').innerHTML = html;
@@ -507,7 +488,7 @@ function openModal(type) {
 function saveEntry() {
   let name = document.getElementById('mName').value;
   let val = parseFloat(document.getElementById('mVal').value);
-  if(!name || !val) return showFlash('Please fill all fields');
+  if(!name || !val) return showFlash('সব ঘর পূরণ করুন');
 
   if(currentModalType==='capex') state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization:parseInt(document.getElementById('mAmo').value)});
   else if(currentModalType==='opex') state.opex.push({id:uid(), name, category:document.getElementById('mCat').value, monthly:val});
@@ -711,53 +692,11 @@ async function downloadProfessionalPDF() {
   }
 }
 
-async function saveToCloud() {
-  showFlash('Saving to Cloud...');
-  try {
-    if (!supabaseClient) {
-      localStorage.setItem('roi_cloud_backup', JSON.stringify(state));
-      showFlash('Saved locally. Cloud unavailable.');
-      return;
-    }
-    // Note: For real auth, you'd use supabase.auth.signInWithPassword()
-    // Since we don't have a specific table structure from you, we'll save it to local first, 
-    // but the API is ready if you create a 'saved_projects' table in Supabase.
-    
-    // const { data, error } = await supabase.from('saved_projects').insert([{ project_data: state }]);
-    // if(error) throw error;
-    
-    localStorage.setItem('roi_cloud_backup', JSON.stringify(state)); // Mocking cloud save
-    setTimeout(() => showFlash('✅ Saved to Cloud Successfully!'), 1000);
-  } catch(e) { showFlash('❌ Cloud save failed'); }
-}
-
 function shareLink() {
   normalizeCurrency();
   const d = btoa(JSON.stringify({ ...state, currency: 'BDT' }));
   const url = location.href.split('?')[0] + '?data=' + encodeURIComponent(d);
-  navigator.clipboard.writeText(url).then(()=>showFlash('🔗 Share Link Copied!'));
-}
-
-// ==================== ADMIN SYSTEM ====================
-async function loadLeads() {
-  let pass = document.getElementById('adminPass').value;
-  if(pass !== 'socialgeek2025') return showFlash('❌ Wrong Password');
-  if (!supabaseClient) {
-    document.getElementById('leadsContainer').innerHTML = 'Supabase failed to load.';
-    return;
-  }
-  
-  document.getElementById('leadsContainer').innerHTML = 'Loading...';
-  const { data, error } = await supabaseClient.from('roi_leads').select('*').order('created_at', { ascending: false });
-  
-  if(error) return document.getElementById('leadsContainer').innerHTML = 'Failed to load leads.';
-  
-  document.getElementById('leadsContainer').innerHTML = `
-    <table class="data-table">
-      <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Annual ROI</th><th>Date</th></tr></thead>
-      <tbody>${data.map(l=>`<tr><td>${l.name}</td><td>${l.email}</td><td>${l.company||'-'}</td><td style="color:${l.annual_roi>0?'#00e5a0':'#ff5c5c'}">${(l.annual_roi||0).toFixed(1)}%</td><td>${new Date(l.created_at).toLocaleDateString()}</td></tr>`).join('')}</tbody>
-    </table>
-  `;
+  navigator.clipboard.writeText(url).then(()=>showFlash('🔗 লিংক কপি হয়েছে'));
 }
 
 // ==================== INIT & EVENT LISTENERS ====================
