@@ -223,7 +223,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div class="card"><div class="card-title">Expense Leak Finder</div><div id="expenseLeakFinder"></div></div>
     </div>
     <div class="card-grid grid-2">
-      <div class="card chart-card"><div class="card-title">১২ মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
+      <div class="card chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
       <div class="card chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><canvas id="chartCostDonut"></canvas></div>
     </div>
   </div>
@@ -327,7 +327,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
     </div>
     <div class="card chart-card chart-tall">
-      <div class="card-title">৩ বছরের মোট নিট লাভ (Break-even Tracker)</div>
+      <div class="card-title">3 বছরের মোট নিট লাভ (Break-even Tracker)</div>
       <canvas id="chart3Year"></canvas>
     </div>
   </div>
@@ -405,11 +405,11 @@ function breakEvenDateLabel(months) {
   if (!months) return 'নির্ধারণ হয়নি';
   const d = new Date();
   d.setMonth(d.getMonth() + months);
-  return d.toLocaleDateString('bn-BD', { month: 'long', year: 'numeric' });
+  return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 }
 function cashRunwayMonths(netProfit) {
   if (netProfit >= 0) return 'সেফ (cash burn নেই)';
-  if (!state.openingCash || state.openingCash <= 0) return '০ মাস';
+  if (!state.openingCash || state.openingCash <= 0) return '0 মাস';
   return `${(state.openingCash / Math.abs(netProfit)).toFixed(1)} মাস`;
 }
 function runwayMonthsNumber(netProfit) {
@@ -427,8 +427,8 @@ function fundingGap(netProfit) {
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
-  if (netProfit < 0) items.push({ level: 'danger', title: 'Loss Alert', body: 'ব্যবসা এখনো লোকসানে। আগামী ৩০ দিনে cost cut + high-margin sale দরকার।' });
-  if (margin < 12) items.push({ level: 'warn', title: 'Low Margin', body: `Net margin ${margin.toFixed(1)}%। ১৫%+ টার্গেট করুন।` });
+  if (netProfit < 0) items.push({ level: 'danger', title: 'Loss Alert', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে cost cut + high-margin sale দরকার।' });
+  if (margin < 12) items.push({ level: 'warn', title: 'Low Margin', body: `Net margin ${margin.toFixed(1)}%। 15%+ টার্গেট করুন।` });
   if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'Break-even Delay', body: `Target ${target} মাস, projected ${breakEven} মাস। growth বা price revise করুন।` });
   if (gap > 0) items.push({ level: 'danger', title: 'Funding Gap', body: `আনুমানিক ঘাটতি ${fmt(gap)}। phase-wise funding plan দরকার।` });
   if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'Runway Critical', body: `Runway ${runwayNum.toFixed(1)} মাস। জরুরি ক্যাশ প্ল্যান করুন।` });
@@ -445,7 +445,7 @@ function getExpenseLeakItems() {
   if (!leaks.length) return [{ title: 'Healthy Mix', body: 'OPEX distribution balanced আছে। বড় leak দেখা যাচ্ছে না।' }];
   return leaks.map(item => ({
     title: `${item.name} (${item.share.toFixed(1)}%)`,
-    body: `মাসিক ${fmt(item.monthly)}। এই খাতে ৮-১২% optimize করলে cashflow improve হবে।`
+    body: `মাসিক ${fmt(item.monthly)}। এই খাতে 8-12% optimize করলে cashflow improve হবে।`
   }));
 }
 
@@ -524,7 +524,7 @@ function renderDashboard() {
   const expertEl = document.getElementById('expertSuggestion');
   if (expertEl) {
     const recommendations = [];
-    if (f.netProfit < 0) recommendations.push('আগামী ৩০ দিনের জন্য খরচ freeze করে top 3 revenue driver-এ ফোকাস করুন।');
+    if (f.netProfit < 0) recommendations.push('আগামী 30 দিনের জন্য খরচ freeze করে top 3 revenue driver-এ ফোকাস করুন।');
     if (margin < 15) recommendations.push('Gross margin কম: low-margin service বাদ দিয়ে premium bundle চালু করুন।');
     if (gap > 0) recommendations.push(`Funding gap ${fmt(gap)}: phased investment plan বা bridge financing বিবেচনা করুন।`);
     if (breakEven && breakEven > target) recommendations.push(`টার্গেট ${target} মাসে break-even পেতে মাসিক growth ${Math.max(state.globalGrowth + 2, 5)}% করার চেষ্টা করুন।`);
