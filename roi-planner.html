@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RoI Planner Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0c0c;--surface:#141414;--surface2:#1a1a1a;--surface3:#222;--accent:#c8f060;--accent2:#a8d040;--text:#f0f0f0;--text2:#aaa;--text3:#666;--danger:#ff5555;--warning:#ffaa33;--success:#55cc88;--border:#2a2a2a}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;display:flex;height:100vh;overflow:hidden}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+/* SIDEBAR */
+#sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.sidebar-header{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sidebar-logo{font-size:18px;font-weight:700;color:var(--accent);letter-spacing:-0.5px}
+.sidebar-logo span{color:var(--text2);font-weight:400;font-size:13px}
+.business-name-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:12px;margin-top:10px}
+.business-name-input:focus{outline:none;border-color:var(--accent)}
+.currency-select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:12px;margin-top:6px;cursor:pointer}
+.currency-select:focus{outline:none;border-color:var(--accent)}
+/* HEALTH SCORE */
+.health-score{margin:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.health-label{font-size:11px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.health-display{display:flex;align-items:center;gap:10px}
+.health-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid var(--accent);color:var(--accent);flex-shrink:0}
+.health-info{flex:1}
+.health-score-val{font-size:22px;font-weight:700;color:var(--accent);line-height:1}
+.health-grade{font-size:11px;color:var(--text2);margin-top:2px}
+.health-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:8px;overflow:hidden}
+.health-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 0.5s}
+/* NAV */
+nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;transition:all 0.15s;font-size:13px;color:var(--text2);border-left:3px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--surface2);color:var(--accent);border-left-color:var(--accent)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+/* SIDEBAR FOOTER */
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.btn-small{flex:1;padding:7px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);border-radius:6px;font-size:11px;cursor:pointer;transition:all 0.15s;text-align:center}
+.btn-small:hover{border-color:var(--accent);color:var(--accent)}
+/* MAIN */
+#main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.page{display:none;padding:28px;flex-direction:column;gap:20px;min-height:100%}
+.page.active{display:flex}
+/* PAGE HEADER */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.page-title{font-size:22px;font-weight:700}
+.page-subtitle{font-size:13px;color:var(--text2)}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+.card-grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:1fr 1fr 1fr}
+.grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+/* KPI CARDS */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+.kpi-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:700;color:var(--text)}
+.kpi-value.accent{color:var(--accent)}
+.kpi-value.danger{color:var(--danger)}
+.kpi-value.success{color:var(--success)}
+.kpi-sub{font-size:12px;color:var(--text3);margin-top:4px}
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.15s}
+.btn-primary{background:var(--accent);color:#000}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text2)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+.btn-danger:hover{background:var(--danger);color:#fff}
+/* FORM ELEMENTS */
+.form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.form-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:120px}
+.form-label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.form-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;width:100%}
+.form-input:focus{outline:none;border-color:var(--accent)}
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface2)}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(200,240,96,0.03)}
+.data-table .actions{display:flex;gap:6px}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:4px;border-radius:4px;transition:all 0.15s}
+.icon-btn:hover{color:var(--accent);background:rgba(200,240,96,0.1)}
+.icon-btn.del:hover{color:var(--danger);background:rgba(255,85,85,0.1)}
+/* SLIDER */
+.slider-group{display:flex;flex-direction:column;gap:6px}
+.slider-header{display:flex;justify-content:space-between;align-items:center}
+.slider-label{font-size:12px;color:var(--text2)}
+.slider-val{font-size:13px;font-weight:600;color:var(--accent)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--surface3);border-radius:2px;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;transition:transform 0.15s}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+/* BADGE */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-success{background:rgba(85,204,136,0.15);color:var(--success)}
+.badge-warning{background:rgba(255,170,51,0.15);color:var(--warning)}
+.badge-danger{background:rgba(255,85,85,0.15);color:var(--danger)}
+/* PROGRESS BAR */
+.progress-bar{height:10px;background:var(--surface3);border-radius:5px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:5px;transition:width 0.5s}
+.progress-fill.warning{background:var(--warning)}
+.progress-fill.danger{background:var(--danger)}
+/* CHART */
+.chart-container{position:relative;width:100%}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:140px;padding:0 0 20px}
+.bar-chart-wrap{overflow-x:auto;overflow-y:hidden}
+.bar-group{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:30px;cursor:default}
+.bar{border-radius:3px 3px 0 0;min-height:2px;transition:height 0.4s;width:100%}
+.bar-label{font-size:10px;color:var(--text3);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40px}
+.bar-val{font-size:9px;color:var(--text2);margin-top:2px}
+/* ROI DISPLAY */
+.roi-big{font-size:72px;font-weight:800;color:var(--accent);line-height:1;letter-spacing:-2px}
+.roi-big.negative{color:var(--danger)}
+/* SCENARIO CARD */
+.scenario-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px}
+.scenario-title{font-size:13px;font-weight:700;margin-bottom:12px}
+.scenario-title.pessimistic{color:var(--danger)}
+.scenario-title.base{color:var(--accent)}
+.scenario-title.optimistic{color:var(--success)}
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:420px;max-width:90vw;transform:translateY(20px);transition:transform 0.2s}
+.modal-backdrop.open .modal{transform:translateY(0)}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:4px 0}
+/* RESPONSIVE */
+@media(max-width:768px){
+  #sidebar{width:56px;min-width:56px}
+  .sidebar-header,.health-score,.sidebar-footer{display:none}
+  .nav-item span{display:none}
+  .nav-item{justify-content:center;padding:14px 0}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .page{padding:16px}
+  .roi-big{font-size:48px}
+}
+/* PRINT */
+@media print{
+  #sidebar{display:none}
+  #main{overflow:visible}
+  .page{display:flex!important;page-break-after:always}
+  .btn,.icon-btn,.form-row,.sidebar-footer{display:none!important}
+}
+/* TOOLTIP */
+[title]{cursor:help}
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px;color:var(--text3)}
+.empty-state-icon{font-size:36px;margin-bottom:10px}
+.empty-state-text{font-size:14px}
+/* LEGEND */
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+/* FLASH */
+.flash{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none}
+.flash.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">RoI Planner <span>Pro</span></div>
+    <input class="business-name-input" id="businessName" placeholder="Your Business Name" value="My Business">
+    <select class="currency-select" id="currencySelect">
+      <option value="BDT">৳ BDT — Bangladeshi Taka</option>
+      <option value="USD">$ USD — US Dollar</option>
+      <option value="EUR">€ EUR — Euro</option>
+      <option value="GBP">£ GBP — British Pound</option>
+      <option value="INR">₹ INR — Indian Rupee</option>
+    </select>
+  </div>
+
+  <div class="health-score">
+    <div class="health-label">Business Health Score</div>
+    <div class="health-display">
+      <div class="health-circle" id="healthCircle">A</div>
+      <div class="health-info">
+        <div class="health-score-val" id="healthScoreVal">85</div>
+        <div class="health-grade" id="healthGrade">Excellent</div>
+      </div>
+    </div>
+    <div class="health-bar"><div class="health-bar-fill" id="healthBarFill" style="width:85%"></div></div>
+  </div>
+
+  <nav>
+    <div class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></div>
+    <div class="nav-item" data-page="capex"><span class="nav-icon">🏗️</span><span>CAPEX</span></div>
+    <div class="nav-item" data-page="opex"><span class="nav-icon">💸</span><span>OPEX</span></div>
+    <div class="nav-item" data-page="revenue"><span class="nav-icon">💰</span><span>Revenue</span></div>
+    <div class="nav-item" data-page="roi"><span class="nav-icon">📈</span><span>RoI Summary</span></div>
+    <div class="nav-item" data-page="scenarios"><span class="nav-icon">🔮</span><span>Scenarios</span></div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-small" onclick="shareLink()" title="Share link">🔗 Share</button>
+    <button class="btn-small" onclick="window.print()" title="Print / Export PDF">🖨️ Print</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div><div class="page-title" id="dashTitle">Dashboard</div><div class="page-subtitle">Financial overview at a glance</div></div>
+    </div>
+    <div class="card-grid grid-4" id="dashKPIs"></div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">Monthly Cashflow (12 months)</div>
+        <div class="bar-chart-wrap"><canvas id="dashCashflowChart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Cost Structure</div>
+        <canvas id="dashCostChart" height="160"></canvas>
+        <div class="legend" id="dashCostLegend"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Key Metrics Snapshot</div>
+      <div class="card-grid grid-3" id="dashMetrics"></div>
+    </div>
+  </div>
+
+  <!-- CAPEX -->
+  <div class="page" id="page-capex">
+    <div class="page-header">
+      <div><div class="page-title">Capital Expenditure (CAPEX)</div><div class="page-subtitle">One-time investments & assets</div></div>
+      <button class="btn btn-primary" onclick="openCapexModal()">+ Add Item</button>
+    </div>
+    <div class="card">
+      <div class="card-title">CAPEX Items</div>
+      <table class="data-table" id="capexTable">
+        <thead><tr><th>Item</th><th>Category</th><th>Amount</th><th>Amortization</th><th>Monthly Cost</th><th>Actions</th></tr></thead>
+        <tbody id="capexBody"></tbody>
+      </table>
+    </div>
+    <div class="card-grid grid-3" id="capexSummary"></div>
+  </div>
+
+  <!-- OPEX -->
+  <div class="page" id="page-opex">
+    <div class="page-header">
+      <div><div class="page-title">Operating Expenses (OPEX)</div><div class="page-subtitle">Monthly recurring costs</div></div>
+      <button class="btn btn-primary" onclick="openOpexModal()">+ Add Expense</button>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">Monthly Expenses</div>
+        <table class="data-table" id="opexTable">
+          <thead><tr><th>Expense</th><th>Category</th><th>Monthly</th><th>Annual</th><th>Actions</th></tr></thead>
+          <tbody id="opexBody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Expense Breakdown</div>
+        <canvas id="opexChart" height="200"></canvas>
+        <div class="legend" id="opexLegend"></div>
+      </div>
+    </div>
+    <div class="card-grid grid-3" id="opexSummary"></div>
+  </div>
+
+  <!-- REVENUE -->
+  <div class="page" id="page-revenue">
+    <div class="page-header">
+      <div><div class="page-title">Revenue Streams</div><div class="page-subtitle">Services, products & income sources</div></div>
+      <button class="btn btn-primary" onclick="openRevenueModal()">+ Add Stream</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Revenue Items</div>
+      <table class="data-table" id="revenueTable">
+        <thead><tr><th>Service/Product</th><th>Price</th><th>Qty/Month</th><th>Utilization%</th><th>Growth/Month%</th><th>Monthly Rev</th><th>Actions</th></tr></thead>
+        <tbody id="revenueBody"></tbody>
+      </table>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card">
+        <div class="card-title">Revenue Projections (12 months)</div>
+        <canvas id="revenueChart" height="200"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">Global Settings</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:4px">
+          <div class="slider-group">
+            <div class="slider-header"><span class="slider-label">Overall Utilization Rate</span><span class="slider-val" id="utilLabel">80%</span></div>
+            <input type="range" min="0" max="100" value="80" id="utilSlider" oninput="updateUtil(this.value)">
+          </div>
+          <div class="slider-group">
+            <div class="slider-header"><span class="slider-label">Monthly Growth Rate</span><span class="slider-val" id="growthLabel">3%</span></div>
+            <input type="range" min="0" max="30" value="3" id="growthSlider" oninput="updateGrowth(this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-grid grid-3" id="revenueSummary"></div>
+  </div>
+
+  <!-- ROI SUMMARY -->
+  <div class="page" id="page-roi">
+    <div class="page-header">
+      <div><div class="page-title">RoI Summary</div><div class="page-subtitle">Return on Investment analysis</div></div>
+    </div>
+    <div class="card-grid grid-2">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:32px">
+        <div class="card-title" style="margin-bottom:0">Annual Return on Investment</div>
+        <div class="roi-big" id="roiBig">--</div>
+        <div style="font-size:13px;color:var(--text2)" id="roiSub">Calculating...</div>
+      </div>
+      <div class="card-grid" style="gap:12px">
+        <div class="card-grid grid-2" style="gap:12px" id="roiKPIs"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Profit & Loss Table</div>
+      <table class="data-table" id="plTable">
+        <thead><tr><th>Line Item</th><th>Monthly</th><th>Annual</th><th>% of Revenue</th></tr></thead>
+        <tbody id="plBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">CAPEX Recovery Progress</div>
+      <div style="display:flex;flex-direction:column;gap:10px" id="capexRecovery"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Monthly Cashflow (12 months)</div>
+      <canvas id="roiCashflowChart" height="180"></canvas>
+    </div>
+  </div>
+
+  <!-- SCENARIOS -->
+  <div class="page" id="page-scenarios">
+    <div class="page-header">
+      <div><div class="page-title">Scenario Analysis</div><div class="page-subtitle">Compare pessimistic, base & optimistic outcomes</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Scenario Multipliers</div>
+      <div class="card-grid grid-3">
+        <div>
+          <div style="color:var(--danger);font-weight:600;font-size:13px;margin-bottom:10px">😟 Pessimistic</div>
+          <div class="slider-group" style="gap:10px">
+            <div><div class="slider-header"><span class="slider-label">Revenue</span><span class="slider-val" id="sPessRevLabel">60%</span></div><input type="range" min="20" max="100" value="60" id="sPessRev" oninput="updateScenarios()"></div>
+            <div><div class="slider-header"><span class="slider-label">Costs</span><span class="slider-val" id="sPessCostLabel">120%</span></div><input type="range" min="100" max="200" value="120" id="sPessCost" oninput="updateScenarios()"></div>
+          </div>
+        </div>
+        <div>
+          <div style="color:var(--accent);font-weight:600;font-size:13px;margin-bottom:10px">📊 Base Case</div>
+          <div style="font-size:13px;color:var(--text2)">Revenue: 100%<br>Costs: 100%<br><br><em>Your current projections</em></div>
+        </div>
+        <div>
+          <div style="color:var(--success);font-weight:600;font-size:13px;margin-bottom:10px">🚀 Optimistic</div>
+          <div class="slider-group" style="gap:10px">
+            <div><div class="slider-header"><span class="slider-label">Revenue</span><span class="slider-val" id="sOptRevLabel">140%</span></div><input type="range" min="100" max="300" value="140" id="sOptRev" oninput="updateScenarios()"></div>
+            <div><div class="slider-header"><span class="slider-label">Costs</span><span class="slider-val" id="sOptCostLabel">90%</span></div><input type="range" min="50" max="100" value="90" id="sOptCost" oninput="updateScenarios()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-grid grid-3" id="scenarioCards"></div>
+    <div class="card">
+      <div class="card-title">12-Month Revenue Comparison</div>
+      <canvas id="scenarioChart" height="200"></canvas>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODALS -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title" id="modalTitle">Add Item</div>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn btn-primary" id="modalSave" onclick="saveModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="flash" id="flash"></div>
+
+<script>
+// ======================== STATE ========================
+let state = {
+  businessName: 'My Business',
+  currency: 'BDT',
+  globalUtil: 80,
+  globalGrowth: 3,
+  capex: [],
+  opex: [],
+  revenue: [],
+  editId: null,
+  editType: null
+};
+
+const CURRENCIES = {
+  BDT: { symbol: '৳', name: 'BDT' },
+  USD: { symbol: '$', name: 'USD' },
+  EUR: { symbol: '€', name: 'EUR' },
+  GBP: { symbol: '£', name: 'GBP' },
+  INR: { symbol: '₹', name: 'INR' }
+};
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLORS = ['#c8f060','#60d0f0','#f060c8','#f0c060','#60f0c8','#c060f0','#f09060','#60f090','#9060f0','#f06090','#90f060','#6090f0'];
+
+function fmt(n){
+  const s = CURRENCIES[state.currency].symbol;
+  if(Math.abs(n)>=1e6) return s+(n/1e6).toFixed(2)+'M';
+  if(Math.abs(n)>=1e3) return s+(n/1e3).toFixed(1)+'K';
+  return s+n.toFixed(0);
+}
+function pct(n){return(n*100).toFixed(1)+'%'}
+function uid(){return Math.random().toString(36).substr(2,9)}
+
+// ======================== CALCULATIONS ========================
+function calcCapexMonthly(item){
+  return item.amount / (item.amortization * 12);
+}
+
+function totalCapex(){
+  return state.capex.reduce((a,c)=>a+c.amount,0);
+}
+function totalCapexMonthly(){
+  return state.capex.reduce((a,c)=>a+calcCapexMonthly(c),0);
+}
+function totalOpex(){
+  return state.opex.reduce((a,c)=>a+c.monthly,0);
+}
+function totalRevenue(){
+  return state.revenue.reduce((a,r)=>{
+    const util = r.useGlobal ? state.globalUtil/100 : r.utilization/100;
+    return a + r.price * r.qty * util;
+  },0);
+}
+function totalCosts(revMult=1, costMult=1){
+  const opex = totalOpex() * costMult;
+  const capexM = totalCapexMonthly() * costMult;
+  return opex + capexM;
+}
+function monthlyRevenue(month, revMult=1, growthMult=1){
+  return state.revenue.reduce((a,r)=>{
+    const util = r.useGlobal ? state.globalUtil/100 : r.utilization/100;
+    const growth = r.useGlobal ? state.globalGrowth/100 : r.growth/100;
+    const g = growthMult;
+    return a + r.price * r.qty * util * Math.pow(1 + growth * g, month) * revMult;
+  },0);
+}
+function annualROI(revMult=1, costMult=1){
+  let annualRev = 0;
+  for(let i=0;i<12;i++) annualRev += monthlyRevenue(i, revMult);
+  const annualCost = (totalOpex() * costMult + totalCapexMonthly() * costMult) * 12 + totalCapex() * costMult;
+  const profit = annualRev - (totalOpex() * costMult + totalCapexMonthly() * costMult) * 12;
+  const invest = totalCapex() * costMult;
+  if(invest === 0) return 0;
+  return profit / invest;
+}
+function healthScore(){
+  const roi = annualROI() * 100;
+  const rev = totalRevenue();
+  const cost = totalOpex() + totalCapexMonthly();
+  let score = 50;
+  if(roi>50) score=100;
+  else if(roi>20) score=80+(roi-20);
+  else if(roi>0) score=60+roi;
+  else if(roi>-20) score=40+roi;
+  else score=Math.max(0,20+roi);
+  if(rev>0 && cost>0){
+    const margin = (rev-cost)/rev;
+    if(margin>0.5) score=Math.min(100,score+10);
+    else if(margin<0) score=Math.max(0,score-10);
+  }
+  return Math.round(Math.max(0,Math.min(100,score)));
+}
+
+// ======================== RENDER ========================
+function render(){
+  renderNav();
+  renderDashboard();
+  renderCapex();
+  renderOpex();
+  renderRevenue();
+  renderROI();
+  updateScenarios();
+  renderHealthScore();
+}
+
+function renderNav(){
+  document.getElementById('dashTitle').textContent = state.businessName || 'Dashboard';
+}
+
+function renderHealthScore(){
+  const score = healthScore();
+  document.getElementById('healthScoreVal').textContent = score;
+  document.getElementById('healthBarFill').style.width = score+'%';
+  let grade, letter;
+  if(score>=90){grade='Excellent';letter='A+'}
+  else if(score>=80){grade='Very Good';letter='A'}
+  else if(score>=70){grade='Good';letter='B'}
+  else if(score>=60){grade='Fair';letter='C'}
+  else if(score>=50){grade='Needs Work';letter='D'}
+  else{grade='Critical';letter='F'}
+  document.getElementById('healthGrade').textContent = grade;
+  document.getElementById('healthCircle').textContent = letter;
+  const hb = document.getElementById('healthBarFill');
+  hb.style.background = score>=70?'var(--accent)':score>=50?'var(--warning)':'var(--danger)';
+}
+
+function renderDashboard(){
+  const rev = totalRevenue();
+  const opex = totalOpex();
+  const capexM = totalCapexMonthly();
+  const costs = opex + capexM;
+  const profit = rev - costs;
+  const roi = annualROI()*100;
+  document.getElementById('dashKPIs').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Monthly Revenue</div><div class="kpi-value accent">${fmt(rev)}</div><div class="kpi-sub">${state.revenue.length} stream${state.revenue.length!==1?'s':''}</div></div>
+    <div class="kpi"><div class="kpi-label">Monthly Costs</div><div class="kpi-value">${fmt(costs)}</div><div class="kpi-sub">OPEX + Amortized CAPEX</div></div>
+    <div class="kpi"><div class="kpi-label">Monthly Profit</div><div class="kpi-value ${profit>=0?'success':'danger'}">${fmt(profit)}</div><div class="kpi-sub">${rev>0?((profit/rev*100).toFixed(1)+'% margin'):'No revenue'}</div></div>
+    <div class="kpi"><div class="kpi-label">Annual RoI</div><div class="kpi-value ${roi>=0?'accent':'danger'}">${roi.toFixed(1)}%</div><div class="kpi-sub">Based on CAPEX invested</div></div>
+  `;
+  document.getElementById('dashMetrics').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Total CAPEX</div><div class="kpi-value">${fmt(totalCapex())}</div><div class="kpi-sub">${state.capex.length} items</div></div>
+    <div class="kpi"><div class="kpi-label">Annual Revenue</div><div class="kpi-value">${fmt(rev*12)}</div><div class="kpi-sub">At current rate</div></div>
+    <div class="kpi"><div class="kpi-label">Break-even</div><div class="kpi-value">${costs>0&&totalCapex()>0?Math.ceil(totalCapex()/Math.max(0.01,profit))+' mo':'N/A'}</div><div class="kpi-sub">Months to recover CAPEX</div></div>
+  `;
+  drawCashflowChart('dashCashflowChart', 1, 1);
+  drawCostDonut();
+}
+
+function renderCapex(){
+  const tbody = document.getElementById('capexBody');
+  if(state.capex.length===0){
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🏗️</div><div class="empty-state-text">No CAPEX items yet. Add your first investment.</div></div></td></tr>`;
+  } else {
+    tbody.innerHTML = state.capex.map(c=>`
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td><span class="badge badge-warning">${c.category}</span></td>
+        <td>${fmt(c.amount)}</td>
+        <td>${c.amortization} yr${c.amortization>1?'s':''}</td>
+        <td>${fmt(calcCapexMonthly(c))}/mo</td>
+        <td><div class="actions">
+          <button class="icon-btn" onclick="openCapexModal('${c.id}')">✏️</button>
+          <button class="icon-btn del" onclick="deleteCapex('${c.id}')">🗑️</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+  const total = totalCapex();
+  const monthly = totalCapexMonthly();
+  document.getElementById('capexSummary').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Total Investment</div><div class="kpi-value accent">${fmt(total)}</div></div>
+    <div class="kpi"><div class="kpi-label">Monthly Amortization</div><div class="kpi-value">${fmt(monthly)}</div></div>
+    <div class="kpi"><div class="kpi-label">Avg Amortization Period</div><div class="kpi-value">${state.capex.length?((state.capex.reduce((a,c)=>a+c.amortization,0)/state.capex.length).toFixed(1)+' yrs'):'—'}</div></div>
+  `;
+}
+
+function renderOpex(){
+  const tbody = document.getElementById('opexBody');
+  if(state.opex.length===0){
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">💸</div><div class="empty-state-text">No expenses yet. Add your monthly costs.</div></div></td></tr>`;
+  } else {
+    tbody.innerHTML = state.opex.map(o=>`
+      <tr>
+        <td><strong>${o.name}</strong></td>
+        <td><span class="badge badge-warning">${o.category}</span></td>
+        <td>${fmt(o.monthly)}</td>
+        <td>${fmt(o.monthly*12)}</td>
+        <td><div class="actions">
+          <button class="icon-btn" onclick="openOpexModal('${o.id}')">✏️</button>
+          <button class="icon-btn del" onclick="deleteOpex('${o.id}')">🗑️</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+  const total = totalOpex();
+  document.getElementById('opexSummary').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Monthly OPEX</div><div class="kpi-value accent">${fmt(total)}</div></div>
+    <div class="kpi"><div class="kpi-label">Annual OPEX</div><div class="kpi-value">${fmt(total*12)}</div></div>
+    <div class="kpi"><div class="kpi-label">OPEX Items</div><div class="kpi-value">${state.opex.length}</div></div>
+  `;
+  drawOpexChart();
+}
+
+function renderRevenue(){
+  const tbody = document.getElementById('revenueBody');
+  if(state.revenue.length===0){
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-text">No revenue streams yet. Add your first service or product.</div></div></td></tr>`;
+  } else {
+    tbody.innerHTML = state.revenue.map(r=>{
+      const util = r.useGlobal ? state.globalUtil/100 : r.utilization/100;
+      const monthly = r.price * r.qty * util;
+      return `
+        <tr>
+          <td><strong>${r.name}</strong></td>
+          <td>${fmt(r.price)}</td>
+          <td>${r.qty}</td>
+          <td>${r.useGlobal?`<span class="badge badge-success">Global (${state.globalUtil}%)</span>`:r.utilization+'%'}</td>
+          <td>${r.useGlobal?`<span class="badge badge-success">Global (${state.globalGrowth}%)</span>`:r.growth+'%'}</td>
+          <td>${fmt(monthly)}</td>
+          <td><div class="actions">
+            <button class="icon-btn" onclick="openRevenueModal('${r.id}')">✏️</button>
+            <button class="icon-btn del" onclick="deleteRevenue('${r.id}')">🗑️</button>
+          </div></td>
+        </tr>
+      `;
+    }).join('');
+  }
+  const rev = totalRevenue();
+  const annualRev = Array.from({length:12},(_,i)=>monthlyRevenue(i)).reduce((a,b)=>a+b,0);
+  document.getElementById('revenueSummary').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Monthly Revenue</div><div class="kpi-value accent">${fmt(rev)}</div></div>
+    <div class="kpi"><div class="kpi-label">Projected Annual</div><div class="kpi-value">${fmt(annualRev)}</div></div>
+    <div class="kpi"><div class="kpi-label">Revenue Streams</div><div class="kpi-value">${state.revenue.length}</div></div>
+  `;
+  drawRevenueChart();
+}
+
+function renderROI(){
+  const rev = totalRevenue();
+  const opex = totalOpex();
+  const capexM = totalCapexMonthly();
+  const costs = opex + capexM;
+  const profit = rev - costs;
+  const capexTotal = totalCapex();
+  const roi = annualROI() * 100;
+  const roiBig = document.getElementById('roiBig');
+  roiBig.textContent = (roi>=0?'+':'')+roi.toFixed(1)+'%';
+  roiBig.className = 'roi-big'+(roi<0?' negative':'');
+  document.getElementById('roiSub').textContent = `${capexTotal>0?'Based on '+fmt(capexTotal)+' CAPEX investment':'No CAPEX recorded — add investments to see RoI'}`;
+
+  document.getElementById('roiKPIs').innerHTML = `
+    <div class="kpi"><div class="kpi-label">Gross Profit</div><div class="kpi-value ${profit>=0?'success':'danger'}">${fmt(profit)}/mo</div></div>
+    <div class="kpi"><div class="kpi-label">Profit Margin</div><div class="kpi-value">${rev>0?((profit/rev*100).toFixed(1)+'%'):'—'}</div></div>
+    <div class="kpi"><div class="kpi-label">Break-even</div><div class="kpi-value">${capexTotal>0&&profit>0?Math.ceil(capexTotal/profit)+' mo':'—'}</div></div>
+    <div class="kpi"><div class="kpi-label">Annual Profit</div><div class="kpi-value ${profit>=0?'success':'danger'}">${fmt(profit*12)}</div></div>
+  `;
+
+  const plRows = [
+    ['Revenue',rev,rev*12,rev>0?100:0,'accent'],
+    ['OPEX',opex,opex*12,rev>0?opex/rev*100:0,''],
+    ['CAPEX Amortization',capexM,capexM*12,rev>0?capexM/rev*100:0,''],
+    ['Total Costs',costs,costs*12,rev>0?costs/rev*100:0,'danger'],
+    ['Net Profit',profit,profit*12,rev>0?profit/rev*100:0,profit>=0?'success':'danger'],
+  ];
+  document.getElementById('plBody').innerHTML = plRows.map(([name,mo,yr,pct,cls])=>`
+    <tr>
+      <td><strong>${name}</strong></td>
+      <td class="${cls}">${fmt(mo)}</td>
+      <td class="${cls}">${fmt(yr)}</td>
+      <td>${pct.toFixed(1)}%</td>
+    </tr>
+  `).join('');
+
+  // CAPEX recovery
+  const recoveryEl = document.getElementById('capexRecovery');
+  if(state.capex.length===0 || profit<=0){
+    recoveryEl.innerHTML = `<div style="color:var(--text3);font-size:13px">${profit<=0&&state.capex.length>0?'Business is not yet profitable — no recovery progress':'No CAPEX items to show recovery for.'}</div>`;
+  } else {
+    const beMonths = Math.ceil(capexTotal/profit);
+    recoveryEl.innerHTML = state.capex.map(c=>{
+      const months = Math.ceil(c.amount/profit);
+      const pctVal = Math.min(100,(profit/c.amount)*100*12).toFixed(0);
+      return `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span>${c.name}</span><span>${fmt(c.amount)} — ~${months} mo</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,pctVal)}%"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  drawCashflowChart('roiCashflowChart', 1, 1);
+}
+
+function updateScenarios(){
+  const pessRev = parseInt(document.getElementById('sPessRev').value)/100;
+  const pessCost = parseInt(document.getElementById('sPessCost').value)/100;
+  const optRev = parseInt(document.getElementById('sOptRev').value)/100;
+  const optCost = parseInt(document.getElementById('sOptCost').value)/100;
+
+  document.getElementById('sPessRevLabel').textContent = Math.round(pessRev*100)+'%';
+  document.getElementById('sPessCostLabel').textContent = Math.round(pessCost*100)+'%';
+  document.getElementById('sOptRevLabel').textContent = Math.round(optRev*100)+'%';
+  document.getElementById('sOptCostLabel').textContent = Math.round(optCost*100)+'%';
+
+  function scenarioData(revM, costM){
+    const rev = totalRevenue()*revM;
+    const costs = (totalOpex()+totalCapexMonthly())*costM;
+    const profit = rev - costs;
+    const capex = totalCapex()*costM;
+    const roi = capex>0?((profit*12/capex)*100):0;
+    const margin = rev>0?(profit/rev*100):0;
+    return {rev, costs, profit, roi, margin, capex};
+  }
+
+  const pess = scenarioData(pessRev, pessCost);
+  const base = scenarioData(1, 1);
+  const opt = scenarioData(optRev, optCost);
+
+  function scenCard(data, label, cls){
+    return `
+      <div class="card scenario-card">
+        <div class="scenario-title ${cls}">${label}</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div><div class="kpi-label">Monthly Revenue</div><div class="kpi-value">${fmt(data.rev)}</div></div>
+          <div class="divider"></div>
+          <div><div class="kpi-label">Monthly Costs</div><div class="kpi-value">${fmt(data.costs)}</div></div>
+          <div class="divider"></div>
+          <div><div class="kpi-label">Monthly Profit</div><div class="kpi-value ${data.profit>=0?'success':'danger'}">${fmt(data.profit)}</div></div>
+          <div class="divider"></div>
+          <div><div class="kpi-label">Annual RoI</div><div class="kpi-value ${data.roi>=0?'accent':'danger'}">${data.roi.toFixed(1)}%</div></div>
+          <div class="divider"></div>
+          <div><div class="kpi-label">Profit Margin</div><div class="kpi-value">${data.margin.toFixed(1)}%</div></div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('scenarioCards').innerHTML =
+    scenCard(pess, '😟 Pessimistic', 'pessimistic') +
+    scenCard(base, '📊 Base Case', 'base') +
+    scenCard(opt, '🚀 Optimistic', 'optimistic');
+
+  drawScenarioChart(pessRev, optRev);
+}
+
+// ======================== CHARTS ========================
+function drawCashflowChart(canvasId, revMult, costMult){
+  const canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 400;
+  canvas.height = 160;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const monthlyData = MONTHS.map((_,i)=>{
+    const rev = monthlyRevenue(i, revMult);
+    const costs = (totalOpex()+totalCapexMonthly())*costMult;
+    return {rev, costs, profit: rev-costs};
+  });
+
+  const maxVal = Math.max(...monthlyData.map(d=>Math.max(Math.abs(d.profit),d.rev)), 1);
+  const w = canvas.width, h = canvas.height;
+  const barW = (w-40)/12/3;
+  const chartH = h-30;
+  const zero = chartH * 0.6;
+
+  // Gridlines
+  ctx.strokeStyle = '#2a2a2a';
+  ctx.lineWidth = 1;
+  for(let i=0;i<=4;i++){
+    const y = 10 + (chartH-10)*i/4;
+    ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(w,y); ctx.stroke();
+  }
+
+  monthlyData.forEach((d,i)=>{
+    const x = 30 + i*(w-30)/12;
+    const bw = (w-30)/12 - 4;
+
+    // Revenue bar
+    const revH = (d.rev/maxVal)*zero;
+    ctx.fillStyle = 'rgba(200,240,96,0.3)';
+    ctx.fillRect(x, zero-revH+10, bw/2, revH);
+
+    // Profit bar
+    const profH = (Math.abs(d.profit)/maxVal)*zero;
+    ctx.fillStyle = d.profit>=0?'#c8f060':'#ff5555';
+    ctx.fillRect(x+bw/2+1, d.profit>=0?zero-profH+10:zero+10, bw/2-1, profH);
+
+    // Month label
+    ctx.fillStyle = '#666';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(MONTHS[i], x+bw/2, h-2);
+  });
+
+  // Zero line
+  ctx.strokeStyle = '#555';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(30, zero+10); ctx.lineTo(w, zero+10); ctx.stroke();
+
+  // Legend
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = 'rgba(200,240,96,0.6)';
+  ctx.fillRect(32,15,10,8);
+  ctx.fillStyle = '#aaa';
+  ctx.textAlign = 'left';
+  ctx.fillText('Revenue',45,23);
+  ctx.fillStyle = '#c8f060';
+  ctx.fillRect(100,15,10,8);
+  ctx.fillStyle = '#aaa';
+  ctx.fillText('Profit',113,23);
+}
+
+function drawCostDonut(){
+  const canvas = document.getElementById('dashCostChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 300;
+  canvas.height = 160;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const items = [
+    ...state.opex.map(o=>({name:o.name, val:o.monthly})),
+    ...state.capex.map(c=>({name:c.name+' (CAPEX)', val:calcCapexMonthly(c)}))
+  ].filter(i=>i.val>0);
+
+  if(items.length===0){
+    ctx.fillStyle='#444';
+    ctx.font='13px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('No cost data',canvas.width/2, canvas.height/2);
+    return;
+  }
+
+  const total = items.reduce((a,i)=>a+i.val,0);
+  const cx = canvas.height/2, cy = canvas.height/2, r = cy-10, ir = r*0.55;
+  let angle = -Math.PI/2;
+
+  items.forEach((item,i)=>{
+    const slice = (item.val/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle = COLORS[i%COLORS.length];
+    ctx.fill();
+    angle += slice;
+  });
+
+  // Inner circle
+  ctx.beginPath();
+  ctx.arc(cx,cy,ir,0,Math.PI*2);
+  ctx.fillStyle = '#141414';
+  ctx.fill();
+  ctx.fillStyle = '#c8f060';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(fmt(total),cx,cy+5);
+
+  // Legend
+  const lx = canvas.height + 10;
+  ctx.font = '10px sans-serif';
+  items.slice(0,6).forEach((item,i)=>{
+    ctx.fillStyle = COLORS[i%COLORS.length];
+    ctx.fillRect(lx, 15+i*20, 10, 10);
+    ctx.fillStyle = '#aaa';
+    ctx.textAlign = 'left';
+    const label = item.name.length>16?item.name.slice(0,15)+'…':item.name;
+    ctx.fillText(label, lx+14, 24+i*20);
+    ctx.fillStyle = '#c8f060';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(item.val), Math.min(canvas.width, lx+120), 24+i*20);
+  });
+}
+
+function drawOpexChart(){
+  const canvas = document.getElementById('opexChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 300;
+  canvas.height = 200;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const cats = {};
+  state.opex.forEach(o=>{
+    cats[o.category] = (cats[o.category]||0) + o.monthly;
+  });
+
+  const entries = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  if(entries.length===0){
+    ctx.fillStyle='#444';
+    ctx.font='13px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('No expense data', canvas.width/2, canvas.height/2);
+    return;
+  }
+
+  const maxVal = Math.max(...entries.map(e=>e[1]))*1.2;
+  const barW = (canvas.width-60)/(entries.length);
+  const chartH = canvas.height-40;
+
+  entries.forEach(([cat,val],i)=>{
+    const x = 30 + i*barW + barW*0.1;
+    const bw = barW*0.8;
+    const bh = (val/maxVal)*chartH;
+    ctx.fillStyle = COLORS[i%COLORS.length];
+    ctx.beginPath();
+    ctx.roundRect(x, chartH-bh+10, bw, bh, [3,3,0,0]);
+    ctx.fill();
+    ctx.fillStyle = '#aaa';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    const label = cat.length>8?cat.slice(0,7)+'…':cat;
+    ctx.fillText(label, x+bw/2, chartH+24);
+    ctx.fillStyle = '#c8f060';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(fmt(val), x+bw/2, chartH-bh+7);
+  });
+
+  const legend = document.getElementById('opexLegend');
+  legend.innerHTML = entries.map(([cat,val],i)=>`
+    <div class="legend-item"><div class="legend-dot" style="background:${COLORS[i%COLORS.length]}"></div>${cat}: ${fmt(val)}</div>
+  `).join('');
+}
+
+function drawRevenueChart(){
+  const canvas = document.getElementById('revenueChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 400;
+  canvas.height = 200;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const months = Array.from({length:12},(_,i)=>monthlyRevenue(i));
+  const maxVal = Math.max(...months, 1) * 1.1;
+  const w = canvas.width, h = canvas.height;
+  const chartH = h-30;
+
+  // Gradient area
+  const grad = ctx.createLinearGradient(0,0,0,chartH);
+  grad.addColorStop(0,'rgba(200,240,96,0.4)');
+  grad.addColorStop(1,'rgba(200,240,96,0)');
+
+  // Line
+  ctx.beginPath();
+  months.forEach((v,i)=>{
+    const x = 20+i*(w-40)/11;
+    const y = 10+(chartH-10)*(1-v/maxVal);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#c8f060';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  // Fill
+  ctx.lineTo(w-20,chartH);
+  ctx.lineTo(20,chartH);
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Dots & labels
+  months.forEach((v,i)=>{
+    const x = 20+i*(w-40)/11;
+    const y = 10+(chartH-10)*(1-v/maxVal);
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle='#c8f060';
+    ctx.fill();
+    ctx.fillStyle='#666';
+    ctx.font='9px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(MONTHS[i],x,h-2);
+  });
+}
+
+function drawScenarioChart(pessRev, optRev){
+  const canvas = document.getElementById('scenarioChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.parentElement.offsetWidth || 500;
+  canvas.height = 200;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const scenarios = [
+    {label:'Pessimistic',mult:pessRev,color:'#ff5555'},
+    {label:'Base',mult:1,color:'#c8f060'},
+    {label:'Optimistic',mult:optRev,color:'#55cc88'},
+  ];
+
+  const allVals = scenarios.flatMap(s=>Array.from({length:12},(_,i)=>monthlyRevenue(i,s.mult)));
+  const maxVal = Math.max(...allVals, 1)*1.1;
+  const w = canvas.width, h = canvas.height, chartH = h-30;
+
+  scenarios.forEach(s=>{
+    const months = Array.from({length:12},(_,i)=>monthlyRevenue(i,s.mult));
+    ctx.beginPath();
+    months.forEach((v,i)=>{
+      const x = 20+i*(w-40)/11;
+      const y = 10+(chartH-10)*(1-v/maxVal);
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.strokeStyle=s.color;
+    ctx.lineWidth=2;
+    ctx.setLineDash(s.label==='Base'?[]:[5,4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  // X labels
+  MONTHS.forEach((m,i)=>{
+    const x = 20+i*(w-40)/11;
+    ctx.fillStyle='#666';
+    ctx.font='9px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(m,x,h-2);
+  });
+
+  // Legend
+  const lx = w/2 - 160;
+  scenarios.forEach((s,i)=>{
+    ctx.fillStyle=s.color;
+    ctx.fillRect(lx+i*110,10,14,4);
+    ctx.fillStyle='#aaa';
+    ctx.font='10px sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText(s.label,lx+i*110+18,15);
+  });
+}
+
+// ======================== MODALS ========================
+let modalMode = null;
+
+function openCapexModal(id){
+  modalMode = 'capex';
+  state.editId = id||null;
+  const item = id ? state.capex.find(c=>c.id===id) : null;
+  document.getElementById('modalTitle').textContent = id?'Edit CAPEX Item':'Add CAPEX Item';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group"><label class="form-label">Item Name</label><input class="form-input" id="mi_name" placeholder="e.g. Office Equipment" value="${item?item.name:''}"></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-input" id="mi_cat">
+          ${['Equipment','Software','Furniture','Infrastructure','Vehicle','Other'].map(c=>`<option ${item&&item.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Amount (${CURRENCIES[state.currency].symbol})</label><input class="form-input" id="mi_amount" type="number" min="0" placeholder="0" value="${item?item.amount:''}"></div>
+      <div class="slider-group">
+        <div class="slider-header"><span class="slider-label">Amortization Period</span><span class="slider-val" id="mi_amoLabel">${item?item.amortization:3} years</span></div>
+        <input type="range" min="1" max="10" value="${item?item.amortization:3}" id="mi_amo" oninput="document.getElementById('mi_amoLabel').textContent=this.value+' year'+(this.value>1?'s':'')">
+      </div>
+    </div>
+  `;
+  openModal();
+}
+
+function openOpexModal(id){
+  modalMode = 'opex';
+  state.editId = id||null;
+  const item = id ? state.opex.find(o=>o.id===id) : null;
+  document.getElementById('modalTitle').textContent = id?'Edit Expense':'Add Expense';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group"><label class="form-label">Expense Name</label><input class="form-input" id="mi_name" placeholder="e.g. Office Rent" value="${item?item.name:''}"></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select class="form-input" id="mi_cat">
+          ${['Rent','Salaries','Utilities','Marketing','Software','Transport','Insurance','Other'].map(c=>`<option ${item&&item.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Monthly Amount (${CURRENCIES[state.currency].symbol})</label><input class="form-input" id="mi_amount" type="number" min="0" placeholder="0" value="${item?item.monthly:''}"></div>
+    </div>
+  `;
+  openModal();
+}
+
+function openRevenueModal(id){
+  modalMode = 'revenue';
+  state.editId = id||null;
+  const item = id ? state.revenue.find(r=>r.id===id) : null;
+  document.getElementById('modalTitle').textContent = id?'Edit Revenue Stream':'Add Revenue Stream';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="form-group"><label class="form-label">Service / Product Name</label><input class="form-input" id="mi_name" placeholder="e.g. Web Design Package" value="${item?item.name:''}"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Price (${CURRENCIES[state.currency].symbol})</label><input class="form-input" id="mi_price" type="number" min="0" placeholder="0" value="${item?item.price:''}"></div>
+        <div class="form-group"><label class="form-label">Qty / Month</label><input class="form-input" id="mi_qty" type="number" min="0" placeholder="1" value="${item?item.qty:1}"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;padding:8px;background:var(--surface2);border-radius:6px;font-size:13px">
+        <input type="checkbox" id="mi_useGlobal" ${item&&!item.useGlobal?'':'checked'} onchange="toggleGlobalSliders()">
+        <label for="mi_useGlobal" style="cursor:pointer;color:var(--text2)">Use global utilization & growth rates</label>
+      </div>
+      <div id="mi_customSliders" style="display:${item&&!item.useGlobal?'flex':'none'};flex-direction:column;gap:12px">
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-label">Utilization Rate</span><span class="slider-val" id="mi_utilLabel">${item?item.utilization:80}%</span></div>
+          <input type="range" min="0" max="100" value="${item?item.utilization:80}" id="mi_util" oninput="document.getElementById('mi_utilLabel').textContent=this.value+'%'">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span class="slider-label">Monthly Growth Rate</span><span class="slider-val" id="mi_growthLabel">${item?item.growth:3}%</span></div>
+          <input type="range" min="0" max="30" value="${item?item.growth:3}" id="mi_growth" oninput="document.getElementById('mi_growthLabel').textContent=this.value+'%'">
+        </div>
+      </div>
+    </div>
+  `;
+  openModal();
+}
+
+function toggleGlobalSliders(){
+  const useGlobal = document.getElementById('mi_useGlobal').checked;
+  document.getElementById('mi_customSliders').style.display = useGlobal?'none':'flex';
+}
+
+function saveModal(){
+  if(modalMode==='capex'){
+    const name = document.getElementById('mi_name').value.trim();
+    const amount = parseFloat(document.getElementById('mi_amount').value)||0;
+    const category = document.getElementById('mi_cat').value;
+    const amortization = parseInt(document.getElementById('mi_amo').value)||3;
+    if(!name||amount<=0){showFlash('Please fill in all fields');return;}
+    if(state.editId){
+      const idx = state.capex.findIndex(c=>c.id===state.editId);
+      if(idx>=0) state.capex[idx] = {...state.capex[idx],name,amount,category,amortization};
+    } else {
+      state.capex.push({id:uid(),name,amount,category,amortization});
+    }
+  } else if(modalMode==='opex'){
+    const name = document.getElementById('mi_name').value.trim();
+    const monthly = parseFloat(document.getElementById('mi_amount').value)||0;
+    const category = document.getElementById('mi_cat').value;
+    if(!name||monthly<=0){showFlash('Please fill in all fields');return;}
+    if(state.editId){
+      const idx = state.opex.findIndex(o=>o.id===state.editId);
+      if(idx>=0) state.opex[idx] = {...state.opex[idx],name,monthly,category};
+    } else {
+      state.opex.push({id:uid(),name,monthly,category});
+    }
+  } else if(modalMode==='revenue'){
+    const name = document.getElementById('mi_name').value.trim();
+    const price = parseFloat(document.getElementById('mi_price').value)||0;
+    const qty = parseInt(document.getElementById('mi_qty').value)||1;
+    const useGlobal = document.getElementById('mi_useGlobal').checked;
+    const utilization = parseInt(document.getElementById('mi_util')?.value)||80;
+    const growth = parseInt(document.getElementById('mi_growth')?.value)||3;
+    if(!name||price<=0){showFlash('Please fill in all fields');return;}
+    if(state.editId){
+      const idx = state.revenue.findIndex(r=>r.id===state.editId);
+      if(idx>=0) state.revenue[idx] = {...state.revenue[idx],name,price,qty,useGlobal,utilization,growth};
+    } else {
+      state.revenue.push({id:uid(),name,price,qty,useGlobal,utilization,growth});
+    }
+  }
+  closeModalDirect();
+  render();
+  saveState();
+}
+
+function deleteCapex(id){
+  if(!confirm('Delete this CAPEX item?')) return;
+  state.capex = state.capex.filter(c=>c.id!==id);
+  render(); saveState();
+}
+function deleteOpex(id){
+  if(!confirm('Delete this expense?')) return;
+  state.opex = state.opex.filter(o=>o.id!==id);
+  render(); saveState();
+}
+function deleteRevenue(id){
+  if(!confirm('Delete this revenue stream?')) return;
+  state.revenue = state.revenue.filter(r=>r.id!==id);
+  render(); saveState();
+}
+
+function openModal(){
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+function closeModal(e){
+  if(e.target===document.getElementById('modalBackdrop')) closeModalDirect();
+}
+function closeModalDirect(){
+  document.getElementById('modalBackdrop').classList.remove('open');
+  state.editId=null;modalMode=null;
+}
+
+// ======================== NAVIGATION ========================
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    document.getElementById('page-'+item.dataset.page).classList.add('active');
+    setTimeout(()=>render(),50);
+  });
+});
+
+// ======================== GLOBAL SLIDERS ========================
+function updateUtil(v){
+  state.globalUtil = parseInt(v);
+  document.getElementById('utilLabel').textContent = v+'%';
+  render(); saveState();
+}
+function updateGrowth(v){
+  state.globalGrowth = parseInt(v);
+  document.getElementById('growthLabel').textContent = v+'%';
+  render(); saveState();
+}
+
+// ======================== BUSINESS NAME & CURRENCY ========================
+document.getElementById('businessName').addEventListener('input', e=>{
+  state.businessName = e.target.value;
+  render(); saveState();
+});
+document.getElementById('currencySelect').addEventListener('change', e=>{
+  state.currency = e.target.value;
+  render(); saveState();
+});
+
+// ======================== SHARE LINK ========================
+function shareLink(){
+  const encoded = btoa(JSON.stringify(state));
+  const url = location.href.split('?')[0]+'?data='+encodeURIComponent(encoded);
+  navigator.clipboard.writeText(url).then(()=>showFlash('Link copied to clipboard!')).catch(()=>{
+    prompt('Copy this link:', url);
+  });
+}
+
+// ======================== SAVE/LOAD ========================
+function saveState(){
+  try{ localStorage.setItem('roiplanner_state', JSON.stringify(state)); }catch(e){}
+}
+
+function loadState(){
+  // Check URL first
+  const params = new URLSearchParams(location.search);
+  const data = params.get('data');
+  if(data){
+    try{
+      const loaded = JSON.parse(atob(decodeURIComponent(data)));
+      Object.assign(state, loaded);
+      showFlash('Loaded shared plan!');
+      return;
+    }catch(e){}
+  }
+  // Then localStorage
+  try{
+    const saved = localStorage.getItem('roiplanner_state');
+    if(saved) Object.assign(state, JSON.parse(saved));
+  }catch(e){}
+}
+
+function showFlash(msg){
+  const el = document.getElementById('flash');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2500);
+}
+
+// ======================== SEED DATA ========================
+function seedData(){
+  if(state.capex.length===0 && state.opex.length===0 && state.revenue.length===0){
+    state.capex = [
+      {id:uid(),name:'Computer & Workstation',amount:150000,category:'Equipment',amortization:3},
+      {id:uid(),name:'Software Licenses',amount:50000,category:'Software',amortization:1},
+      {id:uid(),name:'Office Setup',amount:80000,category:'Furniture',amortization:5},
+    ];
+    state.opex = [
+      {id:uid(),name:'Office Rent',monthly:25000,category:'Rent'},
+      {id:uid(),name:'Team Salaries',monthly:80000,category:'Salaries'},
+      {id:uid(),name:'Utilities & Internet',monthly:5000,category:'Utilities'},
+      {id:uid(),name:'Marketing & Ads',monthly:15000,category:'Marketing'},
+    ];
+    state.revenue = [
+      {id:uid(),name:'Web Design',price:40000,qty:3,useGlobal:true,utilization:80,growth:3},
+      {id:uid(),name:'Digital Marketing Retainer',price:25000,qty:5,useGlobal:true,utilization:80,growth:3},
+      {id:uid(),name:'SEO Package',price:15000,qty:4,useGlobal:false,utilization:70,growth:5},
+    ];
+    saveState();
+  }
+}
+
+// ======================== INIT ========================
+function init(){
+  loadState();
+  document.getElementById('businessName').value = state.businessName;
+  document.getElementById('currencySelect').value = state.currency;
+  document.getElementById('utilSlider').value = state.globalUtil;
+  document.getElementById('utilLabel').textContent = state.globalUtil+'%';
+  document.getElementById('growthSlider').value = state.globalGrowth;
+  document.getElementById('growthLabel').textContent = state.globalGrowth+'%';
+  seedData();
+  render();
+}
+
+// Handle resize
+let resizeTimer;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(render, 200);
+});
+
+init();
+</script>
+</body>
+</html>
