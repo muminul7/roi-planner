@@ -71,7 +71,15 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-wrap .data-table{min-width:640px}
-.chart-card canvas{display:block;width:100% !important;height:260px !important}
+.chart-card{position:relative;overflow:hidden}
+.chart-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.005));
+  pointer-events:none;
+}
+.chart-card canvas{display:block;width:100% !important;height:260px !important;position:relative;z-index:1}
 .chart-card.chart-tall canvas{height:320px !important}
 
 .kpi{background:linear-gradient(180deg,var(--surface2),#17202d);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
@@ -775,8 +783,77 @@ const donutCenterTextPlugin = {
   }
 };
 
+const chartFxPlugin = {
+  id: 'chartFx',
+  beforeDraw(chart) {
+    const panel = chart.config.options?.plugins?.glassPanel;
+    if (!panel || panel.enabled === false) return;
+    const area = chart.chartArea;
+    if (!area) return;
+    const { ctx } = chart;
+    const radius = panel.radius || 16;
+    const x = area.left + 2;
+    const y = area.top + 2;
+    const w = area.right - area.left - 4;
+    const h = area.bottom - area.top - 4;
+
+    const grad = ctx.createLinearGradient(0, y, 0, y + h);
+    grad.addColorStop(0, 'rgba(255,255,255,.06)');
+    grad.addColorStop(1, 'rgba(255,255,255,.01)');
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(136,156,184,.22)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  },
+  beforeDatasetsDraw(chart) {
+    const depth = chart.config.options?.plugins?.depthFx;
+    if (!depth || depth.enabled === false) return;
+    const { ctx } = chart;
+    ctx.save();
+    ctx.shadowColor = depth.color || 'rgba(24,44,74,.42)';
+    ctx.shadowBlur = depth.blur || 14;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = depth.offsetY || 8;
+  },
+  afterDatasetsDraw(chart) {
+    const depth = chart.config.options?.plugins?.depthFx;
+    if (!depth || depth.enabled === false) return;
+    const { ctx } = chart;
+    ctx.restore();
+  }
+};
+
 if (typeof Chart !== 'undefined') {
-  Chart.register(donutCenterTextPlugin);
+  Chart.register(donutCenterTextPlugin, chartFxPlugin);
+}
+
+function barGradient(ctx, chartArea, start, end) {
+  const g = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+  g.addColorStop(0, end);
+  g.addColorStop(1, start);
+  return g;
+}
+
+function lineGradient(ctx, chartArea, colorTop, colorBottom) {
+  const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  g.addColorStop(0, colorTop);
+  g.addColorStop(1, colorBottom);
+  return g;
 }
 
 function initChart(id, type, data, options) {
@@ -792,7 +869,11 @@ function initChart(id, type, data, options) {
       maintainAspectRatio: false,
       animation: { duration: 800, easing: 'easeOutQuart' },
       interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'top', align: 'start', labels: { color: '#cbd4e5' } } },
+      plugins: {
+        legend: { position: 'top', align: 'start', labels: { color: '#cbd4e5' } },
+        glassPanel: { enabled: true, radius: 14 },
+        depthFx: { enabled: true, color: 'rgba(20,40,70,.38)', blur: 12, offsetY: 8 }
+      },
       ...options
     }
   });
@@ -815,7 +896,14 @@ function drawCharts() {
         type: 'bar',
         label: 'Revenue',
         data: revData,
-        backgroundColor: 'rgba(80,171,230,.86)',
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const { chartArea, ctx } = chart;
+          if (!chartArea) return 'rgba(80,171,230,.86)';
+          return barGradient(ctx, chartArea, 'rgba(132,214,255,.95)', 'rgba(72,155,220,.78)');
+        },
+        borderColor: 'rgba(156,226,255,.75)',
+        borderWidth: 1,
         borderRadius: 7,
         borderSkipped: false,
         maxBarThickness: 22
@@ -824,7 +912,14 @@ function drawCharts() {
         type: 'bar',
         label: 'Total Cost',
         data: costData,
-        backgroundColor: 'rgba(136,206,96,.86)',
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const { chartArea, ctx } = chart;
+          if (!chartArea) return 'rgba(136,206,96,.86)';
+          return barGradient(ctx, chartArea, 'rgba(177,230,126,.95)', 'rgba(122,196,84,.78)');
+        },
+        borderColor: 'rgba(211,246,174,.7)',
+        borderWidth: 1,
         borderRadius: 7,
         borderSkipped: false,
         maxBarThickness: 22
@@ -835,7 +930,12 @@ function drawCharts() {
         data: profitData,
         yAxisID: 'y1',
         borderColor: '#ffb35c',
-        backgroundColor: 'rgba(255,179,92,.2)',
+        backgroundColor: (context) => {
+          const chart = context.chart;
+          const { chartArea, ctx } = chart;
+          if (!chartArea) return 'rgba(255,179,92,.2)';
+          return lineGradient(ctx, chartArea, 'rgba(255,189,104,.45)', 'rgba(255,189,104,.04)');
+        },
         fill: false,
         tension: 0.35,
         borderWidth: 2.2,
@@ -857,6 +957,7 @@ function drawCharts() {
       }
     },
     plugins: {
+      depthFx: { enabled: true, color: 'rgba(18,34,60,.46)', blur: 16, offsetY: 10 },
       tooltip: {
         callbacks: {
           label: (ctx) => `${ctx.dataset.label}: ${fmt(ctx.raw)}`
@@ -880,6 +981,7 @@ function drawCharts() {
   }, {
     cutout: '74%',
     plugins: {
+      depthFx: { enabled: true, color: 'rgba(16,28,46,.34)', blur: 10, offsetY: 4 },
       donutCenterText: { label: 'Total Monthly Cost' },
       tooltip: {
         callbacks: {
@@ -917,11 +1019,17 @@ function drawCharts() {
       label: 'Projected Revenue',
       data: revData,
       borderColor: '#35d6a0',
-      backgroundColor: 'rgba(53,214,160,.10)',
+      backgroundColor: (context) => {
+        const chart = context.chart;
+        const { chartArea, ctx } = chart;
+        if (!chartArea) return 'rgba(53,214,160,.10)';
+        return lineGradient(ctx, chartArea, 'rgba(53,214,160,.28)', 'rgba(53,214,160,.02)');
+      },
       fill: true,
       tension: 0.35
     }]
   }, {
+    plugins: { depthFx: { enabled: true, color: 'rgba(20,36,58,.3)', blur: 10, offsetY: 6 } },
     scales: {
       x: { grid: { display: false }, ticks: { color: '#93a0b3' } },
       y: { grid: { color: 'rgba(116,132,152,.10)' }, ticks: { color: '#93a0b3', maxTicksLimit: 5, callback: (v) => fmt(Number(v)).replace('৳', '') } }
