@@ -31,11 +31,16 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .nav-item.active{background:rgba(0,229,160,.08);color:var(--accent);border-left-color:var(--accent)}
 
 .sidebar-footer{padding:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-align:center;display:inline-block}
+.btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-align:center;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn-primary{background:var(--accent);color:#0a0a0b}
 .btn-primary:hover{background:var(--accent2)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
 .btn-outline:hover{border-color:var(--text);background:rgba(255,255,255,.03)}
+.icon{width:14px;height:14px;display:inline-block;flex:0 0 14px}
+.icon svg{width:14px;height:14px;display:block}
+.nav-item .icon svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn .icon svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.delete-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 #main{flex:1;overflow-y:auto;display:flex;flex-direction:column;position:relative}
 .page{display:none;padding:32px;flex-direction:column;gap:24px;min-height:100%}
@@ -145,17 +150,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <input class="business-name-input" id="businessName" placeholder="আপনার ব্যবসার নাম" value="My Business">
   </div>
   <nav>
-    <div class="nav-item active" data-page="dashboard">📊 ড্যাশবোর্ড</div>
-    <div class="nav-item" data-page="planner">🧭 প্ল্যানার মোড</div>
-    <div class="nav-item" data-page="capex">🏗️ প্রাথমিক বিনিয়োগ</div>
-    <div class="nav-item" data-page="opex">💸 মাসিক খরচ</div>
-    <div class="nav-item" data-page="revenue">💰 আয়ের উৎস</div>
-    <div class="nav-item" data-page="roi">📈 ROI সারাংশ</div>
-    <div class="nav-item" data-page="scenarios">🔮 কী হলে কী হবে</div>
+    <div class="nav-item active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg></span>ড্যাশবোর্ড</div>
+    <div class="nav-item" data-page="planner"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9-9 9-9-9z"/><path d="M12 8v8M8 12h8"/></svg></span>প্ল্যানার মোড</div>
+    <div class="nav-item" data-page="capex"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/></svg></span>প্রাথমিক বিনিয়োগ</div>
+    <div class="nav-item" data-page="opex"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 1v22M6 6h9a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h9"/></svg></span>মাসিক খরচ</div>
+    <div class="nav-item" data-page="revenue"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>আয়ের উৎস</div>
+    <div class="nav-item" data-page="roi"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M7 16l4-4 3 3 5-7"/></svg></span>ROI সারাংশ</div>
+    <div class="nav-item" data-page="scenarios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 16l3-4 2 2 3-5"/></svg></span>কী হলে কী হবে</div>
   </nav>
   <div class="sidebar-footer">
-    <button class="btn btn-primary" onclick="downloadProfessionalPDF()">📥 পূর্ণ রিপোর্ট PDF</button>
-    <button class="btn btn-outline" onclick="shareLink()">🔗 লিংক শেয়ার</button>
+    <button class="btn btn-primary" onclick="downloadProfessionalPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>পূর্ণ রিপোর্ট PDF</button>
+    <button class="btn btn-outline" onclick="shareLink()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 1 0 7 7l1-1"/></svg></span>লিংক শেয়ার</button>
   </div>
 </aside>
 
@@ -316,6 +321,9 @@ let state = {
 const CURRENCIES = { BDT:'৳' };
 let currentModalType = null;
 let charts = {};
+const ICONS = {
+  trash: '<span class="icon delete-icon"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M7 6l1 14h8l1-14"/><path d="M10 10v7M14 10v7"/></svg></span>'
+};
 
 // Helpers
 function fmt(n) {
@@ -434,9 +442,9 @@ function renderDashboard() {
 }
 
 function renderTables() {
-  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${c.category}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">🗑️</button></td></tr>`).join('');
-  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${o.category}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">🗑️</button></td></tr>`).join('');
-  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">🗑️</button></td></tr>`).join('');
+  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${c.category}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${o.category}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">${ICONS.trash}</button></td></tr>`).join('');
 }
 
 function renderROI() {
@@ -663,7 +671,7 @@ function applyPlannerControls() {
 
   document.getElementById('growthLabel').innerText = `${growth}%`;
   renderAll();
-  showFlash('✅ Planner setting আপডেট হয়েছে');
+  showFlash('Planner setting আপডেট হয়েছে');
 }
 
 // ==================== PDF & CLOUD SAVING ====================
@@ -849,7 +857,7 @@ async function downloadProfessionalPDF() {
       pagebreak: { mode: ['css', 'legacy'] }
     };
     await html2pdf().set(opt).from(exportRoot).save();
-    showFlash('✅ PDF Downloaded!');
+    showFlash('PDF Download সম্পন্ন হয়েছে');
   } catch (error) {
     console.error('PDF export failed', error);
     showFlash('PDF export failed');
@@ -862,7 +870,7 @@ function shareLink() {
   normalizeCurrency();
   const d = btoa(JSON.stringify({ ...state, currency: 'BDT' }));
   const url = location.href.split('?')[0] + '?data=' + encodeURIComponent(d);
-  navigator.clipboard.writeText(url).then(()=>showFlash('🔗 লিংক কপি হয়েছে'));
+  navigator.clipboard.writeText(url).then(()=>showFlash('লিংক কপি হয়েছে'));
 }
 
 // ==================== INIT & EVENT LISTENERS ====================
