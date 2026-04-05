@@ -273,7 +273,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <aside id="sidebar" data-html2canvas-ignore="true">
   <div class="sidebar-header">
     <div class="sidebar-logo">Uddokta ROI Studio</div>
-    <input class="business-name-input" id="businessName" placeholder="আপনার ব্যবসার নাম" value="My Business">
+    <input class="business-name-input" id="businessName" placeholder="আপনার ব্যবসার নাম" value="আমার ব্যবসা">
   </div>
   <nav>
     <div class="nav-item active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg></span>ড্যাশবোর্ড</div>
@@ -287,7 +287,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </nav>
   <div class="sidebar-footer">
     <button class="btn btn-primary" onclick="downloadProfessionalPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>পূর্ণ রিপোর্ট PDF</button>
-    <button class="btn btn-secondary" onclick="downloadInvestorBankPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V6l7-3 7 3v4"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M3 21h18"/></svg></span>Investor/Bank রিপোর্ট</button>
+    <button class="btn btn-secondary" onclick="downloadInvestorBankPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V6l7-3 7 3v4"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M3 21h18"/></svg></span>ইনভেস্টর/ব্যাংক রিপোর্ট</button>
     <button class="btn btn-outline" onclick="shareLink()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 1 0 7 7l1-1"/></svg></span>লিংক শেয়ার</button>
   </div>
 </aside>
@@ -307,14 +307,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <button class="btn btn-secondary" onclick="switchToPage('opex')">খরচ অপটিমাইজ করুন</button>
       <button class="btn btn-ghost" onclick="switchToPage('settings')">গ্লোবাল সেটিংস টিউন করুন</button>
       <button class="btn btn-secondary mobile-only" onclick="downloadProfessionalPDF()">পূর্ণ রিপোর্ট PDF</button>
-      <button class="btn btn-outline mobile-only" onclick="downloadInvestorBankPDF()">Investor/Bank রিপোর্ট</button>
+      <button class="btn btn-outline mobile-only" onclick="downloadInvestorBankPDF()">ইনভেস্টর/ব্যাংক রিপোর্ট</button>
     </div>
     <div class="card-grid grid-4" id="dashKPIs"></div>
     <div class="insight-grid" id="dashTips"></div>
     <div class="card expert-card" id="expertSuggestion"></div>
     <div class="card-grid grid-2">
-      <div class="card"><div class="card-title">Alert System</div><div id="alertSystem"></div></div>
-      <div class="card"><div class="card-title">Expense Leak Finder</div><div id="expenseLeakFinder"></div></div>
+      <div class="card"><div class="card-title">সতর্কতা</div><div id="alertSystem"></div></div>
+      <div class="card"><div class="card-title">খরচ লিক খুঁজুন</div><div id="expenseLeakFinder"></div></div>
     </div>
     <div class="card-grid grid-2 dashboard-chart-grid">
       <div class="card chart-card combo-chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><div class="combo-chart-wrap"><canvas id="chartCashflow"></canvas></div></div>
@@ -328,7 +328,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div><div class="page-title">নতুন উদ্যোক্তা প্ল্যানার</div><div class="page-subtitle">শুধু স্ট্র্যাটেজিক সেটিংস এখানে এডিট হবে, Revenue/OPEX/CAPEX এডিট নিজ নিজ সেকশনে</div></div>
     </div>
     <div class="hero-brief">
-      <div class="hero-title">Planner Rule</div>
+      <div class="hero-title">প্ল্যানার নিয়ম</div>
       <div class="hero-sub">এই পেজে নিচের revenue, opex, capex তথ্য শুধু দেখা যাবে। এগুলো পরিবর্তন করতে সংশ্লিষ্ট সেকশনে যান।</div>
     </div>
     <div class="card-grid grid-2">
@@ -507,7 +507,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <script>
 // ==================== STATE & CONFIG ====================
 let state = {
-  businessName: 'My Business', currency: 'BDT',
+  businessName: 'আমার ব্যবসা', currency: 'BDT',
   globalUtil: 80, globalGrowth: 3, taxRate: 15, inflationRate: 5,
   capex: [], opex: [], revenue: [], exclusions: [],
   variableCostRate: 0,
@@ -533,6 +533,11 @@ function fmt(n) {
 }
 function uid() { return Math.random().toString(36).substr(2,9); }
 function normalizeCurrency() { state.currency = 'BDT'; }
+function exclusionUnitLabel(unit) {
+  if (unit === 'once') return 'একবার';
+  if (unit === 'yearly') return 'প্রতি বছর';
+  return 'প্রতি মাস';
+}
 
 // ==================== FINANCIAL LOGIC ====================
 function totalCapex() { return state.capex.reduce((a,c)=>a+c.amount,0); }
@@ -624,12 +629,12 @@ function fundingGap(netProfit) {
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
-  if (netProfit < 0) items.push({ level: 'danger', title: 'Loss Alert', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে cost cut + high-margin sale দরকার।' });
-  if (margin < 12) items.push({ level: 'warn', title: 'Low Margin', body: `Net margin ${margin.toFixed(1)}%। 15%+ টার্গেট করুন।` });
-  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'Break-even Delay', body: `Target ${target} মাস, projected ${breakEven} মাস। growth বা price revise করুন।` });
-  if (gap > 0) items.push({ level: 'danger', title: 'Funding Gap', body: `আনুমানিক ঘাটতি ${fmt(gap)}। phase-wise funding plan দরকার।` });
-  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'Runway Critical', body: `Runway ${runwayNum.toFixed(1)} মাস। জরুরি ক্যাশ প্ল্যান করুন।` });
-  if (items.length === 0) items.push({ level: 'success', title: 'Stable Zone', body: 'বড় risk alert নেই। controlled scale-up করা নিরাপদ।' });
+  if (netProfit < 0) items.push({ level: 'danger', title: 'লোকসান সতর্কতা', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে cost cut + high-margin sale দরকার।' });
+  if (margin < 12) items.push({ level: 'warn', title: 'কম মার্জিন', body: `Net margin ${margin.toFixed(1)}%। 15%+ টার্গেট করুন।` });
+  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'Break-even দেরি', body: `Target ${target} মাস, projected ${breakEven} মাস। growth বা price revise করুন।` });
+  if (gap > 0) items.push({ level: 'danger', title: 'Funding gap', body: `আনুমানিক ঘাটতি ${fmt(gap)}। phase-wise funding plan দরকার।` });
+  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'Runway ঝুঁকি', body: `Runway ${runwayNum.toFixed(1)} মাস। জরুরি ক্যাশ প্ল্যান করুন।` });
+  if (items.length === 0) items.push({ level: 'success', title: 'স্থিতিশীল অবস্থা', body: 'বড় risk alert নেই। controlled scale-up করা নিরাপদ।' });
   return items;
 }
 function getExpenseLeakItems() {
@@ -730,7 +735,7 @@ function renderDashboard() {
     if (recommendations.length === 0) recommendations.push('বর্তমান অবস্থা স্থিতিশীল। এখন unit economics ধরে রেখে sales volume বাড়ানোই সেরা পরবর্তী পদক্ষেপ।');
 
     expertEl.innerHTML = `
-      <div class="expert-title">Financial Expert Suggestion</div>
+      <div class="expert-title">আর্থিক পরামর্শ</div>
       <div class="expert-body">${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}</div>
     `;
   }
@@ -800,24 +805,24 @@ function renderROI() {
           <tr><td>Total Investment in 1 year</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + 1st year OPEX</td></tr>
           <tr><td>1st year gross revenue</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">12 মাসের revenue</td></tr>
           <tr><td>1st year NET Profit</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">Revenue - total cost - tax</td></tr>
-          <tr><td>2nd year cumulative NET Profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative2YearNet)}</td><td class="snapshot-remark">24 মাস cumulative</td></tr>
-          <tr><td>2nd year adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted2YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
+          <tr><td>প্রথম 24 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative2YearNet)}</td><td class="snapshot-remark">১ম + ২য় বছর মিলিয়ে</td></tr>
+          <tr><td>প্রথম 24 মাসের adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted2YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
         </tbody>
       </table>
     `;
     snapshotHighlights.innerHTML = `
       <div class="snapshot-highlight">
-        <div class="snapshot-highlight-label">ROI compared to 1st year investment</div>
+        <div class="snapshot-highlight-label">১ম বছরের total investment-এর তুলনায় ROI</div>
         <div class="snapshot-highlight-value">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
         <div class="snapshot-highlight-note">After all expenses and selected adjustments</div>
       </div>
       <div class="snapshot-highlight">
-        <div class="snapshot-highlight-label">ROI compared to CAPEX</div>
+        <div class="snapshot-highlight-label">CAPEX-এর তুলনায় ROI</div>
         <div class="snapshot-highlight-value">${snapshot.roiVsCapex.toFixed(1)}x</div>
         <div class="snapshot-highlight-note">Adjusted against total CAPEX only</div>
       </div>
     `;
-    exclusionTotal.innerText = `2 years cumulative: ${fmt(totalExclusions(24))}`;
+    exclusionTotal.innerText = `24 মাস cumulative: ${fmt(totalExclusions(24))}`;
     summaryExclusionTable.innerHTML = state.exclusions.length ? `
       <table class="snapshot-table exclusion-table">
         <thead>
@@ -828,7 +833,7 @@ function renderROI() {
             <tr>
               <td>${item.name}</td>
               <td class="snapshot-amount">${fmt(item.rate)}</td>
-              <td>${item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month'}</td>
+              <td>${exclusionUnitLabel(item.unit)}</td>
               <td class="snapshot-amount">${fmt(exclusionCumulative(item, 24))}</td>
             </tr>
           `).join('')}
@@ -856,7 +861,7 @@ function renderExclusions() {
             <tr>
               <td>${item.name}</td>
               <td>${fmt(item.rate)}</td>
-              <td>${item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month'}</td>
+              <td>${exclusionUnitLabel(item.unit)}</td>
               <td>${fmt(exclusionCumulative(item, 24))}</td>
               <td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('exclusions','${item.id}')">${ICONS.trash}</button></td>
             </tr>
@@ -1356,7 +1361,7 @@ function openModal(type) {
   else if(type==='exclusion') html = `
     <div class="form-group"><label class="form-label">খরচ/Exclusion Item</label><input class="form-input" id="mName"></div>
     <div class="form-group"><label class="form-label">Rate</label><input class="form-input" type="number" id="mVal"></div>
-    <div class="form-group"><label class="form-label">Unit</label><select class="form-input" id="mUnit"><option value="monthly">Per Month</option><option value="once">Once</option><option value="yearly">Per Year</option></select></div>
+    <div class="form-group"><label class="form-label">Unit</label><select class="form-input" id="mUnit"><option value="monthly">প্রতি মাস</option><option value="once">একবার</option><option value="yearly">প্রতি বছর</option></select></div>
   `;
   
   document.getElementById('modalFormContent').innerHTML = html;
@@ -1366,7 +1371,7 @@ function openModal(type) {
 function saveEntry() {
   let name = document.getElementById('mName').value;
   let val = parseFloat(document.getElementById('mVal').value);
-  if(!name || !val) return showFlash('সব ঘর পূরণ করুন');
+  if (!name || Number.isNaN(val)) return showFlash('সব ঘর পূরণ করুন');
 
   if(currentModalType==='capex') state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization:parseInt(document.getElementById('mAmo').value)});
   else if(currentModalType==='opex') state.opex.push({id:uid(), name, category:document.getElementById('mCat').value, monthly:val});
@@ -1459,11 +1464,11 @@ function buildPrintableReport(mode = 'full') {
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
       <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
-      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'Investor/Bank Ready Financial Report' : 'Financial Planning Report'}</div>
+      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংক উপযোগী আর্থিক রিপোর্ট' : 'ফিন্যান্সিয়াল প্ল্যানিং রিপোর্ট'}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">Executive Summary</div>
+      <div style="font-size:16px;font-weight:700;">এক্সিকিউটিভ সারাংশ</div>
       <div style="font-size:12px;line-height:1.8;margin-top:6px;">
         Monthly Revenue: <strong>${fmt(monthZero.rev)}</strong> |
         Monthly Net Profit: <strong>${fmt(monthZero.netProfit)}</strong> |
@@ -1473,7 +1478,7 @@ function buildPrintableReport(mode = 'full') {
       </div>
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">Financial Expert Notes</div>
+      <div style="font-size:16px;font-weight:700;">আর্থিক পরামর্শ</div>
       <div style="font-size:12px;line-height:1.8;margin-top:6px;">${notes.map((n, i) => `${i + 1}. ${n}`).join('<br>')}</div>
     </div>
   `;
@@ -1484,11 +1489,11 @@ function buildPrintableReport(mode = 'full') {
       ${buildDocTable(
         ['Particular', 'Amount', 'Remark'],
         [
-          ['Total Investment in 1 year', fmt(snapshot.totalInvestment1Year), 'CAPEX + 1st year OPEX'],
+          ['Total Investment in 1 year', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX'],
           ['1st year gross revenue', fmt(snapshot.year1GrossRevenue), '12 month revenue'],
           ['1st year NET Profit', fmt(snapshot.year1NetProfit), 'After cost and tax'],
-          ['2nd year cumulative NET Profit', fmt(snapshot.cumulative2YearNet), '24 month cumulative'],
-          ['2nd year adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions adjusted']
+          ['First 24 months cumulative NET Profit', fmt(snapshot.cumulative2YearNet), '১ম + ২য় বছর মিলিয়ে'],
+          ['First 24 months adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions adjusted']
         ]
       )}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
@@ -1551,7 +1556,7 @@ function buildPrintableReport(mode = 'full') {
           state.exclusions.map(item => [
             item.name,
             fmt(item.rate),
-            item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month',
+            exclusionUnitLabel(item.unit),
             fmt(exclusionCumulative(item, 24))
           ])
         )}
@@ -1562,7 +1567,7 @@ function buildPrintableReport(mode = 'full') {
   if (mode === 'investor') {
     root.innerHTML += `
       <div style="margin-bottom:16px;page-break-before:always;">
-        <div style="font-size:16px;font-weight:700;">Investor/Bank Snapshot</div>
+        <div style="font-size:16px;font-weight:700;">ইনভেস্টর/ব্যাংক Snapshot</div>
         ${buildDocTable(
           ['Metric', 'Value'],
           [
