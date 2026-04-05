@@ -486,21 +486,55 @@ function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); 
 function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
 
 // ==================== PDF & CLOUD SAVING ====================
-function downloadProfessionalPDF() {
+async function downloadProfessionalPDF() {
   if (typeof html2pdf === 'undefined') {
     showFlash('PDF library failed to load');
     return;
   }
-  showFlash('Generating High Quality PDF...');
-  const element = document.getElementById('main');
-  const opt = {
-    margin: [10, 10, 10, 10],
-    filename: `${state.businessName.replace(/\s+/g,'_')}_ROI_Report.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#181b21' },
-    jsPDF: { unit: 'mm', format: 'a3', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save().then(() => showFlash('✅ PDF Downloaded!'));
+  const activePage = document.querySelector('.page.active');
+  if (!activePage) {
+    showFlash('Nothing to export');
+    return;
+  }
+  showFlash('Generating PDF...');
+  const exportRoot = document.createElement('div');
+  exportRoot.style.background = '#181b21';
+  exportRoot.style.padding = '24px';
+  exportRoot.style.width = '1200px';
+  exportRoot.style.color = '#f8f9fa';
+
+  const header = document.createElement('div');
+  header.style.marginBottom = '20px';
+  header.innerHTML = `
+    <div style="font:700 24px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
+    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0;">${activePage.querySelector('.page-title')?.textContent || 'Planner Export'}</div>
+  `;
+  exportRoot.appendChild(header);
+
+  const pageClone = activePage.cloneNode(true);
+  pageClone.style.display = 'flex';
+  pageClone.style.padding = '0';
+  pageClone.querySelectorAll('[data-html2canvas-ignore="true"], button').forEach(el => el.remove());
+  exportRoot.appendChild(pageClone);
+  document.body.appendChild(exportRoot);
+
+  try {
+    const opt = {
+      margin: [8, 8, 8, 8],
+      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}_${(activePage.id || 'page').replace('page-','')}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#181b21', scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    };
+    await html2pdf().set(opt).from(exportRoot).save();
+    showFlash('✅ PDF Downloaded!');
+  } catch (error) {
+    console.error('PDF export failed', error);
+    showFlash('PDF export failed');
+  } finally {
+    exportRoot.remove();
+  }
 }
 
 async function saveToCloud() {
