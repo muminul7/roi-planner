@@ -352,8 +352,10 @@ Chart.defaults.color = '#a1a5b0';
 Chart.defaults.font.family = 'Inter';
 
 function initChart(id, type, data, options) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
   if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id), { type, data, options: { responsive: true, animation: { duration: 500 }, ...options } });
+  charts[id] = new Chart(canvas, { type, data, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 500 }, ...options } });
 }
 
 function drawCharts() {
@@ -382,6 +384,23 @@ function drawCharts() {
     datasets: [{ data: donutData, backgroundColor: ['#00e5a0','#00c78b','#f4b942','#ff5c5c','#6366f1','#a855f7'], borderWidth: 0 }]
   }, { cutout: '70%' });
 
+  // 2b. OPEX breakdown
+  const opexLabels = state.opex.map(o => o.name);
+  const opexData = state.opex.map(o => o.monthly);
+  initChart('chartOpex', 'bar', {
+    labels: opexLabels,
+    datasets: [{ label: 'Monthly OPEX', data: opexData, backgroundColor: '#f4b942', borderRadius: 6 }]
+  }, {
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { color: '#a1a5b0' } }, y: { ticks: { color: '#a1a5b0' } } }
+  });
+
+  // 2c. Revenue projection chart
+  initChart('chartRevenue', 'line', {
+    labels: months,
+    datasets: [{ label: 'Projected Revenue', data: revData, borderColor: '#00e5a0', backgroundColor: 'rgba(0,229,160,0.12)', fill: true, tension: 0.35 }]
+  });
+
   // 3. 3-Year Cumulative Forecast
   let cumProfit = -totalCapex(); // Start with initial investment
   let year3Data = [];
@@ -389,7 +408,7 @@ function drawCharts() {
   for(let i=0; i<36; i++) {
     cumProfit += getFinancials(i).netProfit;
     year3Data.push(cumProfit);
-    if(i%3===0) year3Labels.push(`M${i+1}`); // Show label every quarter
+    year3Labels.push(i % 3 === 0 ? `M${i+1}` : '');
   }
   initChart('chart3Year', 'line', {
     labels: year3Labels,
@@ -538,6 +557,7 @@ document.querySelectorAll('.nav-item').forEach(el => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('page-' + el.dataset.page).classList.add('active');
+    requestAnimationFrame(() => drawCharts());
   });
 });
 
