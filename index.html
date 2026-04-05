@@ -733,15 +733,65 @@ function renderSettingsPanel() {
 }
 
 // ==================== CHART.JS INTEGRATION ====================
-Chart.defaults.color = '#a1a5b0';
+Chart.defaults.color = '#aeb6c5';
 Chart.defaults.font.family = 'Plus Jakarta Sans, Hind Siliguri, sans-serif';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'rectRounded';
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 10;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(11,15,20,.92)';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(62,77,96,.75)';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.plugins.tooltip.titleColor = '#ffffff';
+Chart.defaults.plugins.tooltip.bodyColor = '#d9e0ec';
+Chart.defaults.plugins.tooltip.padding = 10;
+
+const donutCenterTextPlugin = {
+  id: 'donutCenterText',
+  afterDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data || !meta.data.length) return;
+    const { ctx } = chart;
+    const x = meta.data[0].x;
+    const y = meta.data[0].y;
+    const total = (chart.data.datasets[0].data || []).reduce((a, b) => a + (Number(b) || 0), 0);
+    const centerLabel = chart.config.options?.plugins?.donutCenterText?.label || 'Monthly Cost';
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#93a0b3';
+    ctx.font = '500 11px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(centerLabel, x, y - 4);
+    ctx.fillStyle = '#f1f5fb';
+    ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+    ctx.fillText(fmt(total), x, y + 18);
+    ctx.restore();
+  }
+};
+
+if (typeof Chart !== 'undefined') {
+  Chart.register(donutCenterTextPlugin);
+}
 
 function initChart(id, type, data, options) {
   if (typeof Chart === 'undefined') return;
   const canvas = document.getElementById(id);
   if (!canvas) return;
   if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(canvas, { type, data, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 500 }, ...options } });
+  charts[id] = new Chart(canvas, {
+    type,
+    data,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 650, easing: 'easeOutCubic' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: '#cfd7e6' } } },
+      ...options
+    }
+  });
 }
 
 function drawCharts() {
@@ -753,13 +803,66 @@ function drawCharts() {
     revData.push(f.rev); costData.push(f.costs + f.tax); profitData.push(f.netProfit);
   }
 
-  // 1. Cashflow Bar Chart
+  // 1. Cashflow Smart Combo
   initChart('chartCashflow', 'bar', {
     labels: months,
     datasets: [
-      { label: 'Revenue', data: revData, backgroundColor: 'rgba(0,229,160,0.5)' },
-      { label: 'Net Profit', data: profitData, backgroundColor: profitData.map(p=>p>=0?'#00e5a0':'#ff5c5c') }
+      {
+        type: 'line',
+        label: 'Revenue',
+        data: revData,
+        yAxisID: 'y',
+        borderColor: '#25e5a4',
+        backgroundColor: 'rgba(37,229,164,.18)',
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2.5,
+        pointRadius: 2,
+        pointHoverRadius: 4
+      },
+      {
+        type: 'line',
+        label: 'Total Cost',
+        data: costData,
+        yAxisID: 'y',
+        borderColor: '#f59e0b',
+        tension: 0.32,
+        borderWidth: 2,
+        borderDash: [6, 5],
+        pointRadius: 0
+      },
+      {
+        type: 'bar',
+        label: 'Net Profit',
+        data: profitData,
+        yAxisID: 'y1',
+        backgroundColor: profitData.map(p => p >= 0 ? 'rgba(22,163,74,.9)' : 'rgba(255,92,92,.88)'),
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 20
+      }
     ]
+  }, {
+    scales: {
+      x: { grid: { color: 'rgba(116,132,152,.09)' }, ticks: { color: '#9aa6b9' } },
+      y: {
+        position: 'left',
+        grid: { color: 'rgba(116,132,152,.12)' },
+        ticks: { color: '#9aa6b9', callback: (v) => fmt(Number(v)).replace('৳', '') }
+      },
+      y1: {
+        position: 'right',
+        grid: { drawOnChartArea: false },
+        ticks: { color: '#8f9cb0', callback: (v) => fmt(Number(v)).replace('৳', '') }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: ${fmt(ctx.raw)}`
+        }
+      }
+    }
   });
 
   // 2. Cost Donut
@@ -767,24 +870,59 @@ function drawCharts() {
   let donutData = state.opex.map(o=>o.monthly).concat(state.capex.length>0?[capexMonthly()]:[]);
   initChart('chartCostDonut', 'doughnut', {
     labels: donutLabels,
-    datasets: [{ data: donutData, backgroundColor: ['#00e5a0','#00c78b','#f4b942','#ff5c5c','#6366f1','#a855f7'], borderWidth: 0 }]
-  }, { cutout: '70%' });
+    datasets: [{
+      data: donutData,
+      backgroundColor: ['#34d399','#60a5fa','#f59e0b','#f472b6','#a78bfa','#22d3ee'],
+      borderColor: '#101720',
+      borderWidth: 2,
+      hoverOffset: 8
+    }]
+  }, {
+    cutout: '68%',
+    plugins: {
+      donutCenterText: { label: 'Total Monthly Cost' },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: ${fmt(ctx.raw)}`
+        }
+      }
+    }
+  });
 
   // 2b. OPEX breakdown
   const opexLabels = state.opex.map(o => o.name);
   const opexData = state.opex.map(o => o.monthly);
   initChart('chartOpex', 'bar', {
     labels: opexLabels,
-    datasets: [{ label: 'Monthly OPEX', data: opexData, backgroundColor: '#f4b942', borderRadius: 6 }]
+    datasets: [{
+      label: 'Monthly OPEX',
+      data: opexData,
+      backgroundColor: '#f4b942',
+      borderRadius: 8,
+      borderSkipped: false,
+      maxBarThickness: 28
+    }]
   }, {
     plugins: { legend: { display: false } },
-    scales: { x: { ticks: { color: '#a1a5b0' } }, y: { ticks: { color: '#a1a5b0' } } }
+    scales: {
+      x: { ticks: { color: '#a1a5b0' }, grid: { display: false } },
+      y: { ticks: { color: '#a1a5b0', callback: (v) => fmt(Number(v)).replace('৳', '') }, grid: { color: 'rgba(116,132,152,.12)' } }
+    }
   });
 
   // 2c. Revenue projection chart
   initChart('chartRevenue', 'line', {
     labels: months,
-    datasets: [{ label: 'Projected Revenue', data: revData, borderColor: '#00e5a0', backgroundColor: 'rgba(0,229,160,0.12)', fill: true, tension: 0.35 }]
+    datasets: [{
+      label: 'Projected Revenue',
+      data: revData,
+      borderColor: '#25e5a4',
+      backgroundColor: 'rgba(37,229,164,.14)',
+      fill: true,
+      tension: 0.35,
+      borderWidth: 2.5,
+      pointRadius: 2
+    }]
   });
 
   // 3. 3-Year Cumulative Forecast
