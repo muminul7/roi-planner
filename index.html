@@ -10,33 +10,33 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#0f1115;--surface:#181b21;--surface2:#22262f;--accent:#00e5a0;--accent2:#00c78b;--text:#f8f9fa;--text2:#a1a5b0;--danger:#ff5c5c;--warning:#f4b942;--success:#16a34a;--border:#2b303b}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;display:flex;height:100vh;overflow:hidden}
+:root{--bg:#0b0f14;--surface:#151b24;--surface2:#1f2733;--surface3:#0f1620;--accent:#00e5a0;--accent2:#00c78b;--text:#f8f9fa;--text2:#a1a8b7;--danger:#ff5c5c;--warning:#f4b942;--success:#16a34a;--border:#2a3443;--soft:#3c4658}
+body{background:radial-gradient(1200px 500px at 10% -10%,#13334b 0%,transparent 55%),radial-gradient(900px 400px at 120% -20%,#17341f 0%,transparent 45%),var(--bg);color:var(--text);font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;display:flex;height:100vh;overflow:hidden}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text2)}
 
-#sidebar{width:240px;min-width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden; z-index:100;}
+#sidebar{width:250px;min-width:250px;background:linear-gradient(180deg,#121822,#0f141d);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden; z-index:100;}
 .sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
-.sidebar-logo{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.sidebar-logo{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:.2px}
 .sidebar-logo::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(0,229,160,.15)}
-.business-name-input{width:100%;background:var(--surface2);border:1px solid var(--border);color:#fff;padding:10px;border-radius:8px;font-size:13px;margin-top:12px;outline:none}
+.business-name-input{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);color:#fff;padding:10px;border-radius:10px;font-size:13px;margin-top:12px;outline:none}
 .business-name-input:focus{border-color:var(--accent)}
 
 nav{flex:1;overflow-y:auto;padding:12px 0}
-.nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--text2);border-left:3px solid transparent}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--text2);border-left:3px solid transparent}
 .nav-item:hover{background:rgba(255,255,255,.03);color:#fff}
 .nav-item.active{background:rgba(0,229,160,.08);color:var(--accent);border-left-color:var(--accent)}
 
 .sidebar-footer{padding:16px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.btn{padding:10px 16px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-align:center;display:inline-block}
+.btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;text-align:center;display:inline-block}
 .btn-primary{background:var(--accent);color:#0a0a0b}
 .btn-primary:hover{background:var(--accent2)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-.btn-outline:hover{border-color:var(--text)}
+.btn-outline:hover{border-color:var(--text);background:rgba(255,255,255,.03)}
 
 #main{flex:1;overflow-y:auto;display:flex;flex-direction:column;position:relative}
 .page{display:none;padding:32px;flex-direction:column;gap:24px;min-height:100%}
@@ -50,7 +50,7 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .grid-3{grid-template-columns:1fr 1fr 1fr}
 .grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card{background:linear-gradient(180deg,var(--surface),#121924);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.22)}
 .card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
 .table-wrap .data-table{min-width:640px}
@@ -64,6 +64,13 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .kpi-value.danger{color:var(--danger)}
 .kpi-value.success{color:var(--success)}
 .kpi-sub{font-size:12px;color:var(--text2);margin-top:6px}
+.hero-brief{background:linear-gradient(135deg,rgba(0,229,160,.08),rgba(0,229,160,.02));border:1px solid rgba(0,229,160,.2);border-radius:14px;padding:16px 18px}
+.hero-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.hero-sub{font-size:13px;color:var(--text2);line-height:1.6}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.insight-item{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px}
+.insight-item h4{font-size:12px;color:#fff;margin-bottom:6px}
+.insight-item p{font-size:12px;color:var(--text2);line-height:1.6}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border)}
@@ -101,7 +108,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page{padding:16px;gap:16px}
   .page-header{flex-direction:column;align-items:flex-start;gap:12px}
   .page-header .btn{width:100%}
-  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .grid-2,.grid-3,.grid-4,.insight-grid{grid-template-columns:1fr}
   .card{padding:16px}
   .modal{width:calc(100vw - 24px);padding:20px;max-height:90vh;overflow-y:auto}
   .table-wrap .data-table{min-width:560px}
@@ -127,22 +134,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <aside id="sidebar" data-html2canvas-ignore="true">
   <div class="sidebar-header">
-    <div class="sidebar-logo">RoI Planner Pro</div>
-    <input class="business-name-input" id="businessName" placeholder="Your Business Name" value="My Business">
+    <div class="sidebar-logo">Uddokta ROI Studio</div>
+    <input class="business-name-input" id="businessName" placeholder="আপনার ব্যবসার নাম" value="My Business">
   </div>
   <nav>
-    <div class="nav-item active" data-page="dashboard">📊 Dashboard</div>
-    <div class="nav-item" data-page="capex">🏗️ CAPEX</div>
-    <div class="nav-item" data-page="opex">💸 OPEX</div>
-    <div class="nav-item" data-page="revenue">💰 Revenue</div>
-    <div class="nav-item" data-page="roi">📈 RoI & 3-Yr Forecast</div>
-    <div class="nav-item" data-page="scenarios">🔮 Scenarios</div>
-    <div class="nav-item" data-page="admin">🔐 Admin Leads</div>
+    <div class="nav-item active" data-page="dashboard">📊 ড্যাশবোর্ড</div>
+    <div class="nav-item" data-page="capex">🏗️ প্রাথমিক বিনিয়োগ</div>
+    <div class="nav-item" data-page="opex">💸 মাসিক খরচ</div>
+    <div class="nav-item" data-page="revenue">💰 আয়ের উৎস</div>
+    <div class="nav-item" data-page="roi">📈 ROI ও ৩ বছরের প্রক্ষেপণ</div>
+    <div class="nav-item" data-page="scenarios">🔮 সিনারিও বিশ্লেষণ</div>
+    <div class="nav-item" data-page="admin">🔐 লিড প্যানেল</div>
   </nav>
   <div class="sidebar-footer">
-    <button class="btn btn-primary" onclick="downloadProfessionalPDF()">📥 Export PDF</button>
-    <button class="btn btn-outline" onclick="shareLink()">🔗 Share Link</button>
-    <button class="btn btn-outline" style="font-size:11px; padding:8px" onclick="saveToCloud()">☁️ Save to Cloud</button>
+    <button class="btn btn-primary" onclick="downloadProfessionalPDF()">📥 পূর্ণ রিপোর্ট PDF</button>
+    <button class="btn btn-outline" onclick="shareLink()">🔗 লিংক শেয়ার</button>
+    <button class="btn btn-outline" style="font-size:11px; padding:8px" onclick="saveToCloud()">☁️ ক্লাউডে সেভ</button>
   </div>
 </aside>
 
@@ -150,12 +157,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-header">
-      <div><div class="page-title" id="dashTitle">Dashboard</div><div class="page-subtitle">Financial overview at a glance</div></div>
+      <div><div class="page-title" id="dashTitle">ড্যাশবোর্ড</div><div class="page-subtitle">এক নজরে ব্যবসার আর্থিক চিত্র</div></div>
+    </div>
+    <div class="hero-brief">
+      <div class="hero-title">বাংলাদেশি উদ্যোক্তাদের জন্য ROI কমান্ড সেন্টার</div>
+      <div class="hero-sub">বিনিয়োগ, খরচ, আয় এবং ট্যাক্স বিবেচনায় আপনার ব্যবসা এখন কোন অবস্থায় আছে তা দ্রুত বুঝুন, তারপর সঠিক সিদ্ধান্ত নিন।</div>
     </div>
     <div class="card-grid grid-4" id="dashKPIs"></div>
+    <div class="insight-grid" id="dashTips"></div>
     <div class="card-grid grid-2">
-      <div class="card chart-card"><div class="card-title">12-Month Cashflow Forecast</div><canvas id="chartCashflow"></canvas></div>
-      <div class="card chart-card"><div class="card-title">Cost Structure Breakdown</div><canvas id="chartCostDonut"></canvas></div>
+      <div class="card chart-card"><div class="card-title">১২ মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
+      <div class="card chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><canvas id="chartCostDonut"></canvas></div>
     </div>
   </div>
 
@@ -283,7 +295,14 @@ let currentModalType = null;
 let charts = {};
 
 // Helpers
-function fmt(n) { return CURRENCIES[state.currency] + (Math.abs(n)>=1e6 ? (n/1e6).toFixed(2)+'M' : Math.abs(n)>=1e3 ? (n/1e3).toFixed(1)+'K' : n.toFixed(0)); }
+function fmt(n) {
+  const symbol = CURRENCIES[state.currency];
+  const abs = Math.abs(n);
+  const sign = n < 0 ? '-' : '';
+  if (abs >= 10000000) return `${sign}${symbol}${(abs / 10000000).toFixed(2)} কোটি`;
+  if (abs >= 100000) return `${sign}${symbol}${(abs / 100000).toFixed(2)} লাখ`;
+  return `${sign}${symbol}${Math.round(abs).toLocaleString('en-BD')}`;
+}
 function uid() { return Math.random().toString(36).substr(2,9); }
 function normalizeCurrency() { state.currency = 'BDT'; }
 
@@ -320,11 +339,27 @@ function renderAll() {
 function renderDashboard() {
   let f = getFinancials(0);
   let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
+  const margin = f.rev > 0 ? (f.netProfit / f.rev) * 100 : 0;
+  const breakEven = f.netProfit > 0 && totalCapex() > 0 ? Math.ceil(totalCapex() / f.netProfit) : null;
   document.getElementById('dashKPIs').innerHTML = `
-    <div class="kpi"><div class="kpi-label">Monthly Revenue</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
-    <div class="kpi"><div class="kpi-label">Monthly Costs</div><div class="kpi-value">${fmt(f.costs)}</div></div>
-    <div class="kpi"><div class="kpi-label">Net Profit (After Tax)</div><div class="kpi-value ${f.netProfit>=0?'success':'danger'}">${fmt(f.netProfit)}</div></div>
-    <div class="kpi"><div class="kpi-label">Annual ROI</div><div class="kpi-value ${annualROI>=0?'accent':'danger'}">${annualROI.toFixed(1)}%</div></div>
+    <div class="kpi"><div class="kpi-label">মাসিক আয়</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
+    <div class="kpi"><div class="kpi-label">মাসিক মোট খরচ</div><div class="kpi-value">${fmt(f.costs)}</div></div>
+    <div class="kpi"><div class="kpi-label">নিট লাভ (ট্যাক্স পর)</div><div class="kpi-value ${f.netProfit>=0?'success':'danger'}">${fmt(f.netProfit)}</div></div>
+    <div class="kpi"><div class="kpi-label">বার্ষিক ROI</div><div class="kpi-value ${annualROI>=0?'accent':'danger'}">${annualROI.toFixed(1)}%</div></div>
+  `;
+  document.getElementById('dashTips').innerHTML = `
+    <div class="insight-item">
+      <h4>বর্তমান অবস্থা</h4>
+      <p>${f.netProfit >= 0 ? 'ব্যবসা লাভজনক চলছে। এই momentum ধরে রাখতে কস্ট কন্ট্রোল চালু রাখুন।' : 'ব্যবসা এখনো লোকসানে। দ্রুত high-margin service-এ ফোকাস করুন।'}</p>
+    </div>
+    <div class="insight-item">
+      <h4>Break-even দিকনির্দেশনা</h4>
+      <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে প্রাথমিক বিনিয়োগ উঠে আসবে।` : 'বর্তমান লাভের হার দিয়ে break-even করা কঠিন। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
+    </div>
+    <div class="insight-item">
+      <h4>উদ্যোক্তা টিপস</h4>
+      <p>${margin >= 20 ? 'মার্জিন ভালো আছে। এখন recurring client বাড়ালে cashflow আরও stable হবে।' : 'মার্জিন কম। কম লাভের সেবা বাদ দিয়ে premium package push করুন।'}</p>
+    </div>
   `;
 }
 
@@ -340,14 +375,14 @@ function renderROI() {
   
   document.getElementById('roiBig').innerText = annualROI.toFixed(1) + '%';
   document.getElementById('roiBig').style.color = annualROI >= 0 ? 'var(--accent)' : 'var(--danger)';
-  document.getElementById('roiSub').innerText = totalCapex() > 0 ? `Based on ${fmt(totalCapex())} Total CAPEX` : 'Please add CAPEX to calculate ROI';
+  document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট CAPEX ${fmt(totalCapex())} ভিত্তিতে হিসাব` : 'ROI দেখতে CAPEX যোগ করুন';
 
   document.getElementById('plBody').innerHTML = `
-    <tr><td>Gross Revenue</td><td class="accent">${fmt(f.rev)}/mo</td><td>${fmt(f.rev*12)}/yr</td></tr>
-    <tr><td>OPEX & Amortization</td><td>${fmt(f.costs)}/mo</td><td>${fmt(f.costs*12)}/yr</td></tr>
-    <tr><td>Gross Profit</td><td>${fmt(f.grossProfit)}/mo</td><td>${fmt(f.grossProfit*12)}/yr</td></tr>
-    <tr><td style="color:var(--danger)">Corporate Tax (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/mo</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/yr</td></tr>
-    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">Net Profit (Cash in hand)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/mo</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/yr</td></tr>
+    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/mo</td><td>${fmt(f.rev*12)}/yr</td></tr>
+    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/mo</td><td>${fmt(f.costs*12)}/yr</td></tr>
+    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/mo</td><td>${fmt(f.grossProfit*12)}/yr</td></tr>
+    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/mo</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/yr</td></tr>
+    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/mo</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/yr</td></tr>
   `;
 }
 
@@ -571,22 +606,22 @@ async function downloadProfessionalPDF() {
   header.style.borderBottom = '1px solid #2b303b';
   header.innerHTML = `
     <div style="font:700 28px Inter,sans-serif; color:#fff; margin-bottom:6px;">${state.businessName || 'RoI Planner Pro'}</div>
-    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0; margin-bottom:16px;">Complete ROI planning report · A4 export</div>
+    <div style="font:500 13px Inter,sans-serif; color:#a1a5b0; margin-bottom:16px;">বাংলাদেশি উদ্যোক্তার পূর্ণাঙ্গ ROI রিপোর্ট · A4</div>
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
       <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Monthly Revenue</div>
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">মাসিক আয়</div>
         <div style="font-size:24px; font-weight:700; color:#00e5a0;">${fmt(monthZero.rev)}</div>
       </div>
       <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Net Profit After Tax</div>
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">ট্যাক্স পর নিট লাভ</div>
         <div style="font-size:24px; font-weight:700; color:${monthZero.netProfit >= 0 ? '#16a34a' : '#ff5c5c'};">${fmt(monthZero.netProfit)}</div>
       </div>
       <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Total CAPEX</div>
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">মোট CAPEX</div>
         <div style="font-size:24px; font-weight:700; color:#fff;">${fmt(totalCapex())}</div>
       </div>
       <div style="background:#181b21; border:1px solid #2b303b; border-radius:12px; padding:14px 16px;">
-        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">Annual ROI</div>
+        <div style="font-size:11px; color:#a1a5b0; margin-bottom:6px;">বার্ষিক ROI</div>
         <div style="font-size:24px; font-weight:700; color:${annualROI >= 0 ? '#00e5a0' : '#ff5c5c'};">${annualROI.toFixed(1)}%</div>
       </div>
     </div>
@@ -594,12 +629,12 @@ async function downloadProfessionalPDF() {
   exportRoot.appendChild(header);
 
   [
-    ['page-dashboard', 'Dashboard'],
-    ['page-capex', 'Capital Expenditure'],
-    ['page-opex', 'Operating Expenses'],
-    ['page-revenue', 'Revenue & Global Settings'],
-    ['page-roi', 'ROI Summary & Forecast'],
-    ['page-scenarios', 'Scenario Analysis'],
+    ['page-dashboard', 'ড্যাশবোর্ড'],
+    ['page-capex', 'প্রাথমিক বিনিয়োগ (CAPEX)'],
+    ['page-opex', 'মাসিক অপারেটিং খরচ (OPEX)'],
+    ['page-revenue', 'আয়ের উৎস ও গ্লোবাল সেটিংস'],
+    ['page-roi', 'ROI সারসংক্ষেপ ও প্রক্ষেপণ'],
+    ['page-scenarios', 'সিনারিও বিশ্লেষণ'],
   ].forEach(([pageId, label]) => {
     const section = buildReportPageClone(pageId, label);
     if (section) exportRoot.appendChild(section);
