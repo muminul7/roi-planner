@@ -131,6 +131,27 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 #page-roi #roiBig{font-size:64px;font-weight:800;line-height:1}
 #page-roi .roi-pl-card .table-wrap .data-table{min-width:0;table-layout:auto}
 #page-roi .roi-pl-card .data-table td{padding:12px 10px}
+.snapshot-card{padding:0;overflow:hidden}
+.snapshot-head{padding:14px 18px;background:linear-gradient(135deg,rgba(37,229,164,.18),rgba(37,229,164,.05));border-bottom:1px solid var(--border)}
+.snapshot-head h3{font-size:18px;font-weight:700;color:#fff;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.snapshot-head p{font-size:12px;color:var(--text2);margin-top:4px}
+.snapshot-wrap{padding:18px}
+.snapshot-grid{display:grid;grid-template-columns:1.2fr .9fr;gap:18px}
+.snapshot-table{width:100%;border-collapse:collapse}
+.snapshot-table th,.snapshot-table td{border:1px solid var(--border);padding:10px 12px;vertical-align:middle}
+.snapshot-table th{background:rgba(255,255,255,.04);font-size:11px;text-transform:uppercase;color:var(--text2);text-align:left}
+.snapshot-table td{font-size:13px;color:#fff}
+.snapshot-table .snapshot-amount{font-weight:700;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.snapshot-table .snapshot-remark{color:var(--text2);font-size:12px}
+.snapshot-highlight{background:linear-gradient(135deg,#fff3a1,#ffd84d);color:#111;border-radius:16px;padding:18px 16px;border:1px solid rgba(0,0,0,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.snapshot-highlight + .snapshot-highlight{margin-top:12px}
+.snapshot-highlight-label{font-size:12px;font-weight:700;line-height:1.5;color:#2f2a0b;text-transform:uppercase}
+.snapshot-highlight-value{font-size:52px;line-height:1;font-weight:800;margin:10px 0 8px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.snapshot-highlight-note{font-size:12px;font-weight:600;color:#352e0c;line-height:1.5}
+.exclusion-meta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.exclusion-total{font-size:13px;color:var(--text2)}
+.exclusion-table td,.exclusion-table th{font-size:12px}
+.empty-mini{font-size:12px;color:var(--text2);padding:10px 0}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:#b7bfce;text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#182131;z-index:1}
@@ -174,6 +195,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page-header{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:0}
   .page-header .btn{width:100%}
   .grid-2,.grid-3,.grid-4,.insight-grid,.planner-readonly{grid-template-columns:1fr}
+  .snapshot-grid{grid-template-columns:1fr}
   #page-dashboard #dashKPIs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .quick-actions .btn{width:100%;padding-inline:12px}
@@ -203,6 +225,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .insight-item,.readonly-block,.alert-item{padding:11px}
   .data-table th{font-size:10px;padding:10px 9px}
   .data-table td{font-size:13px;padding:11px 9px}
+  .snapshot-highlight-value{font-size:40px}
   .flash{left:12px;right:12px;bottom:12px;text-align:center}
   .mobile-only{display:inline-flex !important}
 }
@@ -407,6 +430,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <div id="settingsSummary" class="plan-summary-box">Global settings summary এখানে দেখাবে।</div>
       </div>
     </div>
+    <div class="card" style="margin-top:4px">
+      <div class="page-header" style="margin-bottom:16px">
+        <div><div class="card-title" style="margin-bottom:4px">Exclusions</div><div class="page-subtitle">যে খরচগুলো ROI multiple হিসাব থেকে বাদ দিতে চান</div></div>
+        <button class="btn btn-secondary" onclick="openModal('exclusion')">+ Exclusion যোগ করুন</button>
+      </div>
+      <div id="exclusionManager"></div>
+    </div>
   </div>
 
   <!-- ROI & 3-YEAR FORECAST -->
@@ -431,6 +461,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card chart-card chart-tall">
       <div class="card-title">Break-even Chart (Cumulative Revenue vs Cumulative Total Cost)</div>
       <canvas id="chartBreakEven"></canvas>
+    </div>
+    <div class="card snapshot-card">
+      <div class="snapshot-head">
+        <h3>Summary Snapshot</h3>
+        <p>১ম বছর, ২য় বছর cumulative, adjusted net profit এবং ROI multiple</p>
+      </div>
+      <div class="snapshot-wrap">
+        <div class="snapshot-grid">
+          <div id="summarySnapshotTable"></div>
+          <div id="summarySnapshotHighlights"></div>
+        </div>
+        <div style="margin-top:18px">
+          <div class="exclusion-meta">
+            <div class="card-title" style="margin:0">Exclusions</div>
+            <div class="exclusion-total" id="exclusionTotal"></div>
+          </div>
+          <div id="summaryExclusionTable"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -460,7 +509,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 let state = {
   businessName: 'My Business', currency: 'BDT',
   globalUtil: 80, globalGrowth: 3, taxRate: 15, inflationRate: 5,
-  capex: [], opex: [], revenue: [],
+  capex: [], opex: [], revenue: [], exclusions: [],
   variableCostRate: 0,
   openingCash: 0,
   reserveMonths: 3,
@@ -489,6 +538,47 @@ function normalizeCurrency() { state.currency = 'BDT'; }
 function totalCapex() { return state.capex.reduce((a,c)=>a+c.amount,0); }
 function capexMonthly() { return state.capex.reduce((a,c)=>a+(c.amount/(c.amortization*12)),0); }
 function totalOpex() { return state.opex.reduce((a,c)=>a+c.monthly,0); }
+function yearRangeFinancials(startMonth, duration = 12) {
+  let revenue = 0;
+  let netProfit = 0;
+  let opex = 0;
+  let tax = 0;
+  for (let i = startMonth; i < startMonth + duration; i++) {
+    const f = getFinancials(i);
+    revenue += f.rev;
+    netProfit += f.netProfit;
+    opex += f.opexInflated + f.variable;
+    tax += f.tax;
+  }
+  return { revenue, netProfit, opex, tax };
+}
+function exclusionCumulative(item, months = 24) {
+  if (!item) return 0;
+  if (item.unit === 'once') return item.rate || 0;
+  if (item.unit === 'yearly') return (item.rate || 0) * Math.ceil(months / 12);
+  return (item.rate || 0) * months;
+}
+function totalExclusions(months = 24) {
+  return state.exclusions.reduce((sum, item) => sum + exclusionCumulative(item, months), 0);
+}
+function getSummarySnapshot() {
+  const year1 = yearRangeFinancials(0, 12);
+  const year2 = yearRangeFinancials(12, 12);
+  const totalInvestment1Year = totalCapex() + year1.opex;
+  const cumulative2YearNet = year1.netProfit + year2.netProfit;
+  const adjusted2YearNet = cumulative2YearNet - totalExclusions(24);
+  const roiVsYear1Investment = totalInvestment1Year > 0 ? adjusted2YearNet / totalInvestment1Year : 0;
+  const roiVsCapex = totalCapex() > 0 ? adjusted2YearNet / totalCapex() : 0;
+  return {
+    totalInvestment1Year,
+    year1GrossRevenue: year1.revenue,
+    year1NetProfit: year1.netProfit,
+    cumulative2YearNet,
+    adjusted2YearNet,
+    roiVsYear1Investment,
+    roiVsCapex
+  };
+}
 function inflationFactor(monthIdx=0) {
   const annual = (state.inflationRate || 0) / 100;
   const monthly = Math.pow(1 + annual, 1 / 12) - 1;
@@ -579,7 +669,7 @@ function getFinancials(monthIdx, revMult=1, costMult=1) {
 function renderAll() {
   normalizeCurrency();
   document.getElementById('dashTitle').innerText = state.businessName;
-  renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel();
+  renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions();
   drawCharts(); saveStateLocal();
 }
 
@@ -682,6 +772,7 @@ function renderTables() {
 function renderROI() {
   let f = getFinancials(0);
   let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
+  const snapshot = getSummarySnapshot();
   
   document.getElementById('roiBig').innerText = annualROI.toFixed(1) + '%';
   document.getElementById('roiBig').style.color = annualROI >= 0 ? 'var(--accent)' : 'var(--danger)';
@@ -693,6 +784,86 @@ function renderROI() {
     <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(f.grossProfit*12)}/বছর</td></tr>
     <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/বছর</td></tr>
     <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/বছর</td></tr>
+  `;
+
+  const snapshotTable = document.getElementById('summarySnapshotTable');
+  const snapshotHighlights = document.getElementById('summarySnapshotHighlights');
+  const summaryExclusionTable = document.getElementById('summaryExclusionTable');
+  const exclusionTotal = document.getElementById('exclusionTotal');
+  if (snapshotTable && snapshotHighlights && summaryExclusionTable && exclusionTotal) {
+    snapshotTable.innerHTML = `
+      <table class="snapshot-table">
+        <thead>
+          <tr><th>Particular</th><th>Amount</th><th>Remark</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Total Investment in 1 year</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + 1st year OPEX</td></tr>
+          <tr><td>1st year gross revenue</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">12 মাসের revenue</td></tr>
+          <tr><td>1st year NET Profit</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">Revenue - total cost - tax</td></tr>
+          <tr><td>2nd year cumulative NET Profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative2YearNet)}</td><td class="snapshot-remark">24 মাস cumulative</td></tr>
+          <tr><td>2nd year adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted2YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
+        </tbody>
+      </table>
+    `;
+    snapshotHighlights.innerHTML = `
+      <div class="snapshot-highlight">
+        <div class="snapshot-highlight-label">ROI compared to 1st year investment</div>
+        <div class="snapshot-highlight-value">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
+        <div class="snapshot-highlight-note">After all expenses and selected adjustments</div>
+      </div>
+      <div class="snapshot-highlight">
+        <div class="snapshot-highlight-label">ROI compared to CAPEX</div>
+        <div class="snapshot-highlight-value">${snapshot.roiVsCapex.toFixed(1)}x</div>
+        <div class="snapshot-highlight-note">Adjusted against total CAPEX only</div>
+      </div>
+    `;
+    exclusionTotal.innerText = `2 years cumulative: ${fmt(totalExclusions(24))}`;
+    summaryExclusionTable.innerHTML = state.exclusions.length ? `
+      <table class="snapshot-table exclusion-table">
+        <thead>
+          <tr><th>Items</th><th>Rate</th><th>Unit</th><th>2 years cumul</th></tr>
+        </thead>
+        <tbody>
+          ${state.exclusions.map(item => `
+            <tr>
+              <td>${item.name}</td>
+              <td class="snapshot-amount">${fmt(item.rate)}</td>
+              <td>${item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month'}</td>
+              <td class="snapshot-amount">${fmt(exclusionCumulative(item, 24))}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : `<div class="empty-mini">কোনো exclusion যোগ করা হয়নি।</div>`;
+  }
+}
+
+function renderExclusions() {
+  const root = document.getElementById('exclusionManager');
+  if (!root) return;
+  if (!state.exclusions.length) {
+    root.innerHTML = `<div class="empty-mini">এখনো exclusion item যোগ করা হয়নি। যেমন management fee, campaign spend, software enhancement ইত্যাদি add করতে পারেন।</div>`;
+    return;
+  }
+  root.innerHTML = `
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Item</th><th>Rate</th><th>Unit</th><th>2 বছর cumulative</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          ${state.exclusions.map(item => `
+            <tr>
+              <td>${item.name}</td>
+              <td>${fmt(item.rate)}</td>
+              <td>${item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month'}</td>
+              <td>${fmt(exclusionCumulative(item, 24))}</td>
+              <td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('exclusions','${item.id}')">${ICONS.trash}</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
   `;
 }
 
@@ -1155,6 +1326,11 @@ function openModal(type) {
     <div class="form-group"><label class="form-label">মাসে ইউনিট সংখ্যা</label><input class="form-input" type="number" id="mQty" value="1"></div>
     <div style="margin-top:10px"><input type="checkbox" id="mGlobal" checked> <label class="form-label">গ্লোবাল utilization + growth ব্যবহার করুন</label></div>
   `;
+  else if(type==='exclusion') html = `
+    <div class="form-group"><label class="form-label">খরচ/Exclusion Item</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">Rate</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">Unit</label><select class="form-input" id="mUnit"><option value="monthly">Per Month</option><option value="once">Once</option><option value="yearly">Per Year</option></select></div>
+  `;
   
   document.getElementById('modalFormContent').innerHTML = html;
   document.getElementById('entryModal').classList.add('open');
@@ -1168,6 +1344,7 @@ function saveEntry() {
   if(currentModalType==='capex') state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization:parseInt(document.getElementById('mAmo').value)});
   else if(currentModalType==='opex') state.opex.push({id:uid(), name, category:document.getElementById('mCat').value, monthly:val});
   else if(currentModalType==='revenue') state.revenue.push({id:uid(), name, price:val, qty:parseInt(document.getElementById('mQty').value), useGlobal:document.getElementById('mGlobal').checked, utilization:80, growth:3});
+  else if(currentModalType==='exclusion') state.exclusions.push({id:uid(), name, rate:val, unit:document.getElementById('mUnit').value});
 
   document.getElementById('entryModal').classList.remove('open');
   renderAll();
@@ -1227,6 +1404,7 @@ function buildDocTable(headers, rows) {
 
 function buildPrintableReport(mode = 'full') {
   const monthZero = getFinancials(0);
+  const snapshot = getSummarySnapshot();
   const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
   const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
   const breakEven = breakEvenMonths(monthZero.netProfit);
@@ -1275,6 +1453,31 @@ function buildPrintableReport(mode = 'full') {
 
   root.innerHTML += `
     <div style="margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:700;">Summary Snapshot</div>
+      ${buildDocTable(
+        ['Particular', 'Amount', 'Remark'],
+        [
+          ['Total Investment in 1 year', fmt(snapshot.totalInvestment1Year), 'CAPEX + 1st year OPEX'],
+          ['1st year gross revenue', fmt(snapshot.year1GrossRevenue), '12 month revenue'],
+          ['1st year NET Profit', fmt(snapshot.year1NetProfit), 'After cost and tax'],
+          ['2nd year cumulative NET Profit', fmt(snapshot.cumulative2YearNet), '24 month cumulative'],
+          ['2nd year adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions adjusted']
+        ]
+      )}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+        <div style="border:1px solid #222;background:#fff3a6;padding:14px 16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">ROI compared to 1st year investment</div>
+          <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
+          <div style="font-size:11px;">After all expenses and adjustments</div>
+        </div>
+        <div style="border:1px solid #222;background:#ffe96f;padding:14px 16px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">ROI compared to CAPEX</div>
+          <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsCapex.toFixed(1)}x</div>
+          <div style="font-size:11px;">After selected exclusions</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
       <div style="font-size:16px;font-weight:700;">CAPEX Details</div>
       ${buildDocTable(
         ['Item', 'Category', 'Amount', 'Amortization (Years)', 'Monthly Amortized'],
@@ -1311,6 +1514,23 @@ function buildPrintableReport(mode = 'full') {
       ${buildDocTable(['Month', 'Revenue', 'Total Cost', 'Net Profit'], months)}
     </div>
   `;
+
+  if (state.exclusions.length) {
+    root.innerHTML += `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:16px;font-weight:700;">Exclusions</div>
+        ${buildDocTable(
+          ['Items', 'Rate', 'Unit', '2 years cumul'],
+          state.exclusions.map(item => [
+            item.name,
+            fmt(item.rate),
+            item.unit === 'once' ? 'Once' : item.unit === 'yearly' ? 'Per Year' : 'Per Month',
+            fmt(exclusionCumulative(item, 24))
+          ])
+        )}
+      </div>
+    `;
+  }
 
   if (mode === 'investor') {
     root.innerHTML += `
@@ -1387,6 +1607,7 @@ function loadState() {
   if (!Number.isFinite(state.openingCash)) state.openingCash = 0;
   if (!Number.isFinite(state.reserveMonths)) state.reserveMonths = 3;
   if (!Number.isFinite(state.targetProfitMonths)) state.targetProfitMonths = 12;
+  if (!Array.isArray(state.exclusions)) state.exclusions = [];
 }
 
 function showFlash(msg) {
