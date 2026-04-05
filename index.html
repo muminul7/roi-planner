@@ -72,6 +72,8 @@ nav{flex:1;overflow-y:auto;padding:8px 0}
 .form-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:13px;width:100%}
 .form-input:focus{outline:none;border-color:var(--accent)}
 .data-table{width:100%;border-collapse:collapse}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap .data-table{min-width:640px}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface2)}
 .data-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
 .data-table tr:last-child td{border-bottom:none}
@@ -147,14 +149,41 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
 .flash{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--accent);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;z-index:9999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none}
 .flash.show{opacity:1;transform:translateY(0)}
 @media(max-width:768px){
-  #sidebar{width:56px;min-width:56px}
-  .sidebar-header,.health-score,.sidebar-footer{display:none}
-  .nav-item span{display:none}
-  .nav-item{justify-content:center;padding:14px 0}
-  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  body{display:block;height:auto;overflow:auto}
+  #sidebar{width:100%;min-width:0;border-right:none;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20}
+  .sidebar-header{padding:14px 16px 12px}
+  .sidebar-logo{font-size:16px}
+  .sidebar-logo span{font-size:11px}
+  .business-name-input,.currency-select{font-size:16px}
+  .health-score{margin:0 16px 12px}
+  nav{display:flex;overflow-x:auto;padding:8px 12px 12px;gap:8px}
+  .nav-item{border-left:none;border:1px solid var(--border);border-radius:999px;padding:10px 14px;white-space:nowrap;flex:0 0 auto}
+  .nav-item.active{border-left:none}
+  .nav-icon{width:auto}
+  .sidebar-footer{padding:12px 16px;flex-direction:row}
+  #main{min-width:0}
+  .grid-2,.grid-3,.grid-4,.lead-modal-stats,.lead-metrics{grid-template-columns:1fr}
   .page{padding:16px}
+  .page-header{flex-direction:column;align-items:flex-start;gap:12px}
+  .page-header .btn{width:100%}
+  .card{padding:16px}
+  .branding-strip{flex-direction:column;align-items:flex-start}
+  .branding-strip .btn{width:100%;text-align:center}
+  .form-row,.lock-form,.modal-actions,.lead-contact,.admin-header{flex-direction:column;align-items:stretch}
+  .admin-header > div:last-child{width:100%}
+  .admin-header > div:last-child .btn{width:100%}
+  .modal{width:calc(100vw - 24px);padding:18px}
+  .lead-modal-roi{font-size:40px}
   .roi-big{font-size:48px}
-  .lead-metrics{grid-template-columns:1fr 1fr}
+  .flash{left:12px;right:12px;bottom:12px}
+}
+@media(max-width:520px){
+  .sidebar-footer-row{flex-direction:column}
+  .btn-small{padding:10px 12px}
+  .kpi{padding:16px}
+  .kpi-value{font-size:22px}
+  .table-wrap .data-table{min-width:560px}
+  .lead-stat{padding:8px}
 }
 @media print{
   #sidebar{display:none}
@@ -235,7 +264,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <button class="btn btn-primary" onclick="openCapexModal()">+ Add Item</button>
     </div>
     <div class="card"><div class="card-title">CAPEX Items</div>
-      <table class="data-table"><thead><tr><th>Item</th><th>Category</th><th>Amount</th><th>Amortization</th><th>Monthly Cost</th><th>Actions</th></tr></thead><tbody id="capexBody"></tbody></table>
+      <div class="table-wrap">
+        <table class="data-table"><thead><tr><th>Item</th><th>Category</th><th>Amount</th><th>Amortization</th><th>Monthly Cost</th><th>Actions</th></tr></thead><tbody id="capexBody"></tbody></table>
+      </div>
     </div>
     <div class="card-grid grid-3" id="capexSummary"></div>
   </div>
@@ -248,7 +279,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
     </div>
     <div class="card-grid grid-2">
       <div class="card"><div class="card-title">Monthly Expenses</div>
-        <table class="data-table"><thead><tr><th>Expense</th><th>Category</th><th>Monthly</th><th>Annual</th><th>Actions</th></tr></thead><tbody id="opexBody"></tbody></table>
+        <div class="table-wrap">
+          <table class="data-table"><thead><tr><th>Expense</th><th>Category</th><th>Monthly</th><th>Annual</th><th>Actions</th></tr></thead><tbody id="opexBody"></tbody></table>
+        </div>
       </div>
       <div class="card"><div class="card-title">Expense Breakdown</div><canvas id="opexChart" height="200"></canvas><div class="legend" id="opexLegend"></div></div>
     </div>
@@ -262,7 +295,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <button class="btn btn-primary" onclick="openRevenueModal()">+ Add Stream</button>
     </div>
     <div class="card"><div class="card-title">Revenue Items</div>
-      <table class="data-table"><thead><tr><th>Service/Product</th><th>Price</th><th>Qty/Month</th><th>Utilization%</th><th>Growth%</th><th>Monthly Rev</th><th>Actions</th></tr></thead><tbody id="revenueBody"></tbody></table>
+      <div class="table-wrap">
+        <table class="data-table"><thead><tr><th>Service/Product</th><th>Price</th><th>Qty/Month</th><th>Utilization%</th><th>Growth%</th><th>Monthly Rev</th><th>Actions</th></tr></thead><tbody id="revenueBody"></tbody></table>
+      </div>
     </div>
     <div class="card-grid grid-2">
       <div class="card"><div class="card-title">Revenue Projections (12 months)</div><canvas id="revenueChart" height="200"></canvas></div>
@@ -291,7 +326,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
       <div class="card-grid grid-2" style="gap:12px" id="roiKPIs"></div>
     </div>
     <div class="card"><div class="card-title">Profit & Loss Table</div>
-      <table class="data-table"><thead><tr><th>Line Item</th><th>Monthly</th><th>Annual</th><th>% of Revenue</th></tr></thead><tbody id="plBody"></tbody></table>
+      <div class="table-wrap">
+        <table class="data-table"><thead><tr><th>Line Item</th><th>Monthly</th><th>Annual</th><th>% of Revenue</th></tr></thead><tbody id="plBody"></tbody></table>
+      </div>
     </div>
     <div class="card"><div class="card-title">CAPEX Recovery Progress</div><div style="display:flex;flex-direction:column;gap:10px" id="capexRecovery"></div></div>
     <div class="card"><div class="card-title">Monthly Cashflow (12 months)</div><canvas id="roiCashflowChart" height="180"></canvas></div>
