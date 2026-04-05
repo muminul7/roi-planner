@@ -84,6 +84,9 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .readonly-value{font-size:20px;font-weight:700;color:#fff}
 .readonly-hint{font-size:12px;color:var(--text2);line-height:1.6}
 .plan-summary-box{margin-top:16px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text2);font-size:13px;line-height:1.7}
+.expert-card{border:1px solid rgba(0,229,160,.2);background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,229,160,.02))}
+.expert-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:10px}
+.expert-body{font-size:13px;color:var(--text2);line-height:1.8}
 #page-roi .roi-hero-card{text-align:center;padding:40px 20px}
 #page-roi #roiBig{font-size:64px;font-weight:800;line-height:1}
 #page-roi .roi-pl-card .table-wrap .data-table{min-width:0;table-layout:auto}
@@ -206,6 +209,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     </div>
     <div class="card-grid grid-4" id="dashKPIs"></div>
     <div class="insight-grid" id="dashTips"></div>
+    <div class="card expert-card" id="expertSuggestion"></div>
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">১২ মাসের ক্যাশফ্লো পূর্বাভাস</div><canvas id="chartCashflow"></canvas></div>
       <div class="card chart-card"><div class="card-title">খরচের গঠন বিশ্লেষণ</div><canvas id="chartCostDonut"></canvas></div>
@@ -469,6 +473,21 @@ function renderDashboard() {
       <p>বর্তমান ভ্যারিয়েবল খরচ: ${fmt(f.variable)} (বিক্রির ${(state.variableCostRate || 0).toFixed(0)}%)</p>
     </div>
   `;
+  const expertEl = document.getElementById('expertSuggestion');
+  if (expertEl) {
+    const recommendations = [];
+    if (f.netProfit < 0) recommendations.push('আগামী ৩০ দিনের জন্য খরচ freeze করে top 3 revenue driver-এ ফোকাস করুন।');
+    if (margin < 15) recommendations.push('Gross margin কম: low-margin service বাদ দিয়ে premium bundle চালু করুন।');
+    if (gap > 0) recommendations.push(`Funding gap ${fmt(gap)}: phased investment plan বা bridge financing বিবেচনা করুন।`);
+    if (breakEven && breakEven > target) recommendations.push(`টার্গেট ${target} মাসে break-even পেতে মাসিক growth ${Math.max(state.globalGrowth + 2, 5)}% করার চেষ্টা করুন।`);
+    if (annualROI >= 35 && f.netProfit > 0) recommendations.push('Performance শক্তিশালী: এখন 3-6 মাসের cash reserve build করে scale plan চালু করুন।');
+    if (recommendations.length === 0) recommendations.push('বর্তমান অবস্থা স্থিতিশীল। এখন unit economics ধরে রেখে sales volume বাড়ানোই সেরা পরবর্তী পদক্ষেপ।');
+
+    expertEl.innerHTML = `
+      <div class="expert-title">Financial Expert Suggestion</div>
+      <div class="expert-body">${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}</div>
+    `;
+  }
 }
 
 function renderTables() {
