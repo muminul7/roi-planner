@@ -459,13 +459,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <canvas id="chart3Year"></canvas>
     </div>
     <div class="card chart-card chart-tall">
-      <div class="card-title">Break-even Chart (Cumulative Revenue vs Cumulative Total Cost)</div>
+      <div class="card-title">ব্রেক-ইভেন চার্ট (সমষ্টিগত আয় বনাম সমষ্টিগত মোট খরচ)</div>
       <canvas id="chartBreakEven"></canvas>
     </div>
     <div class="card snapshot-card">
       <div class="snapshot-head">
-        <h3>Summary Snapshot</h3>
-        <p>১ম বছর, ২য় বছর cumulative, adjusted net profit এবং ROI multiple</p>
+        <h3>সামারি স্ন্যাপশট</h3>
+        <p>প্রথম বছর, প্রথম 24 মাসের cumulative, adjusted net profit এবং ROI multiple</p>
       </div>
       <div class="snapshot-wrap">
         <div class="snapshot-grid">
@@ -474,7 +474,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         </div>
         <div style="margin-top:18px">
           <div class="exclusion-meta">
-            <div class="card-title" style="margin:0">Exclusions</div>
+            <div class="card-title" style="margin:0">এক্সক্লুশনস</div>
             <div class="exclusion-total" id="exclusionTotal"></div>
           </div>
           <div id="summaryExclusionTable"></div>
@@ -537,6 +537,18 @@ function exclusionUnitLabel(unit) {
   if (unit === 'once') return 'একবার';
   if (unit === 'yearly') return 'প্রতি বছর';
   return 'প্রতি মাস';
+}
+function categoryLabel(value) {
+  const map = {
+    Equipment: 'যন্ত্রপাতি',
+    Software: 'সফটওয়্যার',
+    Furniture: 'ফার্নিচার',
+    Other: 'অন্যান্য',
+    Rent: 'ভাড়া',
+    Salaries: 'বেতন',
+    Marketing: 'মার্কেটিং'
+  };
+  return map[value] || value;
 }
 
 // ==================== FINANCIAL LOGIC ====================
@@ -629,12 +641,12 @@ function fundingGap(netProfit) {
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
-  if (netProfit < 0) items.push({ level: 'danger', title: 'লোকসান সতর্কতা', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে cost cut + high-margin sale দরকার।' });
+  if (netProfit < 0) items.push({ level: 'danger', title: 'লোকসান সতর্কতা', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে খরচ কমিয়ে বেশি মার্জিনের বিক্রিতে জোর দিন।' });
   if (margin < 12) items.push({ level: 'warn', title: 'কম মার্জিন', body: `Net margin ${margin.toFixed(1)}%। 15%+ টার্গেট করুন।` });
-  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'Break-even দেরি', body: `Target ${target} মাস, projected ${breakEven} মাস। growth বা price revise করুন।` });
-  if (gap > 0) items.push({ level: 'danger', title: 'Funding gap', body: `আনুমানিক ঘাটতি ${fmt(gap)}। phase-wise funding plan দরকার।` });
-  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'Runway ঝুঁকি', body: `Runway ${runwayNum.toFixed(1)} মাস। জরুরি ক্যাশ প্ল্যান করুন।` });
-  if (items.length === 0) items.push({ level: 'success', title: 'স্থিতিশীল অবস্থা', body: 'বড় risk alert নেই। controlled scale-up করা নিরাপদ।' });
+  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'ব্রেক-ইভেন দেরি', body: `টার্গেট ${target} মাস, কিন্তু প্রক্ষেপণ ${breakEven} মাস। growth বা price revise করুন।` });
+  if (gap > 0) items.push({ level: 'danger', title: 'ফান্ডিং ঘাটতি', body: `আনুমানিক ঘাটতি ${fmt(gap)}। ধাপে ধাপে ফান্ডিং প্ল্যান দরকার।` });
+  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'ক্যাশ রানওয়ে ঝুঁকি', body: `ক্যাশ রানওয়ে ${runwayNum.toFixed(1)} মাস। জরুরি cash plan করুন।` });
+  if (items.length === 0) items.push({ level: 'success', title: 'স্থিতিশীল অবস্থা', body: 'বড় কোনো সতর্কতা নেই। নিয়ন্ত্রিতভাবে scale-up করা নিরাপদ।' });
   return items;
 }
 function getExpenseLeakItems() {
@@ -644,7 +656,7 @@ function getExpenseLeakItems() {
     .map(item => ({ ...item, share: (item.monthly / total) * 100 }))
     .sort((a, b) => b.monthly - a.monthly);
   const leaks = ranked.filter(item => item.share >= 25).slice(0, 3);
-  if (!leaks.length) return [{ title: 'Healthy Mix', body: 'OPEX distribution balanced আছে। বড় leak দেখা যাচ্ছে না।' }];
+  if (!leaks.length) return [{ title: 'সুসমন্বিত খরচ', body: 'OPEX distribution balanced আছে। বড় leak দেখা যাচ্ছে না।' }];
   return leaks.map(item => ({
     title: `${item.name} (${item.share.toFixed(1)}%)`,
     body: `মাসিক ${fmt(item.monthly)}। এই খাতে 8-12% optimize করলে cashflow improve হবে।`
@@ -700,11 +712,11 @@ function renderDashboard() {
       <p>${f.netProfit >= 0 ? 'ব্যবসা লাভজনক চলছে। এই momentum ধরে রাখতে কস্ট কন্ট্রোল চালু রাখুন।' : 'ব্যবসা এখনো লোকসানে। দ্রুত high-margin service-এ ফোকাস করুন।'}</p>
     </div>
     <div class="insight-item">
-      <h4>Break-even দিকনির্দেশনা</h4>
+      <h4>ব্রেক-ইভেন দিকনির্দেশনা</h4>
       <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে (সম্ভাব্য ${breakEvenDate}) break-even হবে।` : 'বর্তমান লাভের হার দিয়ে break-even করা কঠিন। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
     </div>
     <div class="insight-item">
-      <h4>Target vs Actual</h4>
+      <h4>টার্গেট বনাম বাস্তবতা</h4>
       <p>${breakEven ? (breakEven <= target ? `আপনার target ${target} মাসের মধ্যে profit সম্ভব দেখাচ্ছে।` : `টার্গেট ${target} মাস, কিন্তু বর্তমান projection ${breakEven} মাস।`) : `আপনার target ${target} মাস, এখনো projection অনুযায়ী profit zone এ আসেনি।`}</p>
     </div>
     <div class="insight-item">
@@ -712,12 +724,12 @@ function renderDashboard() {
       <p>${margin >= 20 ? 'মার্জিন ভালো আছে। এখন recurring client বাড়ালে cashflow আরও stable হবে।' : 'মার্জিন কম। কম লাভের সেবা বাদ দিয়ে premium package push করুন।'}</p>
     </div>
     <div class="insight-item">
-      <h4>Cash Runway</h4>
+      <h4>ক্যাশ রানওয়ে</h4>
       <p>${runway} · জরুরি তহবিল লক্ষ্য: ${fmt(reserveTarget())}</p>
     </div>
     <div class="insight-item">
-      <h4>Funding Gap</h4>
-      <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}. খরচ কমানো/অতিরিক্ত ফান্ড লাগবে।` : 'বর্তমান প্ল্যানে বড় funding gap নেই।'}</p>
+      <h4>ফান্ডিং ঘাটতি</h4>
+      <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}। খরচ কমানো বা অতিরিক্ত ফান্ড লাগবে।` : 'বর্তমান প্ল্যানে বড় funding gap নেই।'}</p>
     </div>
     <div class="insight-item">
       <h4>ভ্যারিয়েবল খরচ চাপ</h4>
@@ -729,7 +741,7 @@ function renderDashboard() {
     const recommendations = [];
     if (f.netProfit < 0) recommendations.push('আগামী 30 দিনের জন্য খরচ freeze করে top 3 revenue driver-এ ফোকাস করুন।');
     if (margin < 15) recommendations.push('Gross margin কম: low-margin service বাদ দিয়ে premium bundle চালু করুন।');
-    if (gap > 0) recommendations.push(`Funding gap ${fmt(gap)}: phased investment plan বা bridge financing বিবেচনা করুন।`);
+    if (gap > 0) recommendations.push(`ফান্ডিং ঘাটতি ${fmt(gap)}: ধাপে ধাপে investment plan বা bridge financing বিবেচনা করুন।`);
     if (breakEven && breakEven > target) recommendations.push(`টার্গেট ${target} মাসে break-even পেতে মাসিক growth ${Math.max(state.globalGrowth + 2, 5)}% করার চেষ্টা করুন।`);
     if (annualROI >= 35 && f.netProfit > 0) recommendations.push('Performance শক্তিশালী: এখন 3-6 মাসের cash reserve build করে scale plan চালু করুন।');
     if (recommendations.length === 0) recommendations.push('বর্তমান অবস্থা স্থিতিশীল। এখন unit economics ধরে রেখে sales volume বাড়ানোই সেরা পরবর্তী পদক্ষেপ।');
@@ -769,8 +781,8 @@ function renderDashboard() {
 }
 
 function renderTables() {
-  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${c.category}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">${ICONS.trash}</button></td></tr>`).join('');
-  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${o.category}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${categoryLabel(c.category)}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${categoryLabel(o.category)}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">${ICONS.trash}</button></td></tr>`).join('');
   document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">${ICONS.trash}</button></td></tr>`).join('');
 }
 
@@ -799,12 +811,12 @@ function renderROI() {
     snapshotTable.innerHTML = `
       <table class="snapshot-table">
         <thead>
-          <tr><th>Particular</th><th>Amount</th><th>Remark</th></tr>
+          <tr><th>বিষয়</th><th>টাকার পরিমাণ</th><th>মন্তব্য</th></tr>
         </thead>
         <tbody>
-          <tr><td>Total Investment in 1 year</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + 1st year OPEX</td></tr>
-          <tr><td>1st year gross revenue</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">12 মাসের revenue</td></tr>
-          <tr><td>1st year NET Profit</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">Revenue - total cost - tax</td></tr>
+          <tr><td>প্রথম বছরের মোট বিনিয়োগ</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + প্রথম বছরের OPEX</td></tr>
+          <tr><td>প্রথম বছরের মোট আয়</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">প্রথম 12 মাসের revenue</td></tr>
+          <tr><td>প্রথম বছরের নিট লাভ</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">আয় - মোট খরচ - কর</td></tr>
           <tr><td>প্রথম 24 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative2YearNet)}</td><td class="snapshot-remark">১ম + ২য় বছর মিলিয়ে</td></tr>
           <tr><td>প্রথম 24 মাসের adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted2YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
         </tbody>
@@ -814,19 +826,19 @@ function renderROI() {
       <div class="snapshot-highlight">
         <div class="snapshot-highlight-label">১ম বছরের total investment-এর তুলনায় ROI</div>
         <div class="snapshot-highlight-value">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
-        <div class="snapshot-highlight-note">After all expenses and selected adjustments</div>
+        <div class="snapshot-highlight-note">সব খরচ ও নির্বাচিত adjustment বাদ দেওয়ার পর</div>
       </div>
       <div class="snapshot-highlight">
         <div class="snapshot-highlight-label">CAPEX-এর তুলনায় ROI</div>
         <div class="snapshot-highlight-value">${snapshot.roiVsCapex.toFixed(1)}x</div>
-        <div class="snapshot-highlight-note">Adjusted against total CAPEX only</div>
+        <div class="snapshot-highlight-note">শুধু মোট CAPEX-এর তুলনায় adjusted হিসাব</div>
       </div>
     `;
     exclusionTotal.innerText = `24 মাস cumulative: ${fmt(totalExclusions(24))}`;
     summaryExclusionTable.innerHTML = state.exclusions.length ? `
       <table class="snapshot-table exclusion-table">
         <thead>
-          <tr><th>Items</th><th>Rate</th><th>Unit</th><th>2 years cumul</th></tr>
+          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>24 মাস cumulative</th></tr>
         </thead>
         <tbody>
           ${state.exclusions.map(item => `
@@ -854,7 +866,7 @@ function renderExclusions() {
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr><th>Item</th><th>Rate</th><th>Unit</th><th>2 বছর cumulative</th><th>Action</th></tr>
+          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>2 বছর cumulative</th><th>অ্যাকশন</th></tr>
         </thead>
         <tbody>
           ${state.exclusions.map(item => `
@@ -949,7 +961,7 @@ function renderSettingsPanel() {
 
   const f = getFinancials(0);
   const be = breakEvenMonths(f.netProfit);
-  settingsSummary.innerText = `Inflation-adjusted projection active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'Not reached'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())}`;
+  settingsSummary.innerText = `Inflation-adjusted projection active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())}`;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
@@ -1343,13 +1355,13 @@ function openModal(type) {
   let html = '';
   if(type==='capex') html = `
     <div class="form-group"><label class="form-label">আইটেমের নাম</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>Equipment</option><option>Software</option><option>Furniture</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>যন্ত্রপাতি</option><option>সফটওয়্যার</option><option>ফার্নিচার</option><option>অন্যান্য</option></select></div>
     <div class="form-group"><label class="form-label">টাকার পরিমাণ</label><input class="form-input" type="number" id="mVal"></div>
     <div class="form-group"><label class="form-label">কত বছরে ভাগ হবে</label><input class="form-input" type="number" id="mAmo" value="3"></div>
   `;
   else if(type==='opex') html = `
     <div class="form-group"><label class="form-label">খরচের নাম</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>Rent</option><option>Salaries</option><option>Marketing</option><option>Other</option></select></div>
+    <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>ভাড়া</option><option>বেতন</option><option>মার্কেটিং</option><option>অন্যান্য</option></select></div>
     <div class="form-group"><label class="form-label">মাসিক খরচ</label><input class="form-input" type="number" id="mVal"></div>
   `;
   else if(type==='revenue') html = `
@@ -1359,9 +1371,9 @@ function openModal(type) {
     <div style="margin-top:10px"><input type="checkbox" id="mGlobal" checked> <label class="form-label">গ্লোবাল utilization + growth ব্যবহার করুন</label></div>
   `;
   else if(type==='exclusion') html = `
-    <div class="form-group"><label class="form-label">খরচ/Exclusion Item</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">Rate</label><input class="form-input" type="number" id="mVal"></div>
-    <div class="form-group"><label class="form-label">Unit</label><select class="form-input" id="mUnit"><option value="monthly">প্রতি মাস</option><option value="once">একবার</option><option value="yearly">প্রতি বছর</option></select></div>
+    <div class="form-group"><label class="form-label">খরচ/এক্সক্লুশন আইটেম</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">রেট</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">ইউনিট</label><select class="form-input" id="mUnit"><option value="monthly">প্রতি মাস</option><option value="once">একবার</option><option value="yearly">প্রতি বছর</option></select></div>
   `;
   
   document.getElementById('modalFormContent').innerHTML = html;
@@ -1369,13 +1381,19 @@ function openModal(type) {
 }
 
 function saveEntry() {
-  let name = document.getElementById('mName').value;
+  let name = document.getElementById('mName').value.trim();
   let val = parseFloat(document.getElementById('mVal').value);
   if (!name || Number.isNaN(val)) return showFlash('সব ঘর পূরণ করুন');
 
-  if(currentModalType==='capex') state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization:parseInt(document.getElementById('mAmo').value)});
+  if(currentModalType==='capex') {
+    const amortization = Math.max(1, parseInt(document.getElementById('mAmo').value || '1', 10));
+    state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization});
+  }
   else if(currentModalType==='opex') state.opex.push({id:uid(), name, category:document.getElementById('mCat').value, monthly:val});
-  else if(currentModalType==='revenue') state.revenue.push({id:uid(), name, price:val, qty:parseInt(document.getElementById('mQty').value), useGlobal:document.getElementById('mGlobal').checked, utilization:80, growth:3});
+  else if(currentModalType==='revenue') {
+    const qty = Math.max(1, parseInt(document.getElementById('mQty').value || '1', 10));
+    state.revenue.push({id:uid(), name, price:val, qty, useGlobal:document.getElementById('mGlobal').checked, utilization:80, growth:3});
+  }
   else if(currentModalType==='exclusion') state.exclusions.push({id:uid(), name, rate:val, unit:document.getElementById('mUnit').value});
 
   document.getElementById('entryModal').classList.remove('open');
@@ -1470,10 +1488,10 @@ function buildPrintableReport(mode = 'full') {
     <div style="margin-bottom:16px;">
       <div style="font-size:16px;font-weight:700;">এক্সিকিউটিভ সারাংশ</div>
       <div style="font-size:12px;line-height:1.8;margin-top:6px;">
-        Monthly Revenue: <strong>${fmt(monthZero.rev)}</strong> |
-        Monthly Net Profit: <strong>${fmt(monthZero.netProfit)}</strong> |
-        Annual ROI: <strong>${annualROI.toFixed(1)}%</strong><br>
-        Break-even: <strong>${breakEven ? `${breakEven} months (${breakEvenDate})` : 'Not reached'}</strong> |
+        মাসিক আয়: <strong>${fmt(monthZero.rev)}</strong> |
+        মাসিক নিট লাভ: <strong>${fmt(monthZero.netProfit)}</strong> |
+        বার্ষিক ROI: <strong>${annualROI.toFixed(1)}%</strong><br>
+        Break-even: <strong>${breakEven ? `${breakEven} months (${breakEvenDate})` : 'এখনো হয়নি'}</strong> |
         Net Margin: <strong>${margin.toFixed(1)}%</strong>
       </div>
     </div>
@@ -1485,52 +1503,52 @@ function buildPrintableReport(mode = 'full') {
 
   root.innerHTML += `
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">Summary Snapshot</div>
+      <div style="font-size:16px;font-weight:700;">সামারি স্ন্যাপশট</div>
       ${buildDocTable(
-        ['Particular', 'Amount', 'Remark'],
+        ['বিষয়', 'টাকার পরিমাণ', 'মন্তব্য'],
         [
-          ['Total Investment in 1 year', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX'],
-          ['1st year gross revenue', fmt(snapshot.year1GrossRevenue), '12 month revenue'],
-          ['1st year NET Profit', fmt(snapshot.year1NetProfit), 'After cost and tax'],
-          ['First 24 months cumulative NET Profit', fmt(snapshot.cumulative2YearNet), '১ম + ২য় বছর মিলিয়ে'],
-          ['First 24 months adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions adjusted']
+          ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX'],
+          ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসের revenue'],
+          ['প্রথম বছরের নিট লাভ', fmt(snapshot.year1NetProfit), 'খরচ ও কর বাদ দিয়ে'],
+          ['প্রথম 24 মাসের cumulative net profit', fmt(snapshot.cumulative2YearNet), '১ম + ২য় বছর মিলিয়ে'],
+          ['প্রথম 24 মাসের adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions বাদ দিয়ে']
         ]
       )}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
         <div style="border:1px solid #222;background:#fff3a6;padding:14px 16px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">ROI compared to 1st year investment</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">প্রথম বছরের মোট বিনিয়োগের তুলনায় ROI</div>
           <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
-          <div style="font-size:11px;">After all expenses and adjustments</div>
+          <div style="font-size:11px;">সব খরচ ও adjustment বাদ দেওয়ার পর</div>
         </div>
         <div style="border:1px solid #222;background:#ffe96f;padding:14px 16px;">
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">ROI compared to CAPEX</div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;">CAPEX-এর তুলনায় ROI</div>
           <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsCapex.toFixed(1)}x</div>
-          <div style="font-size:11px;">After selected exclusions</div>
+          <div style="font-size:11px;">নির্বাচিত exclusions বাদ দিয়ে</div>
         </div>
       </div>
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">CAPEX Details</div>
+      <div style="font-size:16px;font-weight:700;">CAPEX বিস্তারিত</div>
       ${buildDocTable(
-        ['Item', 'Category', 'Amount', 'Amortization (Years)', 'Monthly Amortized'],
+        ['আইটেম', 'ক্যাটাগরি', 'টাকার পরিমাণ', 'ভাগ হওয়ার বছর', 'মাসিক amortized amount'],
         (state.capex.length ? state.capex : [{ name: '-', category: '-', amount: 0, amortization: 1 }]).map(c => [
-          c.name, c.category, fmt(c.amount), String(c.amortization), fmt(c.amount / (c.amortization * 12))
+          c.name, categoryLabel(c.category), fmt(c.amount), String(c.amortization), fmt(c.amount / (c.amortization * 12))
         ])
       )}
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">OPEX Details</div>
+      <div style="font-size:16px;font-weight:700;">OPEX বিস্তারিত</div>
       ${buildDocTable(
-        ['Expense', 'Category', 'Monthly', 'Annual'],
+        ['খরচ', 'ক্যাটাগরি', 'মাসিক', 'বার্ষিক'],
         (state.opex.length ? state.opex : [{ name: '-', category: '-', monthly: 0 }]).map(o => [
-          o.name, o.category, fmt(o.monthly), fmt(o.monthly * 12)
+          o.name, categoryLabel(o.category), fmt(o.monthly), fmt(o.monthly * 12)
         ])
       )}
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">Revenue Details</div>
+      <div style="font-size:16px;font-weight:700;">Revenue বিস্তারিত</div>
       ${buildDocTable(
-        ['Stream', 'Unit Price', 'Qty', 'Utilization', 'Growth', 'Monthly Revenue'],
+        ['উৎস', 'প্রতি ইউনিট দাম', 'পরিমাণ', 'Utilization', 'Growth', 'মাসিক আয়'],
         (state.revenue.length ? state.revenue : [{ name: '-', price: 0, qty: 0, useGlobal: true, utilization: 0, growth: 0 }]).map(r => [
           r.name,
           fmt(r.price),
@@ -1542,8 +1560,8 @@ function buildPrintableReport(mode = 'full') {
       )}
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">12-Month Projection</div>
-      ${buildDocTable(['Month', 'Revenue', 'Total Cost', 'Net Profit'], months)}
+      <div style="font-size:16px;font-weight:700;">12 মাসের প্রক্ষেপণ</div>
+      ${buildDocTable(['মাস', 'আয়', 'মোট খরচ', 'নিট লাভ'], months)}
     </div>
   `;
 
@@ -1552,7 +1570,7 @@ function buildPrintableReport(mode = 'full') {
       <div style="margin-bottom:16px;">
         <div style="font-size:16px;font-weight:700;">Exclusions</div>
         ${buildDocTable(
-          ['Items', 'Rate', 'Unit', '2 years cumul'],
+          ['আইটেম', 'রেট', 'ইউনিট', '24 মাস cumulative'],
           state.exclusions.map(item => [
             item.name,
             fmt(item.rate),
@@ -1569,11 +1587,11 @@ function buildPrintableReport(mode = 'full') {
       <div style="margin-bottom:16px;page-break-before:always;">
         <div style="font-size:16px;font-weight:700;">ইনভেস্টর/ব্যাংক Snapshot</div>
         ${buildDocTable(
-          ['Metric', 'Value'],
+          ['মেট্রিক', 'মান'],
           [
-            ['Annual Net Profit', fmt(monthZero.netProfit * 12)],
-            ['Funding Need', fmt(fundingNeed)],
-            ['Break-even Target', breakEven ? `${breakEven} months (${breakEvenDate})` : 'Not reached'],
+            ['বার্ষিক নিট লাভ', fmt(monthZero.netProfit * 12)],
+            ['ফান্ডিং প্রয়োজন', fmt(fundingNeed)],
+            ['Break-even Target', breakEven ? `${breakEven} months (${breakEvenDate})` : 'এখনো হয়নি'],
             ['DSCR', dscr ? dscr.toFixed(2) : 'N/A'],
             ['Opening Cash', fmt(state.openingCash || 0)],
             ['Reserve Target', fmt(reserveTarget())]
@@ -1674,8 +1692,8 @@ window.onload = () => {
   document.getElementById('utilRange').value = state.globalUtil;
   if(state.capex.length===0) {
     // Seed Data
-    state.capex = [{id:uid(), name:'Equipment', category:'Equipment', amount:150000, amortization:3}];
-    state.opex = [{id:uid(), name:'Office Rent', category:'Rent', monthly:25000}, {id:uid(), name:'Salaries', category:'Salaries', monthly:80000}];
+    state.capex = [{id:uid(), name:'যন্ত্রপাতি', category:'যন্ত্রপাতি', amount:150000, amortization:3}];
+    state.opex = [{id:uid(), name:'অফিস ভাড়া', category:'ভাড়া', monthly:25000}, {id:uid(), name:'বেতন', category:'বেতন', monthly:80000}];
     state.revenue = [{id:uid(), name:'Web Design', price:40000, qty:3, useGlobal:true}];
   }
   renderAll();
