@@ -382,7 +382,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 </head>
 <body class="app-booting">
 
-<aside id="sidebar" data-html2canvas-ignore="true">
+<aside id="sidebar" data-html2canvas-ignore="true" style="opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)">
   <div class="sidebar-header">
     <div class="sidebar-logo">বিজনেস ক্যালকুলেটর</div>
     <div class="profile-card is-locked" id="profileCard" onclick="openProfilePanel()">
@@ -415,7 +415,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
   </div>
 </aside>
 
-<main id="main">
+<main id="main" style="opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)">
   <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
     <div class="page-header">
@@ -1151,6 +1151,22 @@ function updateProfileUI() {
 
 function setBootState(isBooting) {
   document.body.classList.toggle('app-booting', isBooting);
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  [sidebar, main].forEach(el => {
+    if (!el) return;
+    if (isBooting) {
+      el.style.opacity = '0';
+      el.style.visibility = 'hidden';
+      el.style.pointerEvents = 'none';
+      el.style.transform = 'translateY(8px)';
+    } else {
+      el.style.opacity = '';
+      el.style.visibility = '';
+      el.style.pointerEvents = '';
+      el.style.transform = '';
+    }
+  });
 }
 
 function mobileDataCell(label, value) {
