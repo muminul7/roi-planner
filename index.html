@@ -11,26 +11,27 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
 :root{--bg:#0b0f14;--surface:#141b26;--surface2:#1b2432;--surface3:#0f1620;--accent:#25e5a4;--accent2:#00c78b;--text:#f8f9fa;--text2:#a1a8b7;--danger:#ff5c5c;--warning:#f4b942;--success:#16a34a;--border:#2a3443;--soft:#3c4658;--heading:#e8ecf3;--ring:rgba(37,229,164,.22);--radius-lg:16px;--radius-md:12px;--shadow-card:0 14px 38px rgba(4,8,14,.34);--shadow-soft:0 6px 16px rgba(4,8,14,.22)}
 body{background:
 radial-gradient(1200px 500px at 10% -10%,#13334b 0%,transparent 55%),
 radial-gradient(900px 420px at 120% -20%,#17341f 0%,transparent 45%),
 linear-gradient(0deg,rgba(255,255,255,.01),rgba(255,255,255,.01)),
-var(--bg);color:var(--text);font-family:'Hind Siliguri',sans-serif;font-weight:300;display:flex;height:100vh;overflow:hidden;-webkit-text-size-adjust:100%}
+var(--bg);color:var(--text);font-family:'Hind Siliguri',sans-serif;font-weight:300;display:flex;height:100vh;min-height:100vh;overflow:hidden;-webkit-text-size-adjust:100%}
 input,select,textarea,button{font-family:inherit}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:999px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text2)}
 
-#sidebar{width:260px;min-width:260px;background:linear-gradient(180deg,rgba(18,24,34,.96),rgba(15,20,29,.95));border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:100;backdrop-filter:blur(10px)}
+#sidebar{width:260px;min-width:260px;min-height:0;background:linear-gradient(180deg,rgba(18,24,34,.96),rgba(15,20,29,.95));border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;z-index:100;backdrop-filter:blur(10px)}
 .sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
 .sidebar-logo{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px;letter-spacing:.2px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .sidebar-logo::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(0,229,160,.15)}
 .business-name-input{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);color:#fff;padding:11px 12px;border-radius:10px;font-size:13px;margin-top:12px;outline:none;transition:.2s}
 .business-name-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
 
-nav{flex:1;overflow-y:auto;padding:12px 0}
+nav{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
 .nav-item{display:flex;align-items:center;gap:12px;padding:12px 18px;cursor:pointer;transition:all .2s;font-size:13px;color:var(--text2);border-left:3px solid transparent;border-radius:0 12px 12px 0}
 .nav-item:hover{background:rgba(255,255,255,.04);color:#fff}
 .nav-item.active{background:linear-gradient(90deg,rgba(37,229,164,.16),rgba(37,229,164,.05));color:var(--accent);border-left-color:var(--accent)}
@@ -54,8 +55,8 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
 .btn .icon svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .delete-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-#main{flex:1;overflow-y:auto;display:flex;flex-direction:column;position:relative}
-.page{display:none;padding:32px;flex-direction:column;gap:24px;min-height:100%}
+#main{flex:1;min-width:0;min-height:0;height:100vh;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;position:relative;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.page{display:none;padding:32px 32px 40px;flex-direction:column;gap:24px;min-height:max-content}
 .page.active{display:flex}
 .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .page-title{font-size:24px;font-weight:700;letter-spacing:-.5px;color:var(--heading);font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
@@ -83,7 +84,7 @@ nav{flex:1;overflow-y:auto;padding:12px 0}
   pointer-events:none;
 }
 .chart-card canvas{display:block;width:100% !important;height:260px !important;position:relative;z-index:1}
-.chart-card.chart-tall canvas{height:320px !important}
+.chart-card.chart-tall canvas{height:300px !important}
 .combo-chart-card,.donut-chart-card{display:flex;flex-direction:column}
 .combo-chart-wrap{position:relative;flex:1;display:flex;align-items:center}
 .combo-chart-wrap canvas{height:100% !important}
@@ -1110,6 +1111,7 @@ function scheduleChartDraw(delay = 80) {
     requestAnimationFrame(() => drawCharts());
   });
   chartDrawTimer = setTimeout(() => drawCharts(), delay);
+  setTimeout(() => drawCharts(), delay + 180);
 }
 
 function drawCharts() {
@@ -1409,7 +1411,9 @@ function switchToPage(page) {
   const pageEl = document.getElementById('page-' + page);
   if (nav) nav.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
-  scheduleChartDraw();
+  const main = document.getElementById('main');
+  if (main) main.scrollTop = 0;
+  scheduleChartDraw(120);
 }
 function applyPlannerControls() {
   const amortInput = document.getElementById('planAmortizationYears');
@@ -1671,7 +1675,9 @@ document.querySelectorAll('.nav-item').forEach(el => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('page-' + el.dataset.page).classList.add('active');
-    scheduleChartDraw();
+    const main = document.getElementById('main');
+    if (main) main.scrollTop = 0;
+    scheduleChartDraw(120);
   });
 });
 
