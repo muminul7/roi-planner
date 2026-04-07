@@ -104,6 +104,12 @@ nav{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
 .hero-brief{background:linear-gradient(135deg,rgba(0,229,160,.08),rgba(0,229,160,.02));border:1px solid rgba(0,229,160,.2);border-radius:14px;padding:16px 18px}
 .hero-title{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .hero-sub{font-size:13px;color:var(--text2);line-height:1.6}
+.hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:12px;color:#dce5f3}
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.preset-card{background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:14px}
+.preset-card h4{font-size:14px;color:#fff;margin-bottom:6px}
+.preset-card p{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px}
 .quick-actions{display:flex;gap:10px;flex-wrap:wrap}
 .mobile-only{display:none !important}
 .insight-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -195,7 +201,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page{padding:14px;padding-bottom:calc(18px + env(safe-area-inset-bottom));gap:14px}
   .page-header{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:0}
   .page-header .btn{width:100%}
-  .grid-2,.grid-3,.grid-4,.insight-grid,.planner-readonly{grid-template-columns:1fr}
+  .grid-2,.grid-3,.grid-4,.insight-grid,.planner-readonly,.preset-grid{grid-template-columns:1fr}
   .snapshot-grid{grid-template-columns:1fr}
   #page-dashboard #dashKPIs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -300,8 +306,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div><div class="page-title" id="dashTitle">ড্যাশবোর্ড</div><div class="page-subtitle">এক নজরে ব্যবসার আর্থিক চিত্র</div></div>
     </div>
     <div class="hero-brief">
-      <div class="hero-title">বাংলাদেশি উদ্যোক্তাদের জন্য ROI কমান্ড সেন্টার</div>
-      <div class="hero-sub">বিনিয়োগ, খরচ, আয় এবং ট্যাক্স বিবেচনায় আপনার ব্যবসা এখন কোন অবস্থায় আছে তা দ্রুত বুঝুন, তারপর সঠিক সিদ্ধান্ত নিন।</div>
+      <div class="hero-title" id="dashboardHeroTitle">বাংলাদেশি উদ্যোক্তাদের জন্য ROI কমান্ড সেন্টার</div>
+      <div class="hero-sub" id="dashboardHeroSub">বিনিয়োগ, খরচ, আয় এবং ট্যাক্স বিবেচনায় আপনার ব্যবসা এখন কোন অবস্থায় আছে তা দ্রুত বুঝুন, তারপর সঠিক সিদ্ধান্ত নিন।</div>
+      <div class="hero-meta">
+        <div class="pill" id="businessTypePill">বিজনেস টাইপ: সার্ভিস</div>
+        <div class="pill" id="businessFocusPill">ফোকাস: ক্লায়েন্ট, মার্জিন, পুনরাবৃত্ত আয়</div>
+      </div>
     </div>
     <div class="quick-actions">
       <button class="btn btn-secondary" onclick="switchToPage('revenue')">আয়ের উৎস আপডেট করুন</button>
@@ -378,11 +388,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- REVENUE & SETTINGS -->
   <div class="page" id="page-revenue">
     <div class="page-header">
-      <div><div class="page-title">আয়ের উৎস ও সেটিংস</div><div class="page-subtitle">কোথা থেকে আয় আসবে সেটা সেট করুন</div></div>
+      <div><div class="page-title" id="revenuePageTitle">আয়ের উৎস ও সেটিংস</div><div class="page-subtitle" id="revenuePageSubtitle">কোথা থেকে আয় আসবে সেটা সেট করুন</div></div>
       <button class="btn btn-primary" onclick="openModal('revenue')" data-html2canvas-ignore="true">+ নতুন আয় উৎস</button>
     </div>
     <div class="card">
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>সেবা/পণ্য</th><th>দাম</th><th>পরিমাণ</th><th>ব্যবহারের হার</th><th>মাসিক গ্রোথ</th><th>মাসিক আয়</th><th data-html2canvas-ignore="true">অ্যাকশন</th></tr></thead><tbody id="revenueBody"></tbody></table></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th id="revenueNameHeader">সেবা/পণ্য</th><th id="revenuePriceHeader">দাম</th><th id="revenueQtyHeader">পরিমাণ</th><th id="revenueUtilHeader">ব্যবহারের হার</th><th id="revenueGrowthHeader">মাসিক গ্রোথ</th><th id="revenueMonthlyHeader">মাসিক আয়</th><th data-html2canvas-ignore="true">অ্যাকশন</th></tr></thead><tbody id="revenueBody"></tbody></table></div>
     </div>
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">আয়ের পূর্বাভাস</div><canvas id="chartRevenue"></canvas></div>
@@ -397,6 +407,36 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="page" id="page-settings">
     <div class="page-header">
       <div><div class="page-title">গ্লোবাল সেটিংস</div><div class="page-subtitle">ট্যাক্স, মুদ্রাস্ফীতি, payback target এবং buffer এক জায়গা থেকে নিয়ন্ত্রণ</div></div>
+    </div>
+    <div class="card" style="margin-bottom:4px">
+      <div class="card-title">Business Model Setup</div>
+      <div class="form-group">
+        <label class="form-label">আপনার ব্যবসার ধরন</label>
+        <select class="form-input" id="businessTypeSelect" onchange="updateBusinessType(this.value)">
+          <option value="service">সার্ভিস বিজনেস</option>
+          <option value="trading">ট্রেডিং/হোলসেল/ডিস্ট্রিবিউশন</option>
+          <option value="ecommerce">ই-কমার্স/অনলাইন সেলস</option>
+          <option value="custom">কাস্টম/মিক্সড মডেল</option>
+        </select>
+      </div>
+      <div class="readonly-hint" id="businessTypeHint">যে business model বাছবেন, app সেই অনুযায়ী labels, guidance, আর planning hints দেখাবে।</div>
+      <div class="preset-grid">
+        <div class="preset-card">
+          <h4>সার্ভিস</h4>
+          <p>এজেন্সি, কনসালটিং, ক্লিনিক, আইটি সার্ভিস, ট্রেনিং, স্টুডিও</p>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('service')">এই মডেল নিন</button>
+        </div>
+        <div class="preset-card">
+          <h4>ট্রেডিং</h4>
+          <p>হোলসেল, ডিস্ট্রিবিউশন, দোকান, সাপ্লাই, সাধারণ কেনাবেচা</p>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('trading')">এই মডেল নিন</button>
+        </div>
+        <div class="preset-card">
+          <h4>ই-কমার্স</h4>
+          <p>Facebook shop, Shopify, Daraz, own website, D2C brand</p>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('ecommerce')">এই মডেল নিন</button>
+        </div>
+      </div>
     </div>
     <div class="card-grid grid-2">
       <div class="card">
@@ -420,6 +460,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">গড় Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
           <input id="utilRange" type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); renderSettingsPanel()">
+        </div>
+        <div class="slider-group">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label" id="variableCostLabel">ভ্যারিয়েবল খরচ / COGS (%)</span><span style="color:var(--accent)" id="variableCostRateLabel">0%</span></div>
+          <input id="variableCostRange" type="range" min="0" max="90" value="0" oninput="updateState('variableCostRate', this.value); renderSettingsPanel()">
         </div>
       </div>
       <div class="card">
@@ -508,7 +552,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 <script>
 // ==================== STATE & CONFIG ====================
 let state = {
-  businessName: 'আমার ব্যবসা', currency: 'BDT',
+  businessName: 'আমার ব্যবসা', currency: 'BDT', businessType: 'service',
   globalUtil: 80, globalGrowth: 3, taxRate: 15, inflationRate: 5,
   capex: [], opex: [], revenue: [], exclusions: [],
   variableCostRate: 0,
@@ -521,6 +565,72 @@ let currentModalType = null;
 let charts = {};
 const ICONS = {
   trash: '<span class="icon delete-icon"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M7 6l1 14h8l1-14"/><path d="M10 10v7M14 10v7"/></svg></span>'
+};
+const BUSINESS_MODELS = {
+  service: {
+    label: 'সার্ভিস বিজনেস',
+    shortLabel: 'সার্ভিস',
+    focus: 'ক্লায়েন্ট, মার্জিন, পুনরাবৃত্ত আয়',
+    hero: 'সার্ভিস ব্যবসার লাভ, capacity, আর cashflow দ্রুত বুঝুন।',
+    revenueName: 'সেবা/অফার',
+    price: 'প্রতি সেবা/প্যাকেজ দাম',
+    qty: 'মাসে client / project / booking',
+    util: 'capacity use (%)',
+    growth: 'মাসিক client growth',
+    monthly: 'মাসিক আয়',
+    modalName: 'সেবা/অফারের নাম',
+    modalQty: 'মাসে client / booking সংখ্যা',
+    variableLabel: 'ডেলিভারি খরচ / ভ্যারিয়েবল খরচ (%)',
+    suggested: { globalUtil: 75, globalGrowth: 4, variableCostRate: 15, reserveMonths: 3 }
+  },
+  trading: {
+    label: 'ট্রেডিং/হোলসেল',
+    shortLabel: 'ট্রেডিং',
+    focus: 'স্টক টার্নওভার, gross margin, working capital',
+    hero: 'পণ্য কেনাবেচা, margin, stock rotation আর working capital plan করুন।',
+    revenueName: 'পণ্য/ক্যাটাগরি',
+    price: 'প্রতি ইউনিট বিক্রয় দাম',
+    qty: 'মাসে বিক্রয় ইউনিট',
+    util: 'sell-through / sales efficiency (%)',
+    growth: 'মাসিক বিক্রয় growth',
+    monthly: 'মাসিক বিক্রয়',
+    modalName: 'পণ্য/ক্যাটাগরির নাম',
+    modalQty: 'মাসে বিক্রয় ইউনিট',
+    variableLabel: 'COGS / ক্রয় খরচ (%)',
+    suggested: { globalUtil: 85, globalGrowth: 3, variableCostRate: 65, reserveMonths: 4 }
+  },
+  ecommerce: {
+    label: 'ই-কমার্স',
+    shortLabel: 'ই-কমার্স',
+    focus: 'AOV, conversion, fulfillment, marketing efficiency',
+    hero: 'SKU, order volume, delivery cost, ad cost আর online growth ধরেই plan করুন।',
+    revenueName: 'SKU / offer / channel',
+    price: 'AOV / প্রতি অর্ডার মূল্য',
+    qty: 'মাসে order সংখ্যা',
+    util: 'conversion / fulfillment efficiency (%)',
+    growth: 'মাসিক order growth',
+    monthly: 'মাসিক বিক্রয়',
+    modalName: 'SKU / offer / channel নাম',
+    modalQty: 'মাসে order সংখ্যা',
+    variableLabel: 'COGS + delivery + packaging (%)',
+    suggested: { globalUtil: 70, globalGrowth: 5, variableCostRate: 55, reserveMonths: 4 }
+  },
+  custom: {
+    label: 'কাস্টম/মিক্সড',
+    shortLabel: 'কাস্টম',
+    focus: 'multiple income model, blended margin, custom planning',
+    hero: 'একাধিক revenue model মিশিয়ে নিজের মতো করে full SME financial plan করুন।',
+    revenueName: 'আয়ের উৎস',
+    price: 'প্রতি ইউনিট দাম',
+    qty: 'মাসিক পরিমাণ',
+    util: 'ব্যবহারের হার (%)',
+    growth: 'মাসিক growth',
+    monthly: 'মাসিক আয়',
+    modalName: 'আয়ের উৎসের নাম',
+    modalQty: 'মাসে ইউনিট/অর্ডার/ক্লায়েন্ট',
+    variableLabel: 'ভ্যারিয়েবল খরচ / COGS (%)',
+    suggested: { globalUtil: 80, globalGrowth: 3, variableCostRate: 30, reserveMonths: 3 }
+  }
 };
 
 // Helpers
@@ -550,6 +660,23 @@ function categoryLabel(value) {
     Marketing: 'মার্কেটিং'
   };
   return map[value] || value;
+}
+function currentBusinessModel() {
+  return BUSINESS_MODELS[state.businessType] || BUSINESS_MODELS.custom;
+}
+function applyBusinessPreset(type) {
+  const config = BUSINESS_MODELS[type] || BUSINESS_MODELS.custom;
+  state.businessType = type;
+  state.globalUtil = config.suggested.globalUtil;
+  state.globalGrowth = config.suggested.globalGrowth;
+  state.variableCostRate = config.suggested.variableCostRate;
+  state.reserveMonths = config.suggested.reserveMonths;
+  renderAll();
+  showFlash(`${config.label} preset apply হয়েছে`);
+}
+function updateBusinessType(type) {
+  state.businessType = type;
+  renderAll();
 }
 
 // ==================== FINANCIAL LOGIC ====================
@@ -703,13 +830,46 @@ function getFinancials(monthIdx, revMult=1, costMult=1) {
 function renderAll() {
   normalizeCurrency();
   document.getElementById('dashTitle').innerText = state.businessName;
-  renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions();
+  renderBusinessModelUI(); renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions();
   drawCharts(); saveStateLocal();
+}
+function renderBusinessModelUI() {
+  const model = currentBusinessModel();
+  const dashboardHeroTitle = document.getElementById('dashboardHeroTitle');
+  const dashboardHeroSub = document.getElementById('dashboardHeroSub');
+  const businessTypePill = document.getElementById('businessTypePill');
+  const businessFocusPill = document.getElementById('businessFocusPill');
+  const revenuePageTitle = document.getElementById('revenuePageTitle');
+  const revenuePageSubtitle = document.getElementById('revenuePageSubtitle');
+  const revenueNameHeader = document.getElementById('revenueNameHeader');
+  const revenuePriceHeader = document.getElementById('revenuePriceHeader');
+  const revenueQtyHeader = document.getElementById('revenueQtyHeader');
+  const revenueUtilHeader = document.getElementById('revenueUtilHeader');
+  const revenueGrowthHeader = document.getElementById('revenueGrowthHeader');
+  const revenueMonthlyHeader = document.getElementById('revenueMonthlyHeader');
+  const businessTypeSelect = document.getElementById('businessTypeSelect');
+  const businessTypeHint = document.getElementById('businessTypeHint');
+
+  if (dashboardHeroTitle) dashboardHeroTitle.innerText = `${model.label} এর জন্য ROI কমান্ড সেন্টার`;
+  if (dashboardHeroSub) dashboardHeroSub.innerText = model.hero;
+  if (businessTypePill) businessTypePill.innerText = `বিজনেস টাইপ: ${model.shortLabel}`;
+  if (businessFocusPill) businessFocusPill.innerText = `ফোকাস: ${model.focus}`;
+  if (revenuePageTitle) revenuePageTitle.innerText = `${model.label} এর আয়ের মডেল`;
+  if (revenuePageSubtitle) revenuePageSubtitle.innerText = `${model.label} এ কোথা থেকে আয় আসবে সেটা সেট করুন`;
+  if (revenueNameHeader) revenueNameHeader.innerText = model.revenueName;
+  if (revenuePriceHeader) revenuePriceHeader.innerText = model.price;
+  if (revenueQtyHeader) revenueQtyHeader.innerText = model.qty;
+  if (revenueUtilHeader) revenueUtilHeader.innerText = model.util;
+  if (revenueGrowthHeader) revenueGrowthHeader.innerText = model.growth;
+  if (revenueMonthlyHeader) revenueMonthlyHeader.innerText = model.monthly;
+  if (businessTypeSelect) businessTypeSelect.value = state.businessType;
+  if (businessTypeHint) businessTypeHint.innerText = `${model.label} এর জন্য recommended focus: ${model.focus}. preset apply করলে suggested assumptions auto বসে যাবে।`;
 }
 
 function renderDashboard() {
   let f = getFinancials(0);
   let annualROI = annualROIYear1();
+  const model = currentBusinessModel();
   const margin = f.rev > 0 ? (f.netProfit / f.rev) * 100 : 0;
   const breakEven = breakEvenMonths();
   const breakEvenDate = breakEvenDateLabel(breakEven);
@@ -726,7 +886,7 @@ function renderDashboard() {
   document.getElementById('dashTips').innerHTML = `
     <div class="insight-item">
       <h4>বর্তমান অবস্থা</h4>
-      <p>${f.netProfit >= 0 ? 'ব্যবসা লাভজনক চলছে। এই momentum ধরে রাখতে কস্ট কন্ট্রোল চালু রাখুন।' : 'ব্যবসা এখনো লোকসানে। দ্রুত high-margin service-এ ফোকাস করুন।'}</p>
+      <p>${f.netProfit >= 0 ? 'ব্যবসা লাভজনক চলছে। এই momentum ধরে রাখতে কস্ট কন্ট্রোল চালু রাখুন।' : `ব্যবসা এখনো লোকসানে। দ্রুত ${model.focus} এর মধ্যে সবচেয়ে শক্তিশালী driver-এ ফোকাস করুন।`}</p>
     </div>
     <div class="insight-item">
       <h4>ব্রেক-ইভেন দিকনির্দেশনা</h4>
@@ -738,7 +898,7 @@ function renderDashboard() {
     </div>
     <div class="insight-item">
       <h4>উদ্যোক্তা টিপস</h4>
-      <p>${margin >= 20 ? 'মার্জিন ভালো আছে। এখন recurring client বাড়ালে cashflow আরও stable হবে।' : 'মার্জিন কম। কম লাভের সেবা বাদ দিয়ে premium package push করুন।'}</p>
+      <p>${margin >= 20 ? `মার্জিন ভালো আছে। এখন ${model.focus} আরও disciplined করলে cashflow stable হবে।` : `মার্জিন কম। ${model.variableLabel.replace(' (%)','')} review করুন।`}</p>
     </div>
     <div class="insight-item">
       <h4>ক্যাশ রানওয়ে</h4>
@@ -907,6 +1067,7 @@ function renderPlannerPanel() {
   const amortInput = document.getElementById('planAmortizationYears');
   if (!readonlyRoot || !summaryEl || !amortInput) return;
 
+  const model = currentBusinessModel();
   const monthlyRevNow = monthlyRev(0);
   const f = getFinancials(0);
   const be = breakEvenMonths();
@@ -918,7 +1079,7 @@ function renderPlannerPanel() {
 
   readonlyRoot.innerHTML = `
     <div class="readonly-block">
-      <div class="readonly-label">Revenue (মাসিক)</div>
+      <div class="readonly-label">${model.shortLabel} Revenue (মাসিক)</div>
       <div class="readonly-value">${fmt(monthlyRevNow)}</div>
       <div class="readonly-hint">${state.revenue.length} টি revenue stream</div>
     </div>
@@ -943,18 +1104,21 @@ function renderPlannerPanel() {
     ? (be <= target
       ? `দারুণ। বর্তমান প্ল্যানে আপনি টার্গেট ${target} মাসের আগেই profit zone-এ যেতে পারেন।`
       : `বর্তমান হিসাবে break-even আনুমানিক ${be} মাসে। আপনার টার্গেট ${target} মাসে যেতে হলে growth বা margin বাড়াতে হবে।`)
-    : `এখনো break-even আসছে না। growth বাড়ানো, opex কমানো, বা capex amortization period adjust করা দরকার।`;
+    : `এখনো break-even আসছে না। ${model.variableLabel.replace(' (%)','')} কমানো, growth বাড়ানো, বা opex control দরকার।`;
 }
 
 function renderSettingsPanel() {
+  const model = currentBusinessModel();
   const taxLabel = document.getElementById('taxLabel');
   const inflationLabel = document.getElementById('inflationLabel');
   const paybackLabel = document.getElementById('paybackLabel');
   const growthLabel = document.getElementById('growthLabel');
   const utilLabel = document.getElementById('utilLabel');
   const bufferLabel = document.getElementById('bufferLabel');
+  const variableCostRateLabel = document.getElementById('variableCostRateLabel');
+  const variableCostLabel = document.getElementById('variableCostLabel');
   const settingsSummary = document.getElementById('settingsSummary');
-  if (!taxLabel || !inflationLabel || !paybackLabel || !growthLabel || !utilLabel || !bufferLabel || !settingsSummary) return;
+  if (!taxLabel || !inflationLabel || !paybackLabel || !growthLabel || !utilLabel || !bufferLabel || !variableCostRateLabel || !variableCostLabel || !settingsSummary) return;
 
   taxLabel.innerText = `${state.taxRate.toFixed(0)}%`;
   inflationLabel.innerText = `${state.inflationRate.toFixed(1)}%`;
@@ -962,6 +1126,8 @@ function renderSettingsPanel() {
   growthLabel.innerText = `${state.globalGrowth.toFixed(0)}%`;
   utilLabel.innerText = `${state.globalUtil.toFixed(0)}%`;
   bufferLabel.innerText = `${state.reserveMonths.toFixed(0)}`;
+  variableCostRateLabel.innerText = `${state.variableCostRate.toFixed(0)}%`;
+  variableCostLabel.innerText = model.variableLabel;
 
   const taxRange = document.getElementById('taxRange');
   const inflationRange = document.getElementById('inflationRange');
@@ -969,16 +1135,18 @@ function renderSettingsPanel() {
   const growthRange = document.getElementById('growthRange');
   const utilRange = document.getElementById('utilRange');
   const bufferRange = document.getElementById('bufferRange');
+  const variableCostRange = document.getElementById('variableCostRange');
   if (taxRange) taxRange.value = state.taxRate;
   if (inflationRange) inflationRange.value = state.inflationRate;
   if (paybackRange) paybackRange.value = state.targetProfitMonths;
   if (growthRange) growthRange.value = state.globalGrowth;
   if (utilRange) utilRange.value = state.globalUtil;
   if (bufferRange) bufferRange.value = state.reserveMonths;
+  if (variableCostRange) variableCostRange.value = state.variableCostRate;
 
   const f = getFinancials(0);
   const be = breakEvenMonths();
-  settingsSummary.innerText = `Inflation-adjusted projection active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())}`;
+  settingsSummary.innerText = `${model.label} mode active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())} | ${model.variableLabel.replace(' (%)','')}: ${state.variableCostRate.toFixed(0)}%`;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
@@ -1269,10 +1437,11 @@ function drawCharts() {
   });
 
   // 2c. Revenue projection chart
+  const model = currentBusinessModel();
   initChart('chartRevenue', 'line', {
     labels: months,
     datasets: [{
-      label: 'Projected Revenue',
+      label: `${model.shortLabel} Revenue`,
       data: revData,
       borderColor: '#35d6a0',
       backgroundColor: (context) => {
@@ -1371,6 +1540,7 @@ function drawCharts() {
 function openModal(type) {
   currentModalType = type;
   let html = '';
+  const model = currentBusinessModel();
   if(type==='capex') html = `
     <div class="form-group"><label class="form-label">আইটেমের নাম</label><input class="form-input" id="mName"></div>
     <div class="form-group"><label class="form-label">ক্যাটাগরি</label><select class="form-input" id="mCat"><option>যন্ত্রপাতি</option><option>সফটওয়্যার</option><option>ফার্নিচার</option><option>অন্যান্য</option></select></div>
@@ -1383,9 +1553,9 @@ function openModal(type) {
     <div class="form-group"><label class="form-label">মাসিক খরচ</label><input class="form-input" type="number" id="mVal"></div>
   `;
   else if(type==='revenue') html = `
-    <div class="form-group"><label class="form-label">আয়ের উৎসের নাম</label><input class="form-input" id="mName"></div>
-    <div class="form-group"><label class="form-label">প্রতি ইউনিট দাম</label><input class="form-input" type="number" id="mVal"></div>
-    <div class="form-group"><label class="form-label">মাসে ইউনিট সংখ্যা</label><input class="form-input" type="number" id="mQty" value="1"></div>
+    <div class="form-group"><label class="form-label">${model.modalName}</label><input class="form-input" id="mName"></div>
+    <div class="form-group"><label class="form-label">${model.price}</label><input class="form-input" type="number" id="mVal"></div>
+    <div class="form-group"><label class="form-label">${model.modalQty}</label><input class="form-input" type="number" id="mQty" value="1"></div>
     <div style="margin-top:10px"><input type="checkbox" id="mGlobal" checked> <label class="form-label">গ্লোবাল utilization + growth ব্যবহার করুন</label></div>
   `;
   else if(type==='exclusion') html = `
@@ -1476,6 +1646,7 @@ function buildPrintableReport(mode = 'full') {
   const monthZero = getFinancials(0);
   const year1 = year1Financials();
   const snapshot = getSummarySnapshot();
+  const model = currentBusinessModel();
   const annualROI = annualROIYear1();
   const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
   const breakEven = breakEvenMonths();
@@ -1503,7 +1674,7 @@ function buildPrintableReport(mode = 'full') {
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
       <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
-      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংক উপযোগী আর্থিক রিপোর্ট' : 'ফিন্যান্সিয়াল প্ল্যানিং রিপোর্ট'}</div>
+      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংক উপযোগী আর্থিক রিপোর্ট' : 'ফিন্যান্সিয়াল প্ল্যানিং রিপোর্ট'} | Model: ${model.label}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
@@ -1569,7 +1740,7 @@ function buildPrintableReport(mode = 'full') {
     <div style="margin-bottom:16px;">
       <div style="font-size:16px;font-weight:700;">Revenue বিস্তারিত</div>
       ${buildDocTable(
-        ['উৎস', 'প্রতি ইউনিট দাম', 'পরিমাণ', 'Utilization', 'Growth', 'মাসিক আয়'],
+        [model.revenueName, model.price, model.qty, model.util, model.growth, model.monthly],
         (state.revenue.length ? state.revenue : [{ name: '-', price: 0, qty: 0, useGlobal: true, utilization: 0, growth: 0 }]).map(r => [
           r.name,
           fmt(r.price),
@@ -1678,6 +1849,7 @@ function loadState() {
   if (!Number.isFinite(state.openingCash)) state.openingCash = 0;
   if (!Number.isFinite(state.reserveMonths)) state.reserveMonths = 3;
   if (!Number.isFinite(state.targetProfitMonths)) state.targetProfitMonths = 12;
+  if (!state.businessType || !BUSINESS_MODELS[state.businessType]) state.businessType = 'service';
   if (!Array.isArray(state.exclusions)) state.exclusions = [];
 }
 
@@ -1708,6 +1880,8 @@ document.getElementById('businessName').addEventListener('input', e => { state.b
 window.onload = () => {
   loadState();
   document.getElementById('businessName').value = state.businessName;
+  const businessTypeSelect = document.getElementById('businessTypeSelect');
+  if (businessTypeSelect) businessTypeSelect.value = state.businessType;
   document.getElementById('taxLabel').innerText = `${state.taxRate}%`;
   document.getElementById('utilLabel').innerText = `${state.globalUtil}%`;
   document.getElementById('growthLabel').innerText = `${state.globalGrowth}%`;
