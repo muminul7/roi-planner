@@ -269,6 +269,10 @@ body:not(.app-booting) .mobile-topbar,body:not(.app-booting) .mobile-bottom-nav{
 .auth-form-panel{display:flex;flex-direction:column;min-height:0}
 .auth-back-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .auth-back-btn{min-height:40px;padding:0 14px}
+.auth-inline-action{display:flex;justify-content:flex-end;margin:0 0 6px}
+.auth-link-btn{appearance:none;border:none;background:none;padding:4px 0;color:var(--accent);font-size:13px;font-weight:700;cursor:pointer;transition:color .2s ease,opacity .2s ease}
+.auth-link-btn:hover{color:#7af0ca}
+.auth-link-btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,229,160,.18);border-radius:10px}
 .auth-title{font-size:34px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;letter-spacing:-.03em}
 .auth-sub{font-size:14px;color:#b4becd;line-height:1.8;margin-top:8px;max-width:42ch}
 .auth-note{font-size:12px;color:var(--text2);line-height:1.7;margin-top:10px}
@@ -903,6 +907,9 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
         <label class="form-label">পাসওয়ার্ড</label>
         <input class="form-input" id="authPassword" type="password" placeholder="আপনার পাসওয়ার্ড লিখুন">
       </div>
+      <div class="auth-inline-action auth-hidden" id="authForgotWrap">
+        <button class="auth-link-btn" type="button" onclick="sendPasswordReset()">পাসওয়ার্ড ভুলে গেছেন?</button>
+      </div>
       <button class="btn btn-primary" style="width:100%;margin-top:8px" id="authSubmitBtn" onclick="submitAuth()">অ্যাকাউন্ট খুলুন</button>
       <div class="auth-error" id="authError"></div>
       <div class="auth-success" id="authSuccess"></div>
@@ -1237,6 +1244,7 @@ function switchAuthMode(mode) {
   const businessTypeWrap = document.getElementById('authBusinessTypeWrap');
   const businessTypeSelect = document.getElementById('authBusinessType');
   const phoneWrap = document.getElementById('authPhoneWrap');
+  const forgotWrap = document.getElementById('authForgotWrap');
   const submitBtn = document.getElementById('authSubmitBtn');
   const errorEl = document.getElementById('authError');
   const successEl = document.getElementById('authSuccess');
@@ -1251,6 +1259,7 @@ function switchAuthMode(mode) {
   if (businessTypeWrap) businessTypeWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (businessTypeSelect) businessTypeSelect.value = state.businessType || 'service';
   if (phoneWrap) phoneWrap.classList.toggle('auth-hidden', authMode !== 'signup');
+  if (forgotWrap) forgotWrap.classList.toggle('auth-hidden', authMode !== 'login');
   if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'অ্যাকাউন্ট খুলুন' : 'লগইন করুন';
   if (errorEl) errorEl.innerText = '';
   if (successEl) successEl.innerText = '';
@@ -1645,6 +1654,31 @@ async function submitAuth() {
     }
   } catch (error) {
     if (errorEl) errorEl.innerText = error.message || 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
+  }
+}
+async function sendPasswordReset() {
+  const errorEl = document.getElementById('authError');
+  const successEl = document.getElementById('authSuccess');
+  const email = sanitizeText(document.getElementById('authEmail')?.value, '');
+  if (errorEl) errorEl.innerText = '';
+  if (successEl) successEl.innerText = '';
+
+  if (!hasSupabaseConfig()) {
+    if (errorEl) errorEl.innerText = 'এই মুহূর্তে পাসওয়ার্ড রিসেট সেবা চালু নেই। একটু পরে আবার চেষ্টা করুন।';
+    return;
+  }
+  if (!email) {
+    if (errorEl) errorEl.innerText = 'আগে আপনার ইমেইল লিখুন।';
+    return;
+  }
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: `${location.origin}${location.pathname}`
+    });
+    if (error) throw error;
+    if (successEl) successEl.innerText = 'পাসওয়ার্ড বদলানোর লিংক আপনার ইমেইলে পাঠানো হয়েছে।';
+  } catch (error) {
+    if (errorEl) errorEl.innerText = error.message || 'এই মুহূর্তে লিংক পাঠানো যাচ্ছে না। আবার চেষ্টা করুন।';
   }
 }
 function openProfilePanel() {
