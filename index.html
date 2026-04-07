@@ -701,6 +701,15 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
       <label class="form-label">ব্যবসার নাম</label>
       <input class="form-input" id="authBusinessName" placeholder="ব্যবসার নাম লিখুন">
     </div>
+      <div class="form-group" id="authBusinessTypeWrap">
+        <label class="form-label">ব্যবসার ধরন</label>
+        <select class="form-input" id="authBusinessType">
+          <option value="service">সার্ভিস বিজনেস</option>
+          <option value="trading">ট্রেডিং/হোলসেল/ডিস্ট্রিবিউশন</option>
+          <option value="ecommerce">ই-কমার্স/অনলাইন সেলস</option>
+          <option value="custom">কাস্টম/মিক্সড মডেল</option>
+        </select>
+      </div>
       <div class="form-group" id="authPhoneWrap">
         <label class="form-label">ফোন নম্বর</label>
         <input class="form-input" id="authPhone" type="tel" placeholder="ফোন নম্বর লিখুন">
@@ -736,6 +745,15 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
       <div class="form-group">
         <label class="form-label">ফোন নম্বর</label>
         <input class="form-input" id="profilePhone" type="tel" placeholder="ফোন নম্বর লিখুন">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ব্যবসার ধরন</label>
+        <select class="form-input" id="profileBusinessType">
+          <option value="service">সার্ভিস বিজনেস</option>
+          <option value="trading">ট্রেডিং/হোলসেল/ডিস্ট্রিবিউশন</option>
+          <option value="ecommerce">ই-কমার্স/অনলাইন সেলস</option>
+          <option value="custom">কাস্টম/মিক্সড মডেল</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label">ইমেইল</label>
@@ -791,7 +809,9 @@ let authState = {
   profileLoaded: false,
   syncEnabled: false,
   saveTimer: null,
-  configAvailable: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
+  configAvailable: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY),
+  allowAutoSave: false,
+  hydrating: true
 };
 const ICONS = {
   trash: '<span class="icon delete-icon"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M7 6l1 14h8l1-14"/><path d="M10 10v7M14 10v7"/></svg></span>'
@@ -979,6 +999,28 @@ function sanitizeState(input = {}) {
     exclusions: Array.isArray(input.exclusions) ? input.exclusions.map(sanitizeExclusionItem) : []
   };
 }
+function blankState(overrides = {}) {
+  return sanitizeState({
+    businessName: 'আমার ব্যবসা',
+    currency: 'BDT',
+    businessType: 'service',
+    ownerName: '',
+    ownerPhone: '',
+    globalUtil: 80,
+    globalGrowth: 3,
+    taxRate: 15,
+    inflationRate: 5,
+    capex: [],
+    opex: [],
+    revenue: [],
+    exclusions: [],
+    variableCostRate: 0,
+    openingCash: 0,
+    reserveMonths: 3,
+    targetProfitMonths: 12,
+    ...overrides
+  });
+}
 function currentBusinessModel() {
   return BUSINESS_MODELS[state.businessType] || BUSINESS_MODELS.custom;
 }
@@ -989,11 +1031,13 @@ function applyBusinessPreset(type) {
   state.globalGrowth = config.suggested.globalGrowth;
   state.variableCostRate = config.suggested.variableCostRate;
   state.reserveMonths = config.suggested.reserveMonths;
+  markUserEdited();
   renderAll();
   showFlash(`${config.label} সেট করা হয়েছে`);
 }
 function updateBusinessType(type) {
   state.businessType = type;
+  markUserEdited();
   renderAll();
 }
 
@@ -1008,6 +1052,8 @@ function switchAuthMode(mode) {
   const subEl = document.getElementById('authSub');
   const nameWrap = document.getElementById('authNameWrap');
   const businessWrap = document.getElementById('authBusinessWrap');
+  const businessTypeWrap = document.getElementById('authBusinessTypeWrap');
+  const businessTypeSelect = document.getElementById('authBusinessType');
   const phoneWrap = document.getElementById('authPhoneWrap');
   const submitBtn = document.getElementById('authSubmitBtn');
   const errorEl = document.getElementById('authError');
@@ -1020,6 +1066,8 @@ function switchAuthMode(mode) {
     : 'আগের অ্যাকাউন্টে ঢুকে আপনার সেভ করা সব তথ্য আর হিসাব আবার দেখুন।';
   if (nameWrap) nameWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (businessWrap) businessWrap.classList.toggle('auth-hidden', authMode !== 'signup');
+  if (businessTypeWrap) businessTypeWrap.classList.toggle('auth-hidden', authMode !== 'signup');
+  if (businessTypeSelect) businessTypeSelect.value = state.businessType || 'service';
   if (phoneWrap) phoneWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'অ্যাকাউন্ট খুলুন' : 'প্রবেশ করুন';
   if (errorEl) errorEl.innerText = '';
@@ -1116,11 +1164,15 @@ async function handleAuthSession(session) {
   authState.user = session?.user || null;
   authState.profileLoaded = false;
   authState.syncEnabled = false;
+  authState.allowAutoSave = false;
+  authState.hydrating = true;
   if (authState.user) {
     await loadRemoteProjectState();
     authState.syncEnabled = true;
+    authState.hydrating = false;
     hideAuthModal();
   } else {
+    authState.hydrating = false;
     updateProfileUI();
     showAuthModal();
   }
@@ -1150,6 +1202,12 @@ async function loadRemoteProjectState() {
   if (data?.project_data) {
     state = sanitizeState(data.project_data);
   } else {
+    state = blankState({
+      ownerName: sanitizeText(authState.user?.user_metadata?.full_name, ''),
+      ownerPhone: sanitizePhone(authState.user?.user_metadata?.phone, ''),
+      businessName: sanitizeText(authState.user?.user_metadata?.business_name, 'আমার ব্যবসা'),
+      businessType: sanitizeChoice(authState.user?.user_metadata?.business_type, Object.keys(BUSINESS_MODELS), 'service')
+    });
     await ensureRemoteProjectRow();
   }
   authState.profileLoaded = true;
@@ -1157,7 +1215,7 @@ async function loadRemoteProjectState() {
   renderAll();
 }
 function queueRemoteSave() {
-  if (!supabaseClient || !authState.user || !authState.syncEnabled) return;
+  if (!supabaseClient || !authState.user || !authState.syncEnabled || !authState.allowAutoSave || authState.hydrating) return;
   if (authState.saveTimer) clearTimeout(authState.saveTimer);
   authState.saveTimer = setTimeout(() => {
     saveRemoteState().catch(error => {
@@ -1187,6 +1245,7 @@ async function submitAuth() {
   const password = document.getElementById('authPassword').value || '';
   const fullName = sanitizeText(document.getElementById('authFullName').value, '');
   const businessName = sanitizeText(document.getElementById('authBusinessName').value, '');
+  const businessType = sanitizeChoice(document.getElementById('authBusinessType')?.value, Object.keys(BUSINESS_MODELS), 'service');
   const phone = sanitizePhone(document.getElementById('authPhone')?.value, '');
   if (errorEl) errorEl.innerText = '';
   if (successEl) successEl.innerText = '';
@@ -1199,15 +1258,20 @@ async function submitAuth() {
     if (errorEl) errorEl.innerText = 'ইমেইল আর পাসওয়ার্ড দিন।';
     return;
   }
-  if (authMode === 'signup' && (!fullName || !businessName || !phone)) {
-    if (errorEl) errorEl.innerText = 'নাম, ব্যবসার নাম আর ফোন নম্বর দিন।';
+  if (authMode === 'signup' && (!fullName || !businessName || !phone || !businessType)) {
+    if (errorEl) errorEl.innerText = 'নাম, ব্যবসার নাম, ব্যবসার ধরন আর ফোন নম্বর দিন।';
     return;
   }
   try {
     if (authMode === 'signup') {
-      state.ownerName = fullName;
-      state.ownerPhone = phone;
-      state.businessName = businessName || state.businessName;
+      const cleanSignupState = blankState({
+        ownerName: fullName,
+        ownerPhone: phone,
+        businessName: businessName || 'আমার ব্যবসা',
+        businessType
+      });
+      state = cleanSignupState;
+      authState.allowAutoSave = false;
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
@@ -1215,6 +1279,7 @@ async function submitAuth() {
           data: {
             full_name: fullName,
             business_name: businessName || state.businessName,
+            business_type: businessType,
             phone
           }
         }
@@ -1222,7 +1287,10 @@ async function submitAuth() {
       if (error) throw error;
       if (data.session) {
         await handleAuthSession(data.session);
+        authState.allowAutoSave = false;
         await saveRemoteState();
+        saveStateLocal(true);
+        authState.allowAutoSave = true;
         showFlash('অ্যাকাউন্ট তৈরি হয়েছে');
       } else if (successEl) {
         successEl.innerText = 'অ্যাকাউন্ট তৈরি হয়েছে। ইমেইল যাচাই করে প্রবেশ করুন।';
@@ -1247,6 +1315,7 @@ function openProfilePanel() {
   document.getElementById('profileFullName').value = profileOwnerName();
   document.getElementById('profileBusinessName').value = state.businessName || '';
   document.getElementById('profilePhone').value = profileOwnerPhone();
+  document.getElementById('profileBusinessType').value = state.businessType || 'service';
   document.getElementById('profileEmail').value = authState.user.email || '';
   document.getElementById('profilePassword').value = '';
   document.getElementById('profilePasswordConfirm').value = '';
@@ -1265,6 +1334,7 @@ async function saveProfilePanel() {
   const fullName = sanitizeText(document.getElementById('profileFullName').value, '');
   const businessName = sanitizeText(document.getElementById('profileBusinessName').value, '');
   const phone = sanitizePhone(document.getElementById('profilePhone').value, '');
+  const businessType = sanitizeChoice(document.getElementById('profileBusinessType').value, Object.keys(BUSINESS_MODELS), 'service');
   const email = sanitizeText(document.getElementById('profileEmail').value, '');
   const newPassword = document.getElementById('profilePassword').value || '';
   const confirmPassword = document.getElementById('profilePasswordConfirm').value || '';
@@ -1291,6 +1361,7 @@ async function saveProfilePanel() {
       data: {
         full_name: fullName,
         business_name: businessName,
+        business_type: businessType,
         phone
       }
     };
@@ -1302,8 +1373,11 @@ async function saveProfilePanel() {
     state.ownerName = fullName;
     state.ownerPhone = phone;
     state.businessName = businessName;
-    saveStateLocal();
+    state.businessType = businessType;
+    authState.allowAutoSave = false;
+    saveStateLocal(true);
     await saveRemoteState();
+    authState.allowAutoSave = true;
     renderAll();
     updateProfileUI();
     if (successEl) {
@@ -2342,12 +2416,14 @@ function saveEntry() {
   else if(currentModalType==='exclusion') state.exclusions.push(sanitizeExclusionItem({id:uid(), name, rate:val, unit:document.getElementById('mUnit').value}));
 
   document.getElementById('entryModal').classList.remove('open');
+  markUserEdited();
   renderAll();
 }
 
-function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); renderAll(); }
+function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); markUserEdited(); renderAll(); }
 function updateState(key, val) {
   state[key] = sanitizeNumber(val, 0, 0, 1000000);
+  markUserEdited();
   renderAll();
 }
 function switchToPage(page) {
@@ -2367,6 +2443,7 @@ function applyPlannerControls() {
   const amortYears = Math.max(1, Math.min(10, parseInt(amortInput.value || '3', 10)));
 
   state.capex = state.capex.map(item => ({ ...item, amortization: amortYears }));
+  markUserEdited();
   renderAll();
   showFlash('Planner setting আপডেট হয়েছে (amortization)');
 }
@@ -2546,9 +2623,10 @@ async function downloadProfessionalPDF() {
 }
 
 // ==================== INIT & EVENT LISTENERS ====================
-function saveStateLocal() {
+function saveStateLocal(skipRemote = false) {
+  if (!authState.allowAutoSave && !skipRemote) return;
   localStorage.setItem('roiplanner_pro', JSON.stringify(state));
-  queueRemoteSave();
+  if (!skipRemote) queueRemoteSave();
 }
 function loadState() {
   const p = new URLSearchParams(location.search);
@@ -2568,6 +2646,9 @@ function loadState() {
   }
   state = sanitizeState(loaded);
   normalizeCurrency();
+}
+function markUserEdited() {
+  authState.allowAutoSave = true;
 }
 
 function showFlash(msg) {
@@ -2594,6 +2675,8 @@ window.addEventListener('resize', () => {
 });
 
 window.onload = async () => {
+  authState.hydrating = true;
+  authState.allowAutoSave = false;
   loadState();
   syncBusinessNameDisplay();
   const businessTypeSelect = document.getElementById('businessTypeSelect');
@@ -2603,17 +2686,12 @@ window.onload = async () => {
   document.getElementById('growthLabel').innerText = `${state.globalGrowth}%`;
   document.getElementById('taxRange').value = state.taxRate;
   document.getElementById('utilRange').value = state.globalUtil;
-  if(state.capex.length===0) {
-    // Seed Data
-    state.capex = [{id:uid(), name:'যন্ত্রপাতি', category:'যন্ত্রপাতি', amount:150000, amortization:3}];
-    state.opex = [{id:uid(), name:'অফিস ভাড়া', category:'ভাড়া', monthly:25000}, {id:uid(), name:'বেতন', category:'বেতন', monthly:80000}];
-    state.revenue = [{id:uid(), name:'ডিজাইন সেবা', price:40000, qty:3, useGlobal:true}];
-  }
   renderAll();
   scheduleChartDraw();
   switchAuthMode('signup');
   updateProfileUI();
   await initAuth();
+  authState.hydrating = false;
 };
 </script>
 </body>
