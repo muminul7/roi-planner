@@ -295,6 +295,8 @@ body:not(.app-booting) .mobile-topbar,body:not(.app-booting) .mobile-bottom-nav{
 .form-input{background:linear-gradient(180deg,rgba(24,34,48,.96),rgba(19,28,40,.98));border:1px solid rgba(61,78,97,.34);color:#fff;padding:12px 13px;border-radius:14px;font-size:14px;outline:none;width:100%;transition:.22s ease;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring), inset 0 1px 0 rgba(255,255,255,.03)}
 .form-input::placeholder{color:#73839a}
+select.form-input{color-scheme:dark;background-color:#111a25}
+select.form-input option,select.form-input optgroup{background:#111a25;color:#f8f9fa}
 
 .modal-backdrop{position:fixed;inset:0;background:rgba(5,9,14,.78);backdrop-filter:blur(10px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:.22s ease}
 .modal-backdrop.open{opacity:1;pointer-events:all}
