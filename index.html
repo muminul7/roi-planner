@@ -310,25 +310,25 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div><div class="page-title" id="dashTitle">ড্যাশবোর্ড</div><div class="page-subtitle">এক নজরে ব্যবসার আর্থিক চিত্র</div></div>
     </div>
     <div class="hero-brief">
-      <div class="hero-title" id="dashboardHeroTitle">বাংলাদেশি উদ্যোক্তাদের জন্য ROI কমান্ড সেন্টার</div>
+      <div class="hero-title" id="dashboardHeroTitle">আপনার ব্যবসার টাকার অবস্থা এক জায়গায়</div>
       <div class="hero-sub" id="dashboardHeroSub">বিনিয়োগ, খরচ, আয় এবং ট্যাক্স বিবেচনায় আপনার ব্যবসা এখন কোন অবস্থায় আছে তা দ্রুত বুঝুন, তারপর সঠিক সিদ্ধান্ত নিন।</div>
       <div class="hero-meta">
         <div class="pill" id="businessTypePill">বিজনেস টাইপ: সার্ভিস</div>
-        <div class="pill" id="businessFocusPill">ফোকাস: ক্লায়েন্ট, মার্জিন, পুনরাবৃত্ত আয়</div>
+        <div class="pill" id="businessFocusPill">গুরুত্ব: ক্লায়েন্ট, মার্জিন, পুনরাবৃত্ত আয়</div>
       </div>
     </div>
     <div class="quick-actions">
       <button class="btn btn-secondary" onclick="switchToPage('revenue')">আয়ের উৎস আপডেট করুন</button>
       <button class="btn btn-secondary" onclick="switchToPage('opex')">খরচ অপটিমাইজ করুন</button>
-      <button class="btn btn-ghost" onclick="switchToPage('settings')">গ্লোবাল সেটিংস টিউন করুন</button>
+      <button class="btn btn-ghost" onclick="switchToPage('settings')">সেটিংস ঠিক করুন</button>
       <button class="btn btn-secondary mobile-only" onclick="downloadProfessionalPDF()">পূর্ণ রিপোর্ট PDF</button>
     </div>
     <div class="card-grid grid-4" id="dashKPIs"></div>
     <div class="insight-grid" id="dashTips"></div>
     <div class="card expert-card" id="expertSuggestion"></div>
     <div class="card-grid grid-2">
-      <div class="card"><div class="card-title">সতর্কতা</div><div id="alertSystem"></div></div>
-      <div class="card"><div class="card-title">খরচ লিক খুঁজুন</div><div id="expenseLeakFinder"></div></div>
+      <div class="card"><div class="card-title">যা খেয়াল রাখা দরকার</div><div id="alertSystem"></div></div>
+      <div class="card"><div class="card-title">কোথায় খরচ বেশি হচ্ছে</div><div id="expenseLeakFinder"></div></div>
     </div>
     <div class="card-grid grid-2 dashboard-chart-grid">
       <div class="card chart-card combo-chart-card"><div class="card-title">12 মাসের ক্যাশফ্লো পূর্বাভাস</div><div class="combo-chart-wrap"><canvas id="chartCashflow"></canvas></div></div>
@@ -342,7 +342,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <div><div class="page-title">সহজ ব্যবসা পরিকল্পনা</div><div class="page-subtitle">এখানে শুধু বড় সিদ্ধান্তের জিনিস বদলাবেন। আয়, খরচ আর শুরুর টাকা বদলাবেন তাদের আলাদা পাতায়।</div></div>
     </div>
     <div class="hero-brief">
-      <div class="hero-title">এই পাতায় কী করবেন</div>
+      <div class="hero-title">এই পাতায় কী বদলাবেন</div>
       <div class="hero-sub">এই পাতায় শুধু পরিকল্পনার বড় সেটিংস বদলাবেন। আয়, মাসিক খরচ আর শুরুর খরচ দেখতে পাবেন, কিন্তু বদলাতে হলে তাদের আলাদা পাতায় যেতে হবে।</div>
     </div>
     <div class="card-grid grid-2">
@@ -400,7 +400,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">আয়ের পূর্বাভাস</div><canvas id="chartRevenue"></canvas></div>
       <div class="card">
-        <div class="card-title">এই পাতার দরকারি কথা</div>
+        <div class="card-title">এই পাতায় যা মনে রাখবেন</div>
         <div class="readonly-hint">কর, জিনিসপত্রের দাম বাড়া, লাভে যেতে কত মাস লাগবে, আয় বাড়ার গতি, কাজের ব্যবহার হার আর হাতে রাখা টাকার নিয়ম `সেটিংস` পাতায় বদলান।</div>
       </div>
     </div>
@@ -534,11 +534,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- SCENARIOS -->
   <div class="page" id="page-scenarios">
     <div class="page-header"><div><div class="page-title">কি হলে কী হবে</div><div class="page-subtitle">খারাপ-মাঝারি-ভালো অবস্থায় লাভ কত হয় দেখুন</div></div></div>
-    <div class="card chart-card"><div class="card-title">সিনারিও তুলনা</div><canvas id="chartScenarios"></canvas></div>
+    <div class="card chart-card"><div class="card-title">তিন রকম হিসাব একসাথে</div><canvas id="chartScenarios"></canvas></div>
   </div>
 
   <div class="page" id="page-knowledge">
-    <div class="page-header"><div><div class="page-title">Knowledge</div><div class="page-subtitle">এই অ্যাপে ব্যবহার করা financial term-গুলোর সহজ বাংলা মানে ও ব্যবহার</div></div></div>
+    <div class="page-header"><div><div class="page-title">সহজ ব্যাখ্যা</div><div class="page-subtitle">এই অ্যাপে ব্যবহার করা financial term-গুলোর সহজ বাংলা মানে ও ব্যবহার</div></div></div>
     <div class="knowledge-grid" id="knowledgeGrid"></div>
   </div>
 </main>
@@ -762,7 +762,7 @@ function applyBusinessPreset(type) {
   state.variableCostRate = config.suggested.variableCostRate;
   state.reserveMonths = config.suggested.reserveMonths;
   renderAll();
-  showFlash(`${config.label} preset apply হয়েছে`);
+  showFlash(`${config.label} সেট করা হয়েছে`);
 }
 function updateBusinessType(type) {
   state.businessType = type;
@@ -936,10 +936,10 @@ function renderBusinessModelUI() {
   const businessTypeSelect = document.getElementById('businessTypeSelect');
   const businessTypeHint = document.getElementById('businessTypeHint');
 
-  if (dashboardHeroTitle) dashboardHeroTitle.innerText = `${model.label} এর জন্য ROI কমান্ড সেন্টার`;
+  if (dashboardHeroTitle) dashboardHeroTitle.innerText = `${model.label} ব্যবসার টাকার হিসাব`;
   if (dashboardHeroSub) dashboardHeroSub.innerText = model.hero;
   if (businessTypePill) businessTypePill.innerText = `বিজনেস টাইপ: ${model.shortLabel}`;
-  if (businessFocusPill) businessFocusPill.innerText = `ফোকাস: ${model.focus}`;
+  if (businessFocusPill) businessFocusPill.innerText = `গুরুত্ব: ${model.focus}`;
   if (revenuePageTitle) revenuePageTitle.innerText = `${model.label} এর আয়ের মডেল`;
   if (revenuePageSubtitle) revenuePageSubtitle.innerText = `${model.label} এ কোথা থেকে আয় আসবে সেটা সেট করুন`;
   if (revenueNameHeader) revenueNameHeader.innerText = model.revenueName;
@@ -971,28 +971,28 @@ function renderDashboard() {
   `;
   document.getElementById('dashTips').innerHTML = `
     <div class="insight-item">
-      <h4>বর্তমান অবস্থা</h4>
-      <p>${f.netProfit >= 0 ? 'ব্যবসা লাভজনক চলছে। এই momentum ধরে রাখতে কস্ট কন্ট্রোল চালু রাখুন।' : `ব্যবসা এখনো লোকসানে। দ্রুত ${model.focus} এর মধ্যে সবচেয়ে শক্তিশালী driver-এ ফোকাস করুন।`}</p>
+      <h4>এখন ব্যবসা কেমন চলছে</h4>
+      <p>${f.netProfit >= 0 ? 'এখন ব্যবসা লাভে আছে। এই অবস্থাটা ধরে রাখতে খরচ দেখেশুনে চালান।' : `এখনো লোকসান হচ্ছে। তাই আগে ${model.focus} এই দিকগুলোতে বেশি গুরুত্ব দিন।`}</p>
     </div>
     <div class="insight-item">
-      <h4>ব্রেক-ইভেন দিকনির্দেশনা</h4>
-      <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে (সম্ভাব্য ${breakEvenDate}) break-even হবে।` : 'বর্তমান লাভের হার দিয়ে break-even করা কঠিন। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
+      <h4>কবে লাভে যেতে পারেন</h4>
+      <p>${breakEven ? `এই গতিতে আনুমানিক ${breakEven} মাসে (সম্ভাব্য ${breakEvenDate}) break-even হবে।` : 'এখনকার হিসাবে সহজে break-even আসছে না। আয় বাড়ানো বা খরচ কমানো দরকার।'}</p>
     </div>
     <div class="insight-item">
-      <h4>টার্গেট বনাম বাস্তবতা</h4>
-      <p>${breakEven ? (breakEven <= target ? `আপনার target ${target} মাসের মধ্যে profit সম্ভব দেখাচ্ছে।` : `টার্গেট ${target} মাস, কিন্তু বর্তমান projection ${breakEven} মাস।`) : `আপনার target ${target} মাস, এখনো projection অনুযায়ী profit zone এ আসেনি।`}</p>
+      <h4>আপনার লক্ষ্য অনুযায়ী অবস্থা</h4>
+      <p>${breakEven ? (breakEven <= target ? `আপনার ${target} মাসের লক্ষ্যের মধ্যে লাভে যাওয়া সম্ভব মনে হচ্ছে।` : `আপনি ${target} মাস ভাবছেন, কিন্তু এখনকার হিসাবে ${breakEven} মাস লাগতে পারে।`) : `আপনি ${target} মাস ভাবছেন, কিন্তু এখনো সেই হিসাবে লাভে যাওয়ার অবস্থায় আসেনি।`}</p>
     </div>
     <div class="insight-item">
-      <h4>উদ্যোক্তা টিপস</h4>
-      <p>${margin >= 20 ? `মার্জিন ভালো আছে। এখন ${model.focus} আরও disciplined করলে cashflow stable হবে।` : `মার্জিন কম। ${model.variableLabel.replace(' (%)','')} review করুন।`}</p>
+      <h4>সহজ পরামর্শ</h4>
+      <p>${margin >= 20 ? `মার্জিন ভালো আছে। এখন ${model.focus} এই দিকগুলো ঠিক রেখে চললে cashflow আরও ভালো থাকবে।` : `মার্জিন কম। ${model.variableLabel.replace(' (%)','')} আর খরচগুলো আরেকবার দেখে নিন।`}</p>
     </div>
     <div class="insight-item">
       <h4>ক্যাশ রানওয়ে</h4>
       <p>${runway} · জরুরি তহবিল লক্ষ্য: ${fmt(reserveTarget())}</p>
     </div>
     <div class="insight-item">
-      <h4>ফান্ডিং ঘাটতি</h4>
-      <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}। খরচ কমানো বা অতিরিক্ত ফান্ড লাগবে।` : 'বর্তমান প্ল্যানে বড় funding gap নেই।'}</p>
+      <h4>টাকার ঘাটতি আছে কি না</h4>
+      <p>${gap > 0 ? `আনুমানিক ঘাটতি ${fmt(gap)}। খরচ কমানো বা বাড়তি টাকা লাগতে পারে।` : 'এখনকার প্ল্যানে বড় টাকার ঘাটতি দেখা যাচ্ছে না।'}</p>
     </div>
     <div class="insight-item">
       <h4>ভ্যারিয়েবল খরচ চাপ</h4>
@@ -1006,8 +1006,8 @@ function renderDashboard() {
     if (margin < 15) recommendations.push('Gross margin কম: low-margin service বাদ দিয়ে premium bundle চালু করুন।');
     if (gap > 0) recommendations.push(`ফান্ডিং ঘাটতি ${fmt(gap)}: ধাপে ধাপে investment plan বা bridge financing বিবেচনা করুন।`);
     if (breakEven && breakEven > target) recommendations.push(`টার্গেট ${target} মাসে break-even পেতে মাসিক growth ${Math.max(state.globalGrowth + 2, 5)}% করার চেষ্টা করুন।`);
-    if (annualROI >= 35 && f.netProfit > 0) recommendations.push('Performance শক্তিশালী: এখন 3-6 মাসের cash reserve build করে scale plan চালু করুন।');
-    if (recommendations.length === 0) recommendations.push('বর্তমান অবস্থা স্থিতিশীল। এখন unit economics ধরে রেখে sales volume বাড়ানোই সেরা পরবর্তী পদক্ষেপ।');
+    if (annualROI >= 35 && f.netProfit > 0) recommendations.push('এখন ব্যবসা ভালো অবস্থায় আছে। তাই 3-6 মাসের cash reserve গড়ে রেখে ধীরে ধীরে বড় করার পরিকল্পনা করুন।');
+    if (recommendations.length === 0) recommendations.push('এখন অবস্থা মোটামুটি ঠিক আছে। তাই খরচ ঠিক রেখে বিক্রি বাড়ানোর দিকে মন দিন।');
 
     expertEl.innerHTML = `
       <div class="expert-title">আর্থিক পরামর্শ</div>
@@ -1222,9 +1222,9 @@ function renderPlannerPanel() {
 
   summaryEl.innerText = be
     ? (be <= target
-      ? `দারুণ। বর্তমান প্ল্যানে আপনি টার্গেট ${target} মাসের আগেই profit zone-এ যেতে পারেন।`
-      : `বর্তমান হিসাবে break-even আনুমানিক ${be} মাসে। আপনার টার্গেট ${target} মাসে যেতে হলে growth বা margin বাড়াতে হবে।`)
-    : `এখনো break-even আসছে না। ${model.variableLabel.replace(' (%)','')} কমানো, growth বাড়ানো, বা opex control দরকার।`;
+      ? `ভালো খবর। এখনকার হিসাবে আপনি ${target} মাসের আগেই লাভে যেতে পারেন।`
+      : `এখনকার হিসাবে break-even আনুমানিক ${be} মাসে। ${target} মাসে যেতে হলে growth বা margin বাড়াতে হবে।`)
+    : `এখনো break-even আসছে না। ${model.variableLabel.replace(' (%)','')} কমানো, growth বাড়ানো, বা OPEX control দরকার।`;
 }
 
 function renderSettingsPanel() {
@@ -1266,7 +1266,7 @@ function renderSettingsPanel() {
 
   const f = getFinancials(0);
   const be = breakEvenMonths();
-  settingsSummary.innerText = `${model.label} চালু আছে। লাভে যেতে সময়: ${be ? `${be} মাস (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | শুরুর টাকা তুলতে চাওয়া সময়: ${state.targetProfitMonths.toFixed(0)} মাস | হাতে রাখা টাকার লক্ষ্য: ${fmt(reserveTarget())} | ${model.variableLabel.replace(' (%)','')}: ${state.variableCostRate.toFixed(0)}%`;
+  settingsSummary.innerText = `${model.label} বাছা আছে। লাভে যেতে সময়: ${be ? `${be} মাস (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | শুরুর টাকা তুলতে চাওয়া সময়: ${state.targetProfitMonths.toFixed(0)} মাস | হাতে রাখা টাকার লক্ষ্য: ${fmt(reserveTarget())} | ${model.variableLabel.replace(' (%)','')}: ${state.variableCostRate.toFixed(0)}%`;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
@@ -1741,7 +1741,7 @@ function buildActionNotes(monthZero, annualROI, margin, breakEvenMonths) {
   if (annualROI < 20) notes.push('ROI বাড়াতে বিক্রয়মূল্য ও recurring package structure পুনরায় সাজান।');
   if (margin < 15) notes.push('প্রতি সেবার কস্ট-টু-রেভিনিউ ratio audit করুন।');
   if (breakEvenMonths && breakEvenMonths > 18) notes.push('ব্রেক-ইভেন দেরি হচ্ছে: fixed cost কমানো বা volume বাড়ানো দরকার।');
-  if (notes.length === 0) notes.push('বর্তমান প্রক্ষেপণ শক্তিশালী। এখন client retention ও cash reserve strategy-তে ফোকাস দিন।');
+  if (notes.length === 0) notes.push('এখনকার হিসাব ভালো। তাই পুরনো কাস্টমার ধরে রাখা আর হাতে কিছু টাকা জমিয়ে রাখার দিকে নজর দিন।');
   return notes.slice(0, 3);
 }
 
@@ -1778,7 +1778,7 @@ function buildPrintableReport() {
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
       <div style="font-size:24px;font-weight:700;">${escapeHTML(state.businessName || 'ROI Planner Report')}</div>
-      <div style="font-size:12px;margin-top:4px;">ব্যবসার টাকার পরিকল্পনার রিপোর্ট | ব্যবসার ধরন: ${escapeHTML(model.label)}</div>
+      <div style="font-size:12px;margin-top:4px;">ব্যবসার টাকার হিসাবের রিপোর্ট | ব্যবসার ধরন: ${escapeHTML(model.label)}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
