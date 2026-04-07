@@ -212,22 +212,24 @@ border:1px solid rgba(69,87,108,.36);border-radius:24px;padding:18px 18px 16px;c
 .sidebar-session{padding:0 18px 14px}
 .sidebar-session .btn{width:100%}
 .auth-backdrop{position:fixed;inset:0;background:radial-gradient(900px 480px at 20% 20%,rgba(0,229,160,.08),transparent 45%),rgba(6,10,15,.88);backdrop-filter:blur(12px);z-index:1400;display:flex;align-items:center;justify-content:center;padding:24px}
-.auth-card{width:min(100%,980px);background:linear-gradient(180deg,var(--surface),#0f1620);border:1px solid rgba(82,95,116,.34);border-radius:26px;display:grid;grid-template-columns:minmax(280px,.92fr) minmax(380px,1fr);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.42)}
-.auth-showcase{padding:38px 34px;background:
-radial-gradient(420px 260px at 0% 0%,rgba(0,229,160,.18),transparent 55%),
-linear-gradient(180deg,rgba(15,23,34,.96),rgba(10,15,22,.98));border-right:1px solid rgba(82,95,116,.24);display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.auth-card{width:min(100%,540px);max-height:min(88svh,820px);background:linear-gradient(180deg,var(--surface),#0f1620);border:1px solid rgba(82,95,116,.34);border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.42);display:flex;flex-direction:column}
+.auth-shell{display:flex;flex-direction:column;min-height:0}
+.auth-panel{padding:28px 28px 30px;display:flex;flex-direction:column;min-height:0}
+.auth-panel-scroll{overflow-y:auto;padding-right:4px}
 .auth-brand{display:inline-flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .auth-brand::before{content:"";width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px rgba(0,229,160,.12)}
-.auth-kicker{display:inline-flex;align-items:center;width:max-content;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);font-size:12px;color:#d8e3ef}
-.auth-showcase-title{font-size:30px;line-height:1.18;font-weight:800;color:#fff;letter-spacing:-.03em;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;max-width:11ch}
-.auth-showcase-copy{font-size:14px;color:#aeb8c8;line-height:1.8;max-width:32ch}
-.auth-points{display:grid;gap:10px}
+.auth-kicker{display:inline-flex;align-items:center;width:max-content;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);font-size:12px;color:#d8e3ef;margin-top:14px}
+.auth-intro-hero{margin-top:26px;padding:22px 20px;border-radius:22px;border:1px solid rgba(62,78,98,.28);background:radial-gradient(360px 220px at 0% 0%,rgba(0,229,160,.14),transparent 56%),linear-gradient(180deg,rgba(16,24,35,.96),rgba(11,18,27,.98))}
+.auth-showcase-title{font-size:30px;line-height:1.18;font-weight:800;color:#fff;letter-spacing:-.03em;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;max-width:12ch}
+.auth-showcase-copy{font-size:14px;color:#aeb8c8;line-height:1.8;max-width:34ch;margin-top:10px}
+.auth-points{display:grid;gap:10px;margin-top:22px}
 .auth-point{padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);font-size:13px;color:#eff5ff;line-height:1.6}
-.auth-form-panel{padding:34px 36px 36px;display:flex;flex-direction:column;justify-content:center}
+.auth-action-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.auth-form-panel{display:flex;flex-direction:column;min-height:0}
+.auth-back-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.auth-back-btn{min-height:40px;padding:0 14px}
 .auth-title{font-size:34px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif;letter-spacing:-.03em}
 .auth-sub{font-size:14px;color:#b4becd;line-height:1.8;margin-top:8px;max-width:42ch}
-.auth-tabs{display:flex;gap:8px;margin:22px 0 18px;padding:6px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
-.auth-tab{flex:1;border-radius:12px}
 .auth-note{font-size:12px;color:var(--text2);line-height:1.7;margin-top:10px}
 .auth-error{font-size:12px;color:var(--danger);margin-top:10px;line-height:1.6;min-height:18px}
 .auth-success{font-size:12px;color:var(--success);margin-top:8px;line-height:1.6;min-height:18px}
@@ -284,12 +286,12 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
   .page-header{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:0}
   .page-header .btn{width:100%}
   .auth-backdrop{padding:0;align-items:flex-end}
-  .auth-card{grid-template-columns:1fr;border-radius:24px 24px 0 0;min-height:min(92svh,820px);width:100%;max-width:none}
-  .auth-showcase{padding:18px 18px 16px;border-right:none;border-bottom:1px solid rgba(82,95,116,.18);gap:12px}
-  .auth-showcase-title{font-size:21px;max-width:none}
+  .auth-card{border-radius:24px 24px 0 0;min-height:min(78svh,720px);max-height:min(92svh,820px);width:100%;max-width:none}
+  .auth-panel{padding:20px 18px 24px}
+  .auth-showcase-title{font-size:24px;max-width:none}
   .auth-showcase-copy{max-width:none;font-size:12px;line-height:1.65}
-  .auth-points{display:none}
-  .auth-form-panel{padding:20px 18px 24px;overflow-y:auto}
+  .auth-points{margin-top:18px}
+  .auth-action-stack{grid-template-columns:1fr}
   .auth-title{font-size:26px}
   .auth-sub{font-size:13px}
   .profile-panel-grid{grid-template-columns:1fr}
@@ -671,36 +673,38 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 
 <div class="auth-backdrop auth-hidden" id="authBackdrop">
   <div class="auth-card">
-    <div class="auth-showcase">
-      <div>
+    <div class="auth-shell">
+      <div class="auth-panel auth-panel-scroll" id="authIntroView">
         <div class="auth-brand">বিজনেস ক্যালকুলেটর</div>
-        <div class="auth-kicker" style="margin-top:16px">বাংলাদেশি উদ্যোক্তার জন্য</div>
+        <div class="auth-kicker">বাংলাদেশি উদ্যোক্তার জন্য</div>
+        <div class="auth-intro-hero">
+          <div class="auth-showcase-title">এক জায়গায় ব্যবসার সব হিসাব গুছিয়ে রাখুন</div>
+          <div class="auth-showcase-copy">ব্যবসার আয়, খরচ, লাভ, ROI আর পরিকল্পনা আলাদা করে সেভ থাকবে। পরে আবার ঢুকে যেখানে কাজ শেষ করেছিলেন সেখান থেকেই শুরু করতে পারবেন।</div>
+        </div>
+        <div class="auth-points">
+          <div class="auth-point">আপনার তথ্য আলাদা থাকবে</div>
+          <div class="auth-point">হিসাব আর পরিকল্পনা নিজের প্রোফাইলে সেভ থাকবে</div>
+          <div class="auth-point">পরে আবার ঢুকে আগের জায়গা থেকেই কাজ চালিয়ে যেতে পারবেন</div>
+        </div>
+        <div class="auth-action-stack">
+          <button class="btn btn-primary" onclick="switchAuthMode('signup')">নতুন অ্যাকাউন্ট খুলুন</button>
+          <button class="btn btn-secondary" onclick="switchAuthMode('login')">লগইন করুন</button>
+        </div>
       </div>
-      <div>
-        <div class="auth-showcase-title">এক জায়গায় ব্যবসার সব হিসাব গুছিয়ে রাখুন</div>
-        <div class="auth-showcase-copy">একবার ঢুকলেই আপনার ব্যবসার তথ্য, আয়, খরচ আর পরিকল্পনা পরে আবার সহজে ফিরে পাবেন।</div>
+      <div class="auth-panel auth-panel-scroll auth-form-panel auth-hidden" id="authFormView">
+      <div class="auth-back-row">
+        <button class="btn btn-outline auth-back-btn" onclick="switchAuthMode('intro')">ফিরে যান</button>
       </div>
-      <div class="auth-points">
-        <div class="auth-point">আপনার তথ্য আলাদা থাকবে</div>
-        <div class="auth-point">আয়, খরচ আর লাভের হিসাব সেভ থাকবে</div>
-        <div class="auth-point">পরে আবার ঢুকে সেখান থেকেই কাজ শুরু করতে পারবেন</div>
-      </div>
-    </div>
-    <div class="auth-form-panel">
       <div class="auth-title" id="authTitle">নতুন অ্যাকাউন্ট খুলুন</div>
       <div class="auth-sub" id="authSub">একবার অ্যাকাউন্ট খুললে আপনার ব্যবসার তথ্য আর সব হিসাব নিজের জায়গায় জমা থাকবে।</div>
-      <div class="auth-tabs">
-        <button class="btn btn-primary auth-tab" id="signupTabBtn" onclick="switchAuthMode('signup')">নতুন অ্যাকাউন্ট</button>
-        <button class="btn btn-secondary auth-tab" id="loginTabBtn" onclick="switchAuthMode('login')">প্রবেশ</button>
-      </div>
       <div class="form-group" id="authNameWrap">
         <label class="form-label">আপনার নাম</label>
         <input class="form-input" id="authFullName" placeholder="আপনার নাম লিখুন">
       </div>
-    <div class="form-group" id="authBusinessWrap">
-      <label class="form-label">ব্যবসার নাম</label>
-      <input class="form-input" id="authBusinessName" placeholder="ব্যবসার নাম লিখুন">
-    </div>
+      <div class="form-group" id="authBusinessWrap">
+        <label class="form-label">ব্যবসার নাম</label>
+        <input class="form-input" id="authBusinessName" placeholder="ব্যবসার নাম লিখুন">
+      </div>
       <div class="form-group" id="authBusinessTypeWrap">
         <label class="form-label">ব্যবসার ধরন</label>
         <select class="form-input" id="authBusinessType">
@@ -725,6 +729,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
       <button class="btn btn-primary" style="width:100%;margin-top:8px" id="authSubmitBtn" onclick="submitAuth()">অ্যাকাউন্ট খুলুন</button>
       <div class="auth-error" id="authError"></div>
       <div class="auth-success" id="authSuccess"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -802,7 +807,7 @@ const CURRENCIES = { BDT:'৳' };
 let currentModalType = null;
 let charts = {};
 let supabaseClient = null;
-let authMode = 'signup';
+let authMode = 'intro';
 let authState = {
   ready: false,
   user: null,
@@ -1045,9 +1050,9 @@ function hasSupabaseConfig() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 }
 function switchAuthMode(mode) {
-  authMode = mode === 'login' ? 'login' : 'signup';
-  const signupBtn = document.getElementById('signupTabBtn');
-  const loginBtn = document.getElementById('loginTabBtn');
+  authMode = ['intro', 'login', 'signup'].includes(mode) ? mode : 'intro';
+  const introView = document.getElementById('authIntroView');
+  const formView = document.getElementById('authFormView');
   const titleEl = document.getElementById('authTitle');
   const subEl = document.getElementById('authSub');
   const nameWrap = document.getElementById('authNameWrap');
@@ -1058,8 +1063,8 @@ function switchAuthMode(mode) {
   const submitBtn = document.getElementById('authSubmitBtn');
   const errorEl = document.getElementById('authError');
   const successEl = document.getElementById('authSuccess');
-  if (signupBtn) signupBtn.className = `btn ${authMode === 'signup' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
-  if (loginBtn) loginBtn.className = `btn ${authMode === 'login' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
+  if (introView) introView.classList.toggle('auth-hidden', authMode !== 'intro');
+  if (formView) formView.classList.toggle('auth-hidden', authMode === 'intro');
   if (titleEl) titleEl.innerText = authMode === 'signup' ? 'নতুন অ্যাকাউন্ট খুলুন' : 'আপনার অ্যাকাউন্টে প্রবেশ করুন';
   if (subEl) subEl.innerText = authMode === 'signup'
     ? 'একবার অ্যাকাউন্ট খুললে আপনার ব্যবসার তথ্য আর সব হিসাব নিজের জায়গায় জমা থাকবে।'
@@ -1069,13 +1074,16 @@ function switchAuthMode(mode) {
   if (businessTypeWrap) businessTypeWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (businessTypeSelect) businessTypeSelect.value = state.businessType || 'service';
   if (phoneWrap) phoneWrap.classList.toggle('auth-hidden', authMode !== 'signup');
-  if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'অ্যাকাউন্ট খুলুন' : 'প্রবেশ করুন';
+  if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'অ্যাকাউন্ট খুলুন' : 'লগইন করুন';
   if (errorEl) errorEl.innerText = '';
   if (successEl) successEl.innerText = '';
 }
 function showAuthModal() {
   const backdrop = document.getElementById('authBackdrop');
-  if (backdrop) backdrop.classList.remove('auth-hidden');
+  if (backdrop) {
+    switchAuthMode('intro');
+    backdrop.classList.remove('auth-hidden');
+  }
 }
 function hideAuthModal() {
   const backdrop = document.getElementById('authBackdrop');
@@ -2688,7 +2696,7 @@ window.onload = async () => {
   document.getElementById('utilRange').value = state.globalUtil;
   renderAll();
   scheduleChartDraw();
-  switchAuthMode('signup');
+  switchAuthMode('intro');
   updateProfileUI();
   await initAuth();
   authState.hydrating = false;
