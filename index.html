@@ -1041,6 +1041,7 @@ function renderTables() {
 function renderROI() {
   let f = getFinancials(0);
   let annualROI = annualROIYear1();
+  const year1 = year1Financials();
   const snapshot = getSummarySnapshot();
   
   document.getElementById('roiBig').innerText = annualROI.toFixed(1) + '%';
@@ -1048,11 +1049,11 @@ function renderROI() {
   document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট শুরুর টাকা ${fmt(totalCapex())} ধরে এই হিসাব করা হয়েছে` : 'এই হিসাব দেখতে শুরুর খরচ যোগ করুন';
 
   document.getElementById('plBody').innerHTML = `
-    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(f.rev*12)}/বছর</td></tr>
-    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/মাস</td><td>${fmt(f.costs*12)}/বছর</td></tr>
-    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(f.grossProfit*12)}/বছর</td></tr>
-    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(f.tax*12)}/বছর</td></tr>
-    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit*12)}/বছর</td></tr>
+    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(year1.revenue)}/বছর</td></tr>
+    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/মাস</td><td>${fmt(year1.opex + totalCapex())}/বছর</td></tr>
+    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(year1.netProfit + year1.tax)}/বছর</td></tr>
+    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(year1.tax)}/বছর</td></tr>
+    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${year1.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(year1.netProfit)}/বছর</td></tr>
   `;
 
   const snapshotTable = document.getElementById('summarySnapshotTable');
@@ -1923,7 +1924,7 @@ window.onload = () => {
     // Seed Data
     state.capex = [{id:uid(), name:'যন্ত্রপাতি', category:'যন্ত্রপাতি', amount:150000, amortization:3}];
     state.opex = [{id:uid(), name:'অফিস ভাড়া', category:'ভাড়া', monthly:25000}, {id:uid(), name:'বেতন', category:'বেতন', monthly:80000}];
-    state.revenue = [{id:uid(), name:'Web Design', price:40000, qty:3, useGlobal:true}];
+    state.revenue = [{id:uid(), name:'ডিজাইন সেবা', price:40000, qty:3, useGlobal:true}];
   }
   renderAll();
   scheduleChartDraw();
