@@ -213,6 +213,36 @@ border:1px solid rgba(69,87,108,.36);border-radius:24px;padding:18px 18px 16px;c
 .profile-hint{margin-top:14px;font-size:12px;color:#96a6bb;line-height:1.7}
 .sidebar-session{padding:0 18px 14px}
 .sidebar-session .btn{width:100%}
+.mobile-topbar,.mobile-bottom-nav,.mobile-sheet-backdrop{display:none}
+body.app-booting .mobile-topbar,body.app-booting .mobile-bottom-nav{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)}
+body:not(.app-booting) .mobile-topbar,body:not(.app-booting) .mobile-bottom-nav{transition:opacity .22s ease,transform .22s ease}
+.mobile-topbar{position:fixed;left:0;right:0;top:0;z-index:135;background:rgba(8,13,20,.92);backdrop-filter:blur(18px);border-bottom:1px solid rgba(58,71,90,.36);padding:calc(12px + env(safe-area-inset-top)) 14px 10px;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 10px 26px rgba(4,8,14,.18)}
+.mobile-topbar-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:800;color:#fff;letter-spacing:-.02em;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.mobile-topbar-brand::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 6px rgba(37,229,164,.12)}
+.mobile-account-btn{position:relative;width:42px;height:42px;border-radius:14px;border:1px solid rgba(66,82,104,.34);background:linear-gradient(180deg,rgba(22,31,43,.96),rgba(15,22,32,.98));display:inline-flex;align-items:center;justify-content:center;color:#edf4fc;box-shadow:var(--shadow-soft)}
+.mobile-account-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mobile-account-dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(37,229,164,.16)}
+.mobile-bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:135;background:rgba(8,13,20,.94);backdrop-filter:blur(20px);border-top:1px solid rgba(58,71,90,.38);padding:8px 10px calc(8px + env(safe-area-inset-bottom));grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;box-shadow:0 -14px 30px rgba(4,8,14,.24)}
+.mobile-bottom-nav-btn{min-height:54px;padding:8px 4px;border:none;border-radius:16px;background:transparent;color:#91a0b4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.02em}
+.mobile-bottom-nav-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mobile-bottom-nav-btn.active{color:#e7fff6;background:linear-gradient(180deg,rgba(37,229,164,.16),rgba(37,229,164,.05));box-shadow:inset 0 0 0 1px rgba(37,229,164,.12)}
+.mobile-bottom-nav-btn:active{transform:scale(.985)}
+.mobile-sheet-backdrop{z-index:1450}
+.mobile-sheet{width:100%;max-width:none;background:linear-gradient(180deg,rgba(17,26,37,.99),rgba(11,18,27,1));border-top-left-radius:24px;border-top-right-radius:24px;border:1px solid rgba(69,87,108,.34);border-bottom:none;max-height:min(78svh,720px);overflow-y:auto;padding:14px 14px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 44px rgba(0,0,0,.32)}
+.mobile-sheet-handle{width:44px;height:4px;border-radius:999px;background:rgba(255,255,255,.16);margin:0 auto 14px}
+.mobile-sheet-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.mobile-sheet-kicker{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#89a0b9;margin-bottom:6px}
+.mobile-sheet-title{font-size:21px;font-weight:800;color:#fff;line-height:1.18;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.mobile-sheet-meta{font-size:12px;color:#b3c0d1;line-height:1.7;margin-top:4px;white-space:pre-line}
+.mobile-sheet-close{width:38px;height:38px;border-radius:13px;border:1px solid rgba(69,87,108,.34);background:rgba(255,255,255,.03);color:#eef4fc;display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.mobile-sheet-card{border:1px solid rgba(62,78,98,.28);border-radius:18px;background:linear-gradient(180deg,rgba(18,26,37,.96),rgba(12,19,28,.98));padding:14px}
+.mobile-sheet-copy{font-size:12px;color:#aebacb;line-height:1.75}
+.mobile-sheet-actions{display:grid;gap:10px;margin-top:16px}
+.mobile-sheet-link-list{display:grid;gap:8px}
+.mobile-sheet-link{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-radius:16px;border:1px solid rgba(62,78,98,.28);background:linear-gradient(180deg,rgba(18,26,37,.96),rgba(12,19,28,.98));color:#eef4fc;font-size:14px;font-weight:700}
+.mobile-sheet-link.active{border-color:rgba(37,229,164,.22);background:linear-gradient(180deg,rgba(37,229,164,.12),rgba(37,229,164,.04));color:#e7fff6}
+.mobile-sheet-link svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mobile-sheet-link:active{transform:scale(.992)}
 .auth-backdrop{position:fixed;inset:0;background:radial-gradient(900px 480px at 20% 20%,rgba(0,229,160,.08),transparent 45%),rgba(6,10,15,.88);backdrop-filter:blur(12px);z-index:1400;display:flex;align-items:center;justify-content:center;padding:24px}
 .auth-card{width:min(100%,540px);max-height:min(88svh,820px);background:linear-gradient(180deg,var(--surface),#0f1620);border:1px solid rgba(82,95,116,.34);border-radius:28px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.42);display:flex;flex-direction:column}
 .auth-shell{display:flex;flex-direction:column;min-height:0}
@@ -272,26 +302,12 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 
 @media(max-width:768px){
   body{display:block;height:auto;overflow:auto;overflow-x:hidden}
-  #sidebar{width:100%;min-width:0;border-right:none;border-bottom:1px solid rgba(58,71,90,.58);position:sticky;top:0;z-index:120;background:rgba(8,13,20,.92);backdrop-filter:blur(20px);box-shadow:0 10px 22px rgba(4,8,14,.18)}
-  .sidebar-header{padding:calc(10px + env(safe-area-inset-top)) 12px 6px;gap:8px}
-  .sidebar-logo{font-size:14px;line-height:1.2}
-  nav{display:flex;overflow-x:auto;overflow-y:hidden;padding:5px 12px 9px;overscroll-behavior-x:contain;scroll-snap-type:x proximity;gap:8px;mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%)}
-  .nav-item{border-left:none;border:1px solid rgba(60,73,92,.66);border-radius:999px;white-space:nowrap;flex:0 0 auto;padding:9px 13px;margin-left:0;min-height:42px;scroll-snap-align:start;font-size:12px;background:rgba(255,255,255,.02)}
-  .nav-item:first-child{margin-left:0}
-  .nav-item.active{border-left-color:transparent;background:linear-gradient(90deg,rgba(37,229,164,.18),rgba(37,229,164,.07));box-shadow:inset 0 0 0 1px rgba(37,229,164,.12),0 8px 18px rgba(7,14,23,.18)}
-  .sidebar-footer{display:none}
-  .sidebar-session{padding:0 12px 8px}
-  .sidebar-session .btn{min-height:40px;border-radius:13px}
-  .profile-card{padding:11px 12px 10px;border-radius:18px;box-shadow:0 10px 24px rgba(4,8,14,.14)}
-  .profile-top{gap:10px;align-items:flex-start}
-  .profile-caret{width:32px;height:32px;font-size:16px;flex:0 0 32px;background:rgba(255,255,255,.035)}
-  .profile-title{font-size:15px}
-  .profile-meta{font-size:11.5px;line-height:1.55;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .profile-hint{display:none}
-  .profile-actions{margin-top:9px}
-  .profile-actions .btn{min-height:40px;font-size:14px}
-  #main{min-width:0;height:auto;min-height:0;overflow:visible;padding-top:14px;scroll-padding-top:148px}
-  .page{padding:14px 14px calc(28px + env(safe-area-inset-bottom));gap:14px}
+  #sidebar{display:none}
+  .mobile-topbar{display:flex}
+  .mobile-bottom-nav{display:grid}
+  .mobile-sheet-backdrop{display:flex;align-items:flex-end;padding:0}
+  #main{min-width:0;height:auto;min-height:100svh;overflow:visible;padding-top:78px;padding-bottom:94px;scroll-padding-top:88px}
+  .page{padding:14px 14px calc(20px + env(safe-area-inset-bottom));gap:14px}
   .page-header{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:0}
   .page-header .btn{width:100%;min-height:44px}
   .auth-backdrop{padding:0;align-items:flex-end}
@@ -376,8 +392,8 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
   .insight-item,.readonly-block,.alert-item{padding:11px}
   .data-table th{font-size:10px;padding:10px 9px}
   .data-table td{font-size:13px;padding:11px 9px}
-  .flash{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));text-align:center;font-size:13px;padding:12px 14px}
-  .nav-item:active,.profile-card:active,.mobile-data-card:active{transform:scale(.995)}
+  .flash{left:10px;right:10px;bottom:calc(82px + env(safe-area-inset-bottom));text-align:center;font-size:13px;padding:12px 14px}
+  .mobile-data-card:active{transform:scale(.995)}
   .mobile-only{display:inline-flex !important}
   .mobile-card-list{display:block}
   .table-wrap.mobile-hide{display:none}
@@ -393,8 +409,12 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 }
 
 @media(max-width:520px){
-  .sidebar-header{padding:calc(8px + env(safe-area-inset-top)) 10px 6px}
-  nav{padding:5px 10px 8px;gap:7px}
+  .mobile-topbar{padding:calc(10px + env(safe-area-inset-top)) 12px 8px}
+  .mobile-topbar-brand{font-size:13px}
+  .mobile-account-btn{width:40px;height:40px;border-radius:13px}
+  .mobile-bottom-nav{padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:6px}
+  .mobile-bottom-nav-btn{min-height:52px;font-size:9px}
+  #main{padding-top:72px;padding-bottom:90px}
   #page-dashboard #dashKPIs{grid-template-columns:1fr 1fr}
   .kpi{padding:12px 11px}
   .kpi-value{font-size:22px}
@@ -427,14 +447,16 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
   .snapshot-table thead,.snapshot-table tbody{white-space:nowrap}
   .snapshot-table th,.snapshot-table td{padding:8px 9px;font-size:12px}
   .modal{padding:14px 12px 16px;border-radius:20px 20px 0 0}
+  .mobile-sheet{padding:13px 12px calc(16px + env(safe-area-inset-bottom))}
+  .mobile-sheet-title{font-size:19px}
 }
 
 @media(max-width:390px){
-  .sidebar-logo{font-size:13px}
-  .sidebar-header{padding:calc(8px + env(safe-area-inset-top)) 9px 5px}
-  nav{padding:4px 9px 8px;gap:6px}
-  .nav-item{padding:7px 9px;font-size:10px;min-height:38px}
-  #main{padding-top:10px}
+  .mobile-topbar{padding:calc(8px + env(safe-area-inset-top)) 10px 8px}
+  .mobile-topbar-brand{font-size:12px}
+  .mobile-bottom-nav{padding:7px 7px calc(8px + env(safe-area-inset-bottom));gap:5px}
+  .mobile-bottom-nav-btn{min-height:50px;font-size:9px}
+  #main{padding-top:68px;padding-bottom:86px}
   .page{padding:10px 10px calc(20px + env(safe-area-inset-bottom));gap:11px}
   .card,.hero-brief,.kpi{padding:12px}
   .combo-chart-card canvas{height:158px !important}
@@ -448,6 +470,8 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
   .auth-card{max-height:88svh}
   .auth-showcase-title{font-size:18px}
   .modal{padding:13px 11px 15px}
+  .mobile-sheet{padding:12px 11px calc(15px + env(safe-area-inset-bottom))}
+  .mobile-sheet-title{font-size:18px}
 }
 
 /* PDF Print styles */
@@ -461,6 +485,14 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 </style>
 </head>
 <body class="app-booting">
+
+<div class="mobile-topbar" data-html2canvas-ignore="true">
+  <div class="mobile-topbar-brand">বিজনেস ক্যালকুলেটর</div>
+  <button class="mobile-account-btn" id="mobileAccountBtn" type="button" onclick="toggleMobileAccountSheet(true)" aria-label="অ্যাকাউন্ট">
+    <span class="mobile-account-dot auth-hidden" id="mobileAccountDot"></span>
+    <svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M5 20a7 7 0 0 1 14 0"/></svg>
+  </button>
+</div>
 
 <aside id="sidebar" data-html2canvas-ignore="true" style="opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)">
   <div class="sidebar-header">
@@ -738,6 +770,56 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
     <div class="knowledge-grid" id="knowledgeGrid"></div>
   </div>
 </main>
+
+<nav class="mobile-bottom-nav" data-html2canvas-ignore="true">
+  <button class="mobile-bottom-nav-btn active" data-mobile-page="dashboard" onclick="switchToPage('dashboard')">
+    <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg>
+    <span>ড্যাশবোর্ড</span>
+  </button>
+  <button class="mobile-bottom-nav-btn" data-mobile-page="planner" onclick="switchToPage('planner')">
+    <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9-9 9-9-9z"/><path d="M12 8v8M8 12h8"/></svg>
+    <span>প্ল্যানার</span>
+  </button>
+  <button class="mobile-bottom-nav-btn" data-mobile-page="revenue" onclick="switchToPage('revenue')">
+    <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+    <span>আয়</span>
+  </button>
+  <button class="mobile-bottom-nav-btn" data-mobile-page="opex" onclick="switchToPage('opex')">
+    <svg viewBox="0 0 24 24"><path d="M12 1v22M6 6h9a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h9"/></svg>
+    <span>খরচ</span>
+  </button>
+  <button class="mobile-bottom-nav-btn" data-mobile-page="more" onclick="toggleMobileMoreSheet(true)">
+    <svg viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01"/><path d="M5 12a1 1 0 1 0 0 .01M12 12a1 1 0 1 0 0 .01M19 12a1 1 0 1 0 0 .01"/></svg>
+    <span>আরও</span>
+  </button>
+</nav>
+
+<div class="modal-backdrop mobile-sheet-backdrop" id="mobileAccountSheetBackdrop" onclick="if(event.target===this) closeMobileSheets()">
+  <div class="mobile-sheet">
+    <div class="mobile-sheet-handle"></div>
+    <div id="mobileAccountSheetContent"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop mobile-sheet-backdrop" id="mobileMoreSheetBackdrop" onclick="if(event.target===this) closeMobileSheets()">
+  <div class="mobile-sheet">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-header">
+      <div>
+        <div class="mobile-sheet-kicker">আরও পাতা</div>
+        <div class="mobile-sheet-title">যে পাতাগুলো নিচে নেই</div>
+      </div>
+      <button class="mobile-sheet-close" type="button" onclick="closeMobileSheets()">×</button>
+    </div>
+    <div class="mobile-sheet-link-list">
+      <button class="mobile-sheet-link" data-more-page="capex" onclick="openMobileMorePage('capex')"><span>প্রাথমিক বিনিয়োগ</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mobile-sheet-link" data-more-page="settings" onclick="openMobileMorePage('settings')"><span>সেটিংস</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mobile-sheet-link" data-more-page="roi" onclick="openMobileMorePage('roi')"><span>ROI সারাংশ</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mobile-sheet-link" data-more-page="scenarios" onclick="openMobileMorePage('scenarios')"><span>কী হলে কী হবে</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mobile-sheet-link" data-more-page="knowledge" onclick="openMobileMorePage('knowledge')"><span>Knowledge</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </div>
+</div>
 
 <!-- Generic Modal Form -->
 <div class="modal-backdrop" id="entryModal" onclick="if(event.target===this) this.classList.remove('open')">
@@ -1162,6 +1244,7 @@ function switchAuthMode(mode) {
 }
 function showAuthModal() {
   if (hasSupabaseConfig() && !authState.ready) return;
+  closeMobileSheets();
   const backdrop = document.getElementById('authBackdrop');
   if (backdrop) {
     switchAuthMode('intro');
@@ -1182,6 +1265,124 @@ function syncBusinessNameDisplay() {
   const titleEl = document.getElementById('profileTitleText');
   if (titleEl) titleEl.innerText = state.businessName || 'আমার ব্যবসা';
 }
+function isMobileView() {
+  return window.innerWidth <= 768;
+}
+function closeMobileSheets() {
+  const accountSheet = document.getElementById('mobileAccountSheetBackdrop');
+  const moreSheet = document.getElementById('mobileMoreSheetBackdrop');
+  if (accountSheet) accountSheet.classList.remove('open');
+  if (moreSheet) moreSheet.classList.remove('open');
+}
+function renderMobileNavState(activePage) {
+  const primaryPages = ['dashboard', 'planner', 'revenue', 'opex'];
+  const normalized = primaryPages.includes(activePage) ? activePage : 'more';
+  document.querySelectorAll('.mobile-bottom-nav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mobilePage === normalized);
+  });
+  document.querySelectorAll('[data-more-page]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.morePage === activePage);
+  });
+}
+function renderMobileAccountSheet() {
+  const root = document.getElementById('mobileAccountSheetContent');
+  const dot = document.getElementById('mobileAccountDot');
+  if (!root) return;
+  if (dot) dot.classList.toggle('auth-hidden', !authState.user);
+
+  if (!hasSupabaseConfig()) {
+    root.innerHTML = `
+      <div class="mobile-sheet-header">
+        <div>
+          <div class="mobile-sheet-kicker">অ্যাকাউন্ট</div>
+          <div class="mobile-sheet-title">এই মুহূর্তে সেবা চালু নেই</div>
+          <div class="mobile-sheet-meta">অ্যাকাউন্ট সেবা এখন ব্যবহার করা যাচ্ছে না। একটু পরে আবার দেখুন।</div>
+        </div>
+        <button class="mobile-sheet-close" type="button" onclick="closeMobileSheets()">×</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (!authState.ready) {
+    root.innerHTML = `
+      <div class="mobile-sheet-header">
+        <div>
+          <div class="mobile-sheet-kicker">অ্যাকাউন্ট</div>
+          <div class="mobile-sheet-title">তথ্য লোড হচ্ছে</div>
+          <div class="mobile-sheet-meta">একটু অপেক্ষা করুন।</div>
+        </div>
+        <button class="mobile-sheet-close" type="button" onclick="closeMobileSheets()">×</button>
+      </div>
+    `;
+    return;
+  }
+
+  if (authState.user) {
+    root.innerHTML = `
+      <div class="mobile-sheet-header">
+        <div>
+          <div class="mobile-sheet-kicker">আপনার অ্যাকাউন্ট</div>
+          <div class="mobile-sheet-title">${escapeHTML(state.businessName || 'আমার ব্যবসা')}</div>
+          <div class="mobile-sheet-meta">${escapeHTML([authState.user.email || '', profileOwnerPhone()].filter(Boolean).join('\n'))}</div>
+        </div>
+        <button class="mobile-sheet-close" type="button" onclick="closeMobileSheets()">×</button>
+      </div>
+      <div class="mobile-sheet-card">
+        <div class="mobile-sheet-copy">এখান থেকে আপনার তথ্য দেখুন, বদলান, অথবা চাইলে বের হয়ে যান।</div>
+        <div class="mobile-sheet-actions">
+          <button class="btn btn-primary" type="button" onclick="closeMobileSheets(); openProfilePanel()">আপনার তথ্য</button>
+          <button class="btn btn-outline" type="button" onclick="closeMobileSheets(); signOutUser()">বের হয়ে যান</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="mobile-sheet-header">
+      <div>
+        <div class="mobile-sheet-kicker">শুরু করুন</div>
+        <div class="mobile-sheet-title">অ্যাকাউন্ট খুলুন বা লগইন করুন</div>
+        <div class="mobile-sheet-meta">আপনার ব্যবসার সব হিসাব আলাদা করে সেভ থাকবে। পরে আবার এসে সেখান থেকেই কাজ শুরু করতে পারবেন।</div>
+      </div>
+      <button class="mobile-sheet-close" type="button" onclick="closeMobileSheets()">×</button>
+    </div>
+    <div class="mobile-sheet-card">
+      <div class="mobile-sheet-actions">
+        <button class="btn btn-primary" type="button" onclick="closeMobileSheets(); showAuthModal()">নতুন অ্যাকাউন্ট খুলুন</button>
+        <button class="btn btn-secondary" type="button" onclick="closeMobileSheets(); showAuthModal(); switchAuthMode('login')">লগইন করুন</button>
+      </div>
+    </div>
+  `;
+}
+function toggleMobileAccountSheet(forceOpen = false) {
+  if (!isMobileView()) {
+    if (authState.user) openProfilePanel();
+    else showAuthModal();
+    return;
+  }
+  const backdrop = document.getElementById('mobileAccountSheetBackdrop');
+  if (!backdrop) return;
+  const shouldOpen = forceOpen || !backdrop.classList.contains('open');
+  closeMobileSheets();
+  if (shouldOpen) {
+    renderMobileAccountSheet();
+    backdrop.classList.add('open');
+  }
+}
+function toggleMobileMoreSheet(forceOpen = false) {
+  if (!isMobileView()) return;
+  const backdrop = document.getElementById('mobileMoreSheetBackdrop');
+  if (!backdrop) return;
+  const shouldOpen = forceOpen || !backdrop.classList.contains('open');
+  closeMobileSheets();
+  if (shouldOpen) backdrop.classList.add('open');
+}
+function openMobileMorePage(page) {
+  closeMobileSheets();
+  switchToPage(page);
+}
 function updateProfileUI() {
   const titleEl = document.getElementById('profileTitleText');
   const metaEl = document.getElementById('profileMeta');
@@ -1198,6 +1399,8 @@ function updateProfileUI() {
     logoutBtn.classList.add('auth-hidden');
     sessionActions.classList.add('auth-hidden');
     profileCard.classList.add('is-locked');
+    renderMobileAccountSheet();
+    renderMobileNavState(document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard');
     return;
   }
 
@@ -1208,6 +1411,7 @@ function updateProfileUI() {
     logoutBtn.classList.add('auth-hidden');
     sessionActions.classList.add('auth-hidden');
     profileCard.classList.add('is-locked');
+    renderMobileAccountSheet();
     return;
   }
 
@@ -1227,6 +1431,8 @@ function updateProfileUI() {
     sessionActions.classList.add('auth-hidden');
     profileCard.classList.add('is-locked');
   }
+  renderMobileAccountSheet();
+  renderMobileNavState(document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard');
 }
 
 function setBootState(isBooting) {
@@ -1433,6 +1639,7 @@ function openProfilePanel() {
     showAuthModal();
     return;
   }
+  closeMobileSheets();
   const panel = document.getElementById('profilePanel');
   if (!panel) return;
   document.getElementById('profileFullName').value = profileOwnerName();
@@ -1517,6 +1724,7 @@ async function saveProfilePanel() {
 }
 async function signOutUser() {
   if (!supabaseClient) return;
+  closeMobileSheets();
   await supabaseClient.auth.signOut();
   authState.user = null;
   authState.syncEnabled = false;
@@ -1673,6 +1881,8 @@ function renderAll() {
   syncBusinessNameDisplay();
   document.getElementById('dashTitle').innerText = state.businessName;
   renderBusinessModelUI(); renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions(); renderKnowledge();
+  renderMobileAccountSheet();
+  renderMobileNavState(document.querySelector('.page.active')?.id?.replace('page-','') || 'dashboard');
   scheduleChartDraw(40); saveStateLocal();
 }
 function renderBusinessModelUI() {
@@ -2561,6 +2771,8 @@ function switchToPage(page) {
   const pageEl = document.getElementById('page-' + page);
   if (nav) nav.classList.add('active');
   if (pageEl) pageEl.classList.add('active');
+  renderMobileNavState(page);
+  closeMobileSheets();
   const main = document.getElementById('main');
   if (main) main.scrollTop = 0;
   scheduleChartDraw(120);
@@ -2786,13 +2998,7 @@ function showFlash(msg) {
 
 document.querySelectorAll('.nav-item').forEach(el => {
   el.addEventListener('click', () => {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('page-' + el.dataset.page).classList.add('active');
-    const main = document.getElementById('main');
-    if (main) main.scrollTop = 0;
-    scheduleChartDraw(120);
+    switchToPage(el.dataset.page);
   });
 });
 
