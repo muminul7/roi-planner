@@ -960,7 +960,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
     <div class="auth-success" id="profileSuccess"></div>
     <div class="profile-modal-actions">
       <button class="btn btn-outline" onclick="closeProfilePanel()">বন্ধ করুন</button>
-      <button class="btn btn-primary" onclick="saveProfilePanel()">তথ্য সেভ করুন</button>
+      <button class="btn btn-primary" id="profileSaveBtn" onclick="saveProfilePanel()">তথ্য সেভ করুন</button>
     </div>
   </div>
 </div>
@@ -1671,9 +1671,18 @@ function closeProfilePanel() {
   if (panel) panel.classList.remove('open');
 }
 async function saveProfilePanel() {
-  if (!supabaseClient || !authState.user) return;
   const errorEl = document.getElementById('profileError');
   const successEl = document.getElementById('profileSuccess');
+  const saveBtn = document.getElementById('profileSaveBtn');
+  if (errorEl) errorEl.innerText = '';
+  if (successEl) successEl.innerText = '';
+
+  if (!supabaseClient || !authState.user) {
+    if (errorEl) errorEl.innerText = 'আপনার সেশনটি আর সক্রিয় নেই। আবার লগইন করুন।';
+    showAuthModal();
+    return;
+  }
+
   const fullName = sanitizeText(document.getElementById('profileFullName').value, '');
   const businessName = sanitizeText(document.getElementById('profileBusinessName').value, '');
   const phone = sanitizePhone(document.getElementById('profilePhone').value, '');
@@ -1681,8 +1690,6 @@ async function saveProfilePanel() {
   const email = sanitizeText(document.getElementById('profileEmail').value, '');
   const newPassword = document.getElementById('profilePassword').value || '';
   const confirmPassword = document.getElementById('profilePasswordConfirm').value || '';
-  if (errorEl) errorEl.innerText = '';
-  if (successEl) successEl.innerText = '';
 
   if (!fullName || !businessName || !phone || !email) {
     if (errorEl) errorEl.innerText = 'সব তথ্য পূরণ করুন।';
@@ -1699,8 +1706,29 @@ async function saveProfilePanel() {
 
   try {
     const previousEmail = authState.user.email || '';
+    const previousName = sanitizeText(authState.user.user_metadata?.full_name, '');
+    const previousBusinessName = sanitizeText(authState.user.user_metadata?.business_name, '');
+    const previousBusinessType = sanitizeChoice(authState.user.user_metadata?.business_type, Object.keys(BUSINESS_MODELS), 'service');
+    const previousPhone = sanitizePhone(authState.user.user_metadata?.phone, '');
+    const emailChanged = email !== previousEmail;
+    const metadataChanged =
+      fullName !== previousName ||
+      businessName !== previousBusinessName ||
+      businessType !== previousBusinessType ||
+      phone !== previousPhone;
+    const passwordChanged = Boolean(newPassword);
+
+    if (!emailChanged && !metadataChanged && !passwordChanged) {
+      if (successEl) successEl.innerText = 'নতুন কোনো পরিবর্তন পাওয়া যায়নি।';
+      return;
+    }
+
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'সেভ হচ্ছে...';
+    }
+
     const updatePayload = {
-      email,
       data: {
         full_name: fullName,
         business_name: businessName,
@@ -1708,11 +1736,14 @@ async function saveProfilePanel() {
         phone
       }
     };
+    if (emailChanged) updatePayload.email = email;
     if (newPassword) updatePayload.password = newPassword;
-    const { data, error } = await supabaseClient.auth.updateUser(updatePayload);
-    if (error) throw error;
+    if (emailChanged || metadataChanged || passwordChanged) {
+      const { data, error } = await supabaseClient.auth.updateUser(updatePayload);
+      if (error) throw error;
+      if (data?.user) authState.user = data.user;
+    }
 
-    if (data?.user) authState.user = data.user;
     state.ownerName = fullName;
     state.ownerPhone = phone;
     state.businessName = businessName;
@@ -1733,6 +1764,11 @@ async function saveProfilePanel() {
     }
   } catch (error) {
     if (errorEl) errorEl.innerText = error.message || 'তথ্য সেভ করা যায়নি।';
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.innerText = 'তথ্য সেভ করুন';
+    }
   }
 }
 async function signOutUser() {
