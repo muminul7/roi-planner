@@ -579,11 +579,18 @@ function exclusionCumulative(item, months = 36) {
 function totalExclusions(months = 36) {
   return state.exclusions.reduce((sum, item) => sum + exclusionCumulative(item, months), 0);
 }
+function year1Financials() {
+  return yearRangeFinancials(0, 12);
+}
+function annualROIYear1() {
+  const year1 = year1Financials();
+  return totalCapex() > 0 ? (year1.netProfit / totalCapex()) * 100 : 0;
+}
 function getSummarySnapshot() {
-  const year1 = yearRangeFinancials(0, 12);
+  const year1 = year1Financials();
   const year2 = yearRangeFinancials(12, 12);
   const year3 = yearRangeFinancials(24, 12);
-  const totalInvestment1Year = totalCapex() + year1.opex;
+  const totalInvestment1Year = totalCapex() + year1.opex + year1.tax;
   const cumulative3YearNet = year1.netProfit + year2.netProfit + year3.netProfit;
   const adjusted3YearNet = cumulative3YearNet - totalExclusions(36);
   const roiVsYear1Investment = totalInvestment1Year > 0 ? adjusted3YearNet / totalInvestment1Year : 0;
@@ -613,8 +620,13 @@ function loanEMI(amount, annualRate, months) {
   const pow = Math.pow(1 + monthlyRate, months);
   return (amount * monthlyRate * pow) / (pow - 1);
 }
-function breakEvenMonths(netProfit) {
-  if (netProfit > 0 && totalCapex() > 0) return Math.ceil(totalCapex() / netProfit);
+function breakEvenMonths(maxMonths = 120) {
+  if (totalCapex() <= 0) return null;
+  let cumulativeNet = -totalCapex();
+  for (let i = 0; i < maxMonths; i++) {
+    cumulativeNet += getFinancials(i).netProfit;
+    if (cumulativeNet >= 0) return i + 1;
+  }
   return null;
 }
 function breakEvenDateLabel(months) {
@@ -636,10 +648,13 @@ function runwayMonthsNumber(netProfit) {
 function reserveTarget() {
   return (state.reserveMonths || 0) * totalOpex();
 }
-function fundingGap(netProfit) {
-  const reserveGap = Math.max(0, reserveTarget() - (state.openingCash || 0));
-  const capexGap = netProfit < 0 ? totalCapex() : 0;
-  return reserveGap + capexGap;
+function fundingGap() {
+  const requiredCapital = totalCapex() + reserveTarget();
+  return Math.max(0, requiredCapital - (state.openingCash || 0));
+}
+function isLoanLike(item) {
+  const text = `${item?.name || ''} ${item?.category || ''}`.toLowerCase();
+  return /(loan|emi|debt|bank|installment|kisti|ঋণ|লোন|কিস্তি|ব্যাংক)/i.test(text);
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
@@ -694,14 +709,14 @@ function renderAll() {
 
 function renderDashboard() {
   let f = getFinancials(0);
-  let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
+  let annualROI = annualROIYear1();
   const margin = f.rev > 0 ? (f.netProfit / f.rev) * 100 : 0;
-  const breakEven = breakEvenMonths(f.netProfit);
+  const breakEven = breakEvenMonths();
   const breakEvenDate = breakEvenDateLabel(breakEven);
   const target = state.targetProfitMonths || 12;
   const runway = cashRunwayMonths(f.netProfit);
   const runwayNum = runwayMonthsNumber(f.netProfit);
-  const gap = fundingGap(f.netProfit);
+  const gap = fundingGap();
   document.getElementById('dashKPIs').innerHTML = `
     <div class="kpi"><div class="kpi-label">মাসিক আয়</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
     <div class="kpi"><div class="kpi-label">মাসিক মোট খরচ</div><div class="kpi-value">${fmt(f.costs)}</div></div>
@@ -790,7 +805,7 @@ function renderTables() {
 
 function renderROI() {
   let f = getFinancials(0);
-  let annualROI = totalCapex() > 0 ? ((f.netProfit*12)/totalCapex())*100 : 0;
+  let annualROI = annualROIYear1();
   const snapshot = getSummarySnapshot();
   
   document.getElementById('roiBig').innerText = annualROI.toFixed(1) + '%';
@@ -816,7 +831,7 @@ function renderROI() {
           <tr><th>বিষয়</th><th>টাকার পরিমাণ</th><th>মন্তব্য</th></tr>
         </thead>
         <tbody>
-          <tr><td>প্রথম বছরের মোট বিনিয়োগ</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + প্রথম বছরের OPEX</td></tr>
+          <tr><td>প্রথম বছরের মোট বিনিয়োগ</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + প্রথম বছরের OPEX + ট্যাক্স</td></tr>
           <tr><td>প্রথম বছরের মোট আয়</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">প্রথম 12 মাসের revenue</td></tr>
           <tr><td>প্রথম বছরের নিট লাভ</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">আয় - মোট খরচ - কর</td></tr>
           <tr><td>প্রথম 36 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative3YearNet)}</td><td class="snapshot-remark">১ম + ২য় + ৩য় বছর মিলিয়ে</td></tr>
@@ -894,7 +909,7 @@ function renderPlannerPanel() {
 
   const monthlyRevNow = monthlyRev(0);
   const f = getFinancials(0);
-  const be = breakEvenMonths(f.netProfit);
+  const be = breakEvenMonths();
   const target = state.targetProfitMonths || 12;
   const maxAmo = state.capex.length ? Math.max(...state.capex.map(c => c.amortization || 1)) : 3;
   const amortizedCapexMonthly = capexMonthly();
@@ -962,7 +977,7 @@ function renderSettingsPanel() {
   if (bufferRange) bufferRange.value = state.reserveMonths;
 
   const f = getFinancials(0);
-  const be = breakEvenMonths(f.netProfit);
+  const be = breakEvenMonths();
   settingsSummary.innerText = `Inflation-adjusted projection active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())}`;
 }
 
@@ -1459,16 +1474,17 @@ function buildDocTable(headers, rows) {
 
 function buildPrintableReport(mode = 'full') {
   const monthZero = getFinancials(0);
+  const year1 = year1Financials();
   const snapshot = getSummarySnapshot();
-  const annualROI = totalCapex() > 0 ? ((monthZero.netProfit * 12) / totalCapex()) * 100 : 0;
+  const annualROI = annualROIYear1();
   const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
-  const breakEven = breakEvenMonths(monthZero.netProfit);
+  const breakEven = breakEvenMonths();
   const breakEvenDate = breakEvenDateLabel(breakEven);
-  const fundingNeed = Math.max(0, fundingGap(monthZero.netProfit));
+  const fundingNeed = fundingGap();
   const loanService = state.opex
-    .filter(item => /loan/i.test(item.name || '') || /loan/i.test(item.category || ''))
+    .filter(item => isLoanLike(item))
     .reduce((sum, item) => sum + item.monthly, 0);
-  const dscr = loanService > 0 ? (monthZero.netProfit + loanService) / loanService : null;
+  const dscr = loanService > 0 ? ((year1.netProfit / 12) + loanService) / loanService : null;
   const notes = buildActionNotes(monthZero, annualROI, margin, breakEven);
 
   const months = Array.from({ length: 12 }, (_, i) => {
@@ -1512,7 +1528,7 @@ function buildPrintableReport(mode = 'full') {
       ${buildDocTable(
         ['বিষয়', 'টাকার পরিমাণ', 'মন্তব্য'],
         [
-          ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX'],
+          ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX + ট্যাক্স'],
           ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসের revenue'],
           ['প্রথম বছরের নিট লাভ', fmt(snapshot.year1NetProfit), 'খরচ ও কর বাদ দিয়ে'],
           ['প্রথম 36 মাসের cumulative net profit', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
@@ -1594,7 +1610,7 @@ function buildPrintableReport(mode = 'full') {
         ${buildDocTable(
           ['মেট্রিক', 'মান'],
           [
-            ['বার্ষিক নিট লাভ', fmt(monthZero.netProfit * 12)],
+            ['বার্ষিক নিট লাভ', fmt(year1.netProfit)],
             ['ফান্ডিং প্রয়োজন', fmt(fundingNeed)],
             ['Break-even Target', breakEven ? `${breakEven} months (${breakEvenDate})` : 'এখনো হয়নি'],
             ['DSCR', dscr ? dscr.toFixed(2) : 'N/A'],
