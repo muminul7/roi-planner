@@ -21,6 +21,8 @@ radial-gradient(1100px 560px at 110% -10%,rgba(14,76,51,.38) 0%,transparent 48%)
 radial-gradient(900px 520px at 50% 120%,rgba(20,37,58,.42) 0%,transparent 58%),
 linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,.01)),
 var(--bg);color:var(--text);font-family:'Hind Siliguri',sans-serif;font-weight:300;display:flex;height:100vh;min-height:100vh;overflow:hidden;-webkit-text-size-adjust:100%}
+body.app-booting #sidebar,body.app-booting #main{opacity:0;visibility:hidden;pointer-events:none;transform:translateY(8px)}
+body:not(.app-booting) #sidebar,body:not(.app-booting) #main{transition:opacity .22s ease,transform .22s ease}
 input,select,textarea,button{font-family:inherit}
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -378,7 +380,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border:none;border-ra
 }
 </style>
 </head>
-<body>
+<body class="app-booting">
 
 <aside id="sidebar" data-html2canvas-ignore="true">
   <div class="sidebar-header">
@@ -1079,6 +1081,7 @@ function switchAuthMode(mode) {
   if (successEl) successEl.innerText = '';
 }
 function showAuthModal() {
+  if (hasSupabaseConfig() && !authState.ready) return;
   const backdrop = document.getElementById('authBackdrop');
   if (backdrop) {
     switchAuthMode('intro');
@@ -1143,8 +1146,11 @@ function updateProfileUI() {
     logoutBtn.classList.add('auth-hidden');
     sessionActions.classList.add('auth-hidden');
     profileCard.classList.add('is-locked');
-    showAuthModal();
   }
+}
+
+function setBootState(isBooting) {
+  document.body.classList.toggle('app-booting', isBooting);
 }
 
 function mobileDataCell(label, value) {
@@ -1190,14 +1196,15 @@ async function handleAuthSession(session) {
     await loadRemoteProjectState();
     authState.syncEnabled = true;
     authState.hydrating = false;
+    authState.ready = true;
+    updateProfileUI();
     hideAuthModal();
   } else {
     authState.hydrating = false;
+    authState.ready = true;
     updateProfileUI();
     showAuthModal();
   }
-  authState.ready = true;
-  updateProfileUI();
 }
 async function ensureRemoteProjectRow() {
   if (!supabaseClient || !authState.user) return;
@@ -2153,7 +2160,9 @@ function scheduleChartDraw(delay = 80) {
 }
 
 function drawCharts() {
+  if (document.body.classList.contains('app-booting') || document.hidden) return;
   const isMobile = window.innerWidth <= 768;
+  const activePageId = document.querySelector('.page.active')?.id || 'page-dashboard';
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   let revData = [], costData = [], profitData = [];
   
@@ -2163,7 +2172,7 @@ function drawCharts() {
   }
 
   // 1. Cashflow Combo (Clustered Column + Line)
-  initChart('chartCashflow', 'bar', {
+  if (activePageId === 'page-dashboard') initChart('chartCashflow', 'bar', {
     labels: months,
     datasets: [
       {
@@ -2244,7 +2253,7 @@ function drawCharts() {
   // 2. Cost Donut
   let donutLabels = state.opex.map(o=>o.name).concat(state.capex.length>0?['CAPEX Amortization']:[]);
   let donutData = state.opex.map(o=>o.monthly).concat(state.capex.length>0?[capexMonthly()]:[]);
-  initChart('chartCostDonut', 'doughnut', {
+  if (activePageId === 'page-dashboard') initChart('chartCostDonut', 'doughnut', {
     labels: donutLabels,
     datasets: [{
       data: donutData,
@@ -2272,7 +2281,7 @@ function drawCharts() {
   // 2b. OPEX breakdown
   const opexLabels = state.opex.map(o => o.name);
   const opexData = state.opex.map(o => o.monthly);
-  initChart('chartOpex', 'bar', {
+  if (activePageId === 'page-opex') initChart('chartOpex', 'bar', {
     labels: opexLabels,
     datasets: [{
       label: 'Monthly OPEX',
@@ -2292,7 +2301,7 @@ function drawCharts() {
 
   // 2c. Revenue projection chart
   const model = currentBusinessModel();
-  initChart('chartRevenue', 'line', {
+  if (activePageId === 'page-revenue') initChart('chartRevenue', 'line', {
     labels: months,
     datasets: [{
       label: `${model.shortLabel} Revenue`,
@@ -2324,7 +2333,7 @@ function drawCharts() {
     year3Data.push(cumProfit);
     year3Labels.push(i % 3 === 0 ? `M${i+1}` : '');
   }
-  initChart('chart3Year', 'line', {
+  if (activePageId === 'page-roi') initChart('chart3Year', 'line', {
     labels: year3Labels,
     datasets: [{ 
       label: 'Cumulative Net Position (ROI Tracker)', 
@@ -2356,7 +2365,7 @@ function drawCharts() {
     cumRevenueData.push(cumRevenue);
     cumCostData.push(cumTotalCost);
   }
-  initChart('chartBreakEven', 'line', {
+  if (activePageId === 'page-roi') initChart('chartBreakEven', 'line', {
     labels: year3Labels,
     datasets: [
       { label: 'Cumulative Revenue', data: cumRevenueData, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.08)', fill: false, tension: 0.25 },
@@ -2380,7 +2389,7 @@ function drawCharts() {
     pessData.push(getFinancials(i, 0.7, 1.2).netProfit); // 30% less rev, 20% more cost
     optData.push(getFinancials(i, 1.3, 0.9).netProfit); // 30% more rev, 10% less cost
   }
-  initChart('chartScenarios', 'line', {
+  if (activePageId === 'page-scenarios') initChart('chartScenarios', 'line', {
     labels: months,
     datasets: [
       { label: 'Base Case', data: baseData, borderColor: '#00e5a0', borderDash: [5,5] },
@@ -2696,10 +2705,14 @@ window.addEventListener('resize', () => {
   if (resizeTimer) clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => scheduleChartDraw(20), 120);
 });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) scheduleChartDraw(30);
+});
 
 window.onload = async () => {
   authState.hydrating = true;
   authState.allowAutoSave = false;
+  setBootState(true);
   loadState();
   syncBusinessNameDisplay();
   const businessTypeSelect = document.getElementById('businessTypeSelect');
@@ -2709,11 +2722,12 @@ window.onload = async () => {
   document.getElementById('growthLabel').innerText = `${state.globalGrowth}%`;
   document.getElementById('taxRange').value = state.taxRate;
   document.getElementById('utilRange').value = state.globalUtil;
-  renderAll();
-  scheduleChartDraw();
   switchAuthMode('intro');
   updateProfileUI();
   await initAuth();
+  if (!authState.profileLoaded) renderAll();
+  setBootState(false);
+  scheduleChartDraw(60);
   authState.hydrating = false;
 };
 </script>
