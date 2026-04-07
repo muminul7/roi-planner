@@ -1118,6 +1118,16 @@ function updateProfileUI() {
     return;
   }
 
+  if (!authState.ready) {
+    titleEl.innerText = state.businessName || 'আমার ব্যবসা';
+    metaEl.innerText = '';
+    openBtn.classList.add('auth-hidden');
+    logoutBtn.classList.add('auth-hidden');
+    sessionActions.classList.add('auth-hidden');
+    profileCard.classList.add('is-locked');
+    return;
+  }
+
   if (authState.user) {
     titleEl.innerText = state.businessName || 'আমার ব্যবসা';
     metaEl.innerText = [authState.user.email || '', profileOwnerPhone()].filter(Boolean).join('\n');
@@ -1149,6 +1159,7 @@ function renderMobileCards(rootId, cardsHtml) {
 
 async function initAuth() {
   if (!hasSupabaseConfig()) {
+    authState.ready = true;
     updateProfileUI();
     showAuthModal();
     return;
@@ -1164,6 +1175,7 @@ async function initAuth() {
     console.error('Supabase init failed', error);
     const errorEl = document.getElementById('authError');
     if (errorEl) errorEl.innerText = 'এই মুহূর্তে অ্যাকাউন্ট সেবার সাথে সংযোগ হচ্ছে না। একটু পরে আবার চেষ্টা করুন।';
+    authState.ready = true;
     updateProfileUI();
     showAuthModal();
   }
@@ -1558,7 +1570,7 @@ function renderAll() {
   syncBusinessNameDisplay();
   document.getElementById('dashTitle').innerText = state.businessName;
   renderBusinessModelUI(); renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions(); renderKnowledge();
-  drawCharts(); saveStateLocal();
+  scheduleChartDraw(40); saveStateLocal();
 }
 function renderBusinessModelUI() {
   const model = currentBusinessModel();
@@ -2128,13 +2140,16 @@ function initChart(id, type, data, options) {
 }
 
 let chartDrawTimer = null;
+let chartDrawFrame = null;
 function scheduleChartDraw(delay = 80) {
   if (chartDrawTimer) clearTimeout(chartDrawTimer);
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => drawCharts());
-  });
-  chartDrawTimer = setTimeout(() => drawCharts(), delay);
-  setTimeout(() => drawCharts(), delay + 180);
+  if (chartDrawFrame) cancelAnimationFrame(chartDrawFrame);
+  chartDrawTimer = setTimeout(() => {
+    chartDrawFrame = requestAnimationFrame(() => {
+      drawCharts();
+      chartDrawFrame = null;
+    });
+  }, delay);
 }
 
 function drawCharts() {
