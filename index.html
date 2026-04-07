@@ -593,8 +593,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <div class="auth-backdrop" id="authBackdrop">
   <div class="auth-card">
-    <div class="auth-title">শুরু করার আগে account খুলুন</div>
-    <div class="auth-sub">আপনার business information, হিসাব আর plan যেন আপনার নিজের profile-এ সেভ থাকে, তাই আগে Sign Up করুন বা Login করুন।</div>
+    <div class="auth-title" id="authTitle">নতুন account খুলুন</div>
+    <div class="auth-sub" id="authSub">একবার account খুললে আপনার business information আর সব হিসাব নিজের profile-এ সেভ থাকবে।</div>
     <div class="auth-tabs">
       <button class="btn btn-primary auth-tab" id="signupTabBtn" onclick="switchAuthMode('signup')">Sign Up</button>
       <button class="btn btn-secondary auth-tab" id="loginTabBtn" onclick="switchAuthMode('login')">Login</button>
@@ -616,7 +616,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <input class="form-input" id="authPassword" type="password" placeholder="কমপক্ষে 6 অক্ষর">
     </div>
     <button class="btn btn-primary" style="width:100%;margin-top:6px" id="authSubmitBtn" onclick="submitAuth()">Sign Up করুন</button>
-    <div class="auth-note" id="authSetupNote">এই feature চালাতে `app-config.js`-এ Supabase URL আর Anon Key বসাতে হবে, আর `supabase-setup.sql` run করতে হবে।</div>
     <div class="auth-error" id="authError"></div>
     <div class="auth-success" id="authSuccess"></div>
   </div>
@@ -853,6 +852,8 @@ function switchAuthMode(mode) {
   authMode = mode === 'login' ? 'login' : 'signup';
   const signupBtn = document.getElementById('signupTabBtn');
   const loginBtn = document.getElementById('loginTabBtn');
+  const titleEl = document.getElementById('authTitle');
+  const subEl = document.getElementById('authSub');
   const nameWrap = document.getElementById('authNameWrap');
   const businessWrap = document.getElementById('authBusinessWrap');
   const submitBtn = document.getElementById('authSubmitBtn');
@@ -860,6 +861,10 @@ function switchAuthMode(mode) {
   const successEl = document.getElementById('authSuccess');
   if (signupBtn) signupBtn.className = `btn ${authMode === 'signup' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
   if (loginBtn) loginBtn.className = `btn ${authMode === 'login' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
+  if (titleEl) titleEl.innerText = authMode === 'signup' ? 'নতুন account খুলুন' : 'আপনার account-এ ঢুকুন';
+  if (subEl) subEl.innerText = authMode === 'signup'
+    ? 'একবার account খুললে আপনার business information আর সব হিসাব নিজের profile-এ সেভ থাকবে।'
+    : 'আগের account-এ ঢুকে আপনার সেভ করা business information আর সব হিসাব আবার দেখুন।';
   if (nameWrap) nameWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (businessWrap) businessWrap.classList.toggle('auth-hidden', authMode !== 'signup');
   if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'Sign Up করুন' : 'Login করুন';
@@ -927,7 +932,7 @@ async function initAuth() {
   } catch (error) {
     console.error('Supabase init failed', error);
     const errorEl = document.getElementById('authError');
-    if (errorEl) errorEl.innerText = 'Supabase connect করা যায়নি। app-config.js আর database setup check করুন।';
+    if (errorEl) errorEl.innerText = 'এই মুহূর্তে account system-এর সাথে connection হচ্ছে না। একটু পরে আবার চেষ্টা করুন।';
     updateProfileUI();
     showAuthModal();
   }
@@ -1013,7 +1018,7 @@ async function submitAuth() {
   if (successEl) successEl.innerText = '';
 
   if (!hasSupabaseConfig()) {
-    if (errorEl) errorEl.innerText = 'Supabase config ছাড়া Sign Up / Login কাজ করবে না।';
+    if (errorEl) errorEl.innerText = 'এই মুহূর্তে account system চালু নেই। একটু পরে আবার চেষ্টা করুন।';
     return;
   }
   if (!email || !password) {
