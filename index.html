@@ -466,7 +466,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card snapshot-card">
       <div class="snapshot-head">
         <h3>সামারি স্ন্যাপশট</h3>
-        <p>প্রথম বছর, প্রথম 24 মাসের cumulative, adjusted net profit এবং ROI multiple</p>
+        <p>প্রথম বছর, প্রথম 36 মাসের cumulative, adjusted net profit এবং ROI multiple</p>
       </div>
       <div class="snapshot-wrap">
         <div class="snapshot-grid">
@@ -570,29 +570,30 @@ function yearRangeFinancials(startMonth, duration = 12) {
   }
   return { revenue, netProfit, opex, tax };
 }
-function exclusionCumulative(item, months = 24) {
+function exclusionCumulative(item, months = 36) {
   if (!item) return 0;
   if (item.unit === 'once') return item.rate || 0;
   if (item.unit === 'yearly') return (item.rate || 0) * Math.ceil(months / 12);
   return (item.rate || 0) * months;
 }
-function totalExclusions(months = 24) {
+function totalExclusions(months = 36) {
   return state.exclusions.reduce((sum, item) => sum + exclusionCumulative(item, months), 0);
 }
 function getSummarySnapshot() {
   const year1 = yearRangeFinancials(0, 12);
   const year2 = yearRangeFinancials(12, 12);
+  const year3 = yearRangeFinancials(24, 12);
   const totalInvestment1Year = totalCapex() + year1.opex;
-  const cumulative2YearNet = year1.netProfit + year2.netProfit;
-  const adjusted2YearNet = cumulative2YearNet - totalExclusions(24);
-  const roiVsYear1Investment = totalInvestment1Year > 0 ? adjusted2YearNet / totalInvestment1Year : 0;
-  const roiVsCapex = totalCapex() > 0 ? adjusted2YearNet / totalCapex() : 0;
+  const cumulative3YearNet = year1.netProfit + year2.netProfit + year3.netProfit;
+  const adjusted3YearNet = cumulative3YearNet - totalExclusions(36);
+  const roiVsYear1Investment = totalInvestment1Year > 0 ? adjusted3YearNet / totalInvestment1Year : 0;
+  const roiVsCapex = totalCapex() > 0 ? adjusted3YearNet / totalCapex() : 0;
   return {
     totalInvestment1Year,
     year1GrossRevenue: year1.revenue,
     year1NetProfit: year1.netProfit,
-    cumulative2YearNet,
-    adjusted2YearNet,
+    cumulative3YearNet,
+    adjusted3YearNet,
     roiVsYear1Investment,
     roiVsCapex
   };
@@ -818,8 +819,8 @@ function renderROI() {
           <tr><td>প্রথম বছরের মোট বিনিয়োগ</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + প্রথম বছরের OPEX</td></tr>
           <tr><td>প্রথম বছরের মোট আয়</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">প্রথম 12 মাসের revenue</td></tr>
           <tr><td>প্রথম বছরের নিট লাভ</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">আয় - মোট খরচ - কর</td></tr>
-          <tr><td>প্রথম 24 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative2YearNet)}</td><td class="snapshot-remark">১ম + ২য় বছর মিলিয়ে</td></tr>
-          <tr><td>প্রথম 24 মাসের adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted2YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
+          <tr><td>প্রথম 36 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative3YearNet)}</td><td class="snapshot-remark">১ম + ২য় + ৩য় বছর মিলিয়ে</td></tr>
+          <tr><td>প্রথম 36 মাসের adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted3YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
         </tbody>
       </table>
     `;
@@ -835,11 +836,11 @@ function renderROI() {
         <div class="snapshot-highlight-note">শুধু মোট CAPEX-এর তুলনায় adjusted হিসাব</div>
       </div>
     `;
-    exclusionTotal.innerText = `24 মাস cumulative: ${fmt(totalExclusions(24))}`;
+    exclusionTotal.innerText = `36 মাস cumulative: ${fmt(totalExclusions(36))}`;
     summaryExclusionTable.innerHTML = state.exclusions.length ? `
       <table class="snapshot-table exclusion-table">
         <thead>
-          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>24 মাস cumulative</th></tr>
+          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>36 মাস cumulative</th></tr>
         </thead>
         <tbody>
           ${state.exclusions.map(item => `
@@ -847,7 +848,7 @@ function renderROI() {
               <td>${item.name}</td>
               <td class="snapshot-amount">${fmt(item.rate)}</td>
               <td>${exclusionUnitLabel(item.unit)}</td>
-              <td class="snapshot-amount">${fmt(exclusionCumulative(item, 24))}</td>
+              <td class="snapshot-amount">${fmt(exclusionCumulative(item, 36))}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -867,7 +868,7 @@ function renderExclusions() {
     <div class="table-wrap">
       <table class="data-table">
         <thead>
-          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>2 বছর cumulative</th><th>অ্যাকশন</th></tr>
+          <tr><th>আইটেম</th><th>রেট</th><th>ইউনিট</th><th>3 বছর cumulative</th><th>অ্যাকশন</th></tr>
         </thead>
         <tbody>
           ${state.exclusions.map(item => `
@@ -875,7 +876,7 @@ function renderExclusions() {
               <td>${item.name}</td>
               <td>${fmt(item.rate)}</td>
               <td>${exclusionUnitLabel(item.unit)}</td>
-              <td>${fmt(exclusionCumulative(item, 24))}</td>
+              <td>${fmt(exclusionCumulative(item, 36))}</td>
               <td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('exclusions','${item.id}')">${ICONS.trash}</button></td>
             </tr>
           `).join('')}
@@ -1514,8 +1515,8 @@ function buildPrintableReport(mode = 'full') {
           ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX'],
           ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসের revenue'],
           ['প্রথম বছরের নিট লাভ', fmt(snapshot.year1NetProfit), 'খরচ ও কর বাদ দিয়ে'],
-          ['প্রথম 24 মাসের cumulative net profit', fmt(snapshot.cumulative2YearNet), '১ম + ২য় বছর মিলিয়ে'],
-          ['প্রথম 24 মাসের adjusted net profit', fmt(snapshot.adjusted2YearNet), 'Exclusions বাদ দিয়ে']
+          ['প্রথম 36 মাসের cumulative net profit', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
+          ['প্রথম 36 মাসের adjusted net profit', fmt(snapshot.adjusted3YearNet), 'Exclusions বাদ দিয়ে']
         ]
       )}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
@@ -1574,12 +1575,12 @@ function buildPrintableReport(mode = 'full') {
       <div style="margin-bottom:16px;">
         <div style="font-size:16px;font-weight:700;">Exclusions</div>
         ${buildDocTable(
-          ['আইটেম', 'রেট', 'ইউনিট', '24 মাস cumulative'],
+          ['আইটেম', 'রেট', 'ইউনিট', '36 মাস cumulative'],
           state.exclusions.map(item => [
             item.name,
             fmt(item.rate),
             exclusionUnitLabel(item.unit),
-            fmt(exclusionCumulative(item, 24))
+            fmt(exclusionCumulative(item, 36))
           ])
         )}
       </div>
