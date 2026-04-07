@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>বিজনেস ক্যালকুলেটর</title>
 <!-- Libraries: Chart.js, html2pdf -->
+<script src="./app-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
@@ -164,6 +166,23 @@ nav{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
 .knowledge-term{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
 .knowledge-meaning,.knowledge-use{font-size:13px;color:var(--text2);line-height:1.75}
 .knowledge-use{margin-top:8px}
+.profile-card{margin-top:12px;background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:12px}
+.profile-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.profile-title{font-size:12px;font-weight:700;color:#fff}
+.profile-status{font-size:11px;color:var(--text2);text-align:right}
+.profile-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}
+.profile-actions{display:flex;gap:8px;margin-top:10px}
+.profile-actions .btn{flex:1;min-width:0}
+.auth-backdrop{position:fixed;inset:0;background:rgba(6,10,15,.86);backdrop-filter:blur(10px);z-index:1400;display:flex;align-items:center;justify-content:center;padding:18px}
+.auth-card{width:min(100%,440px);background:linear-gradient(180deg,var(--surface),#101721);border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:var(--shadow-card)}
+.auth-title{font-size:26px;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.auth-sub{font-size:13px;color:var(--text2);line-height:1.7;margin-top:6px}
+.auth-tabs{display:flex;gap:8px;margin:18px 0 14px}
+.auth-tab{flex:1}
+.auth-note{font-size:12px;color:var(--text2);line-height:1.7;margin-top:10px}
+.auth-error{font-size:12px;color:var(--danger);margin-top:10px;line-height:1.6;min-height:18px}
+.auth-success{font-size:12px;color:var(--success);margin-top:8px;line-height:1.6;min-height:18px}
+.auth-hidden{display:none !important}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:#b7bfce;text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#182131;z-index:1}
@@ -286,6 +305,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="sidebar-header">
     <div class="sidebar-logo">বিজনেস ক্যালকুলেটর</div>
     <input class="business-name-input" id="businessName" placeholder="আপনার ব্যবসার নাম" value="আমার ব্যবসা">
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="profile-title">আপনার প্রোফাইল</div>
+        <div class="profile-status" id="profileSyncStatus">সাইন ইন করা হয়নি</div>
+      </div>
+      <div class="profile-meta" id="profileMeta">Sign Up করলে আপনার সব হিসাব আপনার নিজের প্রোফাইলে সেভ থাকবে।</div>
+      <div class="profile-actions">
+        <button class="btn btn-secondary" id="openAuthBtn" onclick="showAuthModal()">Sign Up / Login</button>
+        <button class="btn btn-outline auth-hidden" id="logoutBtn" onclick="signOutUser()">Logout</button>
+      </div>
+    </div>
   </div>
   <nav>
     <div class="nav-item active" data-page="dashboard"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z"/></svg></span>ড্যাশবোর্ড</div>
@@ -557,8 +587,41 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 
 <div class="flash" id="flash"></div>
 
+<div class="auth-backdrop" id="authBackdrop">
+  <div class="auth-card">
+    <div class="auth-title">শুরু করার আগে account খুলুন</div>
+    <div class="auth-sub">আপনার business information, হিসাব আর plan যেন আপনার নিজের profile-এ সেভ থাকে, তাই আগে Sign Up করুন বা Login করুন।</div>
+    <div class="auth-tabs">
+      <button class="btn btn-primary auth-tab" id="signupTabBtn" onclick="switchAuthMode('signup')">Sign Up</button>
+      <button class="btn btn-secondary auth-tab" id="loginTabBtn" onclick="switchAuthMode('login')">Login</button>
+    </div>
+    <div class="form-group" id="authNameWrap">
+      <label class="form-label">আপনার নাম</label>
+      <input class="form-input" id="authFullName" placeholder="যেমন: মুমিনুল ইসলাম">
+    </div>
+    <div class="form-group" id="authBusinessWrap">
+      <label class="form-label">ব্যবসার নাম</label>
+      <input class="form-input" id="authBusinessName" placeholder="যেমন: আপনার ব্যবসা">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ইমেইল</label>
+      <input class="form-input" id="authEmail" type="email" placeholder="name@email.com">
+    </div>
+    <div class="form-group">
+      <label class="form-label">পাসওয়ার্ড</label>
+      <input class="form-input" id="authPassword" type="password" placeholder="কমপক্ষে 6 অক্ষর">
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:6px" id="authSubmitBtn" onclick="submitAuth()">Sign Up করুন</button>
+    <div class="auth-note" id="authSetupNote">এই feature চালাতে `app-config.js`-এ Supabase URL আর Anon Key বসাতে হবে, আর `supabase-setup.sql` run করতে হবে।</div>
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+  </div>
+</div>
+
 <script>
 // ==================== STATE & CONFIG ====================
+const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
+const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
 let state = {
   businessName: 'আমার ব্যবসা', currency: 'BDT', businessType: 'service',
   globalUtil: 80, globalGrowth: 3, taxRate: 15, inflationRate: 5,
@@ -571,6 +634,16 @@ let state = {
 const CURRENCIES = { BDT:'৳' };
 let currentModalType = null;
 let charts = {};
+let supabaseClient = null;
+let authMode = 'signup';
+let authState = {
+  ready: false,
+  user: null,
+  profileLoaded: false,
+  syncEnabled: false,
+  saveTimer: null,
+  configAvailable: Boolean(SUPABASE_URL && SUPABASE_ANON_KEY)
+};
 const ICONS = {
   trash: '<span class="icon delete-icon"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M7 6l1 14h8l1-14"/><path d="M10 10v7M14 10v7"/></svg></span>'
 };
@@ -767,6 +840,215 @@ function applyBusinessPreset(type) {
 function updateBusinessType(type) {
   state.businessType = type;
   renderAll();
+}
+
+function hasSupabaseConfig() {
+  return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+}
+function switchAuthMode(mode) {
+  authMode = mode === 'login' ? 'login' : 'signup';
+  const signupBtn = document.getElementById('signupTabBtn');
+  const loginBtn = document.getElementById('loginTabBtn');
+  const nameWrap = document.getElementById('authNameWrap');
+  const businessWrap = document.getElementById('authBusinessWrap');
+  const submitBtn = document.getElementById('authSubmitBtn');
+  const errorEl = document.getElementById('authError');
+  const successEl = document.getElementById('authSuccess');
+  if (signupBtn) signupBtn.className = `btn ${authMode === 'signup' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
+  if (loginBtn) loginBtn.className = `btn ${authMode === 'login' ? 'btn-primary' : 'btn-secondary'} auth-tab`;
+  if (nameWrap) nameWrap.classList.toggle('auth-hidden', authMode !== 'signup');
+  if (businessWrap) businessWrap.classList.toggle('auth-hidden', authMode !== 'signup');
+  if (submitBtn) submitBtn.innerText = authMode === 'signup' ? 'Sign Up করুন' : 'Login করুন';
+  if (errorEl) errorEl.innerText = '';
+  if (successEl) successEl.innerText = '';
+}
+function showAuthModal() {
+  const backdrop = document.getElementById('authBackdrop');
+  if (backdrop) backdrop.classList.remove('auth-hidden');
+}
+function hideAuthModal() {
+  const backdrop = document.getElementById('authBackdrop');
+  if (backdrop) backdrop.classList.add('auth-hidden');
+}
+function updateProfileUI() {
+  const statusEl = document.getElementById('profileSyncStatus');
+  const metaEl = document.getElementById('profileMeta');
+  const openBtn = document.getElementById('openAuthBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const businessNameInput = document.getElementById('businessName');
+  if (!statusEl || !metaEl || !openBtn || !logoutBtn || !businessNameInput) return;
+
+  if (!hasSupabaseConfig()) {
+    statusEl.innerText = 'Supabase লাগবে';
+    metaEl.innerText = 'Profile save চালু করতে Supabase URL আর Anon Key বসাতে হবে।';
+    openBtn.innerText = 'Setup লাগবে';
+    logoutBtn.classList.add('auth-hidden');
+    return;
+  }
+
+  if (authState.user) {
+    statusEl.innerText = authState.syncEnabled ? 'প্রোফাইলে সেভ হচ্ছে' : 'ডাটা লোড হচ্ছে';
+    metaEl.innerText = `${authState.user.email || ''}${state.businessName ? `\nBusiness: ${state.businessName}` : ''}`;
+    openBtn.classList.add('auth-hidden');
+    logoutBtn.classList.remove('auth-hidden');
+    businessNameInput.disabled = false;
+  } else {
+    statusEl.innerText = 'সাইন ইন করা হয়নি';
+    metaEl.innerText = 'Sign Up করলে আপনার business information আর সব হিসাব আপনার নিজের প্রোফাইলে সেভ থাকবে।';
+    openBtn.innerText = 'Sign Up / Login';
+    openBtn.classList.remove('auth-hidden');
+    logoutBtn.classList.add('auth-hidden');
+    businessNameInput.disabled = true;
+    showAuthModal();
+  }
+}
+async function initAuth() {
+  if (!hasSupabaseConfig()) {
+    updateProfileUI();
+    showAuthModal();
+    return;
+  }
+  try {
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    await handleAuthSession(session);
+    supabaseClient.auth.onAuthStateChange(async (_event, sessionData) => {
+      await handleAuthSession(sessionData);
+    });
+  } catch (error) {
+    console.error('Supabase init failed', error);
+    const errorEl = document.getElementById('authError');
+    if (errorEl) errorEl.innerText = 'Supabase connect করা যায়নি। app-config.js আর database setup check করুন।';
+    updateProfileUI();
+    showAuthModal();
+  }
+}
+async function handleAuthSession(session) {
+  authState.user = session?.user || null;
+  authState.profileLoaded = false;
+  authState.syncEnabled = false;
+  if (authState.user) {
+    await loadRemoteProjectState();
+    authState.syncEnabled = true;
+    hideAuthModal();
+  } else {
+    updateProfileUI();
+    showAuthModal();
+  }
+  authState.ready = true;
+  updateProfileUI();
+}
+async function ensureRemoteProjectRow() {
+  if (!supabaseClient || !authState.user) return;
+  const payload = {
+    user_id: authState.user.id,
+    email: authState.user.email || '',
+    full_name: authState.user.user_metadata?.full_name || '',
+    business_name: state.businessName || authState.user.user_metadata?.business_name || '',
+    project_data: state
+  };
+  const { error } = await supabaseClient.from('user_projects').upsert(payload, { onConflict: 'user_id' });
+  if (error) throw error;
+}
+async function loadRemoteProjectState() {
+  if (!supabaseClient || !authState.user) return;
+  const { data, error } = await supabaseClient
+    .from('user_projects')
+    .select('project_data,business_name,full_name,email')
+    .eq('user_id', authState.user.id)
+    .maybeSingle();
+  if (error && error.code !== 'PGRST116') throw error;
+  if (data?.project_data) {
+    state = sanitizeState(data.project_data);
+  } else {
+    await ensureRemoteProjectRow();
+  }
+  authState.profileLoaded = true;
+  document.getElementById('businessName').value = state.businessName;
+  renderAll();
+}
+function queueRemoteSave() {
+  if (!supabaseClient || !authState.user || !authState.syncEnabled) return;
+  if (authState.saveTimer) clearTimeout(authState.saveTimer);
+  authState.saveTimer = setTimeout(() => {
+    saveRemoteState().catch(error => {
+      console.error('Remote save failed', error);
+      showFlash('Profile save failed');
+      updateProfileUI();
+    });
+  }, 500);
+}
+async function saveRemoteState() {
+  if (!supabaseClient || !authState.user || !authState.syncEnabled) return;
+  const statusEl = document.getElementById('profileSyncStatus');
+  if (statusEl) statusEl.innerText = 'সেভ হচ্ছে';
+  const payload = {
+    user_id: authState.user.id,
+    email: authState.user.email || '',
+    full_name: authState.user.user_metadata?.full_name || '',
+    business_name: state.businessName || authState.user.user_metadata?.business_name || '',
+    project_data: state
+  };
+  const { error } = await supabaseClient.from('user_projects').upsert(payload, { onConflict: 'user_id' });
+  if (error) throw error;
+  if (statusEl) statusEl.innerText = 'প্রোফাইলে সেভ হয়েছে';
+}
+async function submitAuth() {
+  const errorEl = document.getElementById('authError');
+  const successEl = document.getElementById('authSuccess');
+  const email = sanitizeText(document.getElementById('authEmail').value, '');
+  const password = document.getElementById('authPassword').value || '';
+  const fullName = sanitizeText(document.getElementById('authFullName').value, '');
+  const businessName = sanitizeText(document.getElementById('authBusinessName').value, '');
+  if (errorEl) errorEl.innerText = '';
+  if (successEl) successEl.innerText = '';
+
+  if (!hasSupabaseConfig()) {
+    if (errorEl) errorEl.innerText = 'Supabase config ছাড়া Sign Up / Login কাজ করবে না।';
+    return;
+  }
+  if (!email || !password) {
+    if (errorEl) errorEl.innerText = 'ইমেইল আর পাসওয়ার্ড দিন।';
+    return;
+  }
+  try {
+    if (authMode === 'signup') {
+      state.businessName = businessName || state.businessName;
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            business_name: businessName || state.businessName
+          }
+        }
+      });
+      if (error) throw error;
+      if (data.session) {
+        await handleAuthSession(data.session);
+        await saveRemoteState();
+        showFlash('Account তৈরি হয়েছে');
+      } else if (successEl) {
+        successEl.innerText = 'Account তৈরি হয়েছে। ইমেইল verify করে Login করুন।';
+      }
+    } else {
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await handleAuthSession(data.session);
+      showFlash('Login সফল হয়েছে');
+    }
+  } catch (error) {
+    if (errorEl) errorEl.innerText = error.message || 'Auth failed';
+  }
+}
+async function signOutUser() {
+  if (!supabaseClient) return;
+  await supabaseClient.auth.signOut();
+  authState.user = null;
+  authState.syncEnabled = false;
+  updateProfileUI();
+  showAuthModal();
 }
 
 // ==================== FINANCIAL LOGIC ====================
@@ -1909,7 +2191,10 @@ async function downloadProfessionalPDF() {
 }
 
 // ==================== INIT & EVENT LISTENERS ====================
-function saveStateLocal() { localStorage.setItem('roiplanner_pro', JSON.stringify(state)); }
+function saveStateLocal() {
+  localStorage.setItem('roiplanner_pro', JSON.stringify(state));
+  queueRemoteSave();
+}
 function loadState() {
   const p = new URLSearchParams(location.search);
   if (p.has('data')) {
@@ -1954,7 +2239,7 @@ window.addEventListener('resize', () => {
 });
 
 document.getElementById('businessName').addEventListener('input', e => { state.businessName = sanitizeText(e.target.value, 'আমার ব্যবসা'); renderAll(); });
-window.onload = () => {
+window.onload = async () => {
   loadState();
   document.getElementById('businessName').value = state.businessName;
   const businessTypeSelect = document.getElementById('businessTypeSelect');
@@ -1972,6 +2257,9 @@ window.onload = () => {
   }
   renderAll();
   scheduleChartDraw();
+  switchAuthMode('signup');
+  updateProfileUI();
+  await initAuth();
 };
 </script>
 </body>
