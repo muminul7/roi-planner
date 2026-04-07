@@ -336,26 +336,26 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- PLANNER MODE -->
   <div class="page" id="page-planner">
     <div class="page-header">
-      <div><div class="page-title">নতুন উদ্যোক্তা প্ল্যানার</div><div class="page-subtitle">শুধু স্ট্র্যাটেজিক সেটিংস এখানে এডিট হবে, Revenue/OPEX/CAPEX এডিট নিজ নিজ সেকশনে</div></div>
+      <div><div class="page-title">সহজ ব্যবসা পরিকল্পনা</div><div class="page-subtitle">এখানে শুধু বড় সিদ্ধান্তের জিনিস বদলাবেন। আয়, খরচ আর শুরুর টাকা বদলাবেন তাদের আলাদা পাতায়।</div></div>
     </div>
     <div class="hero-brief">
-      <div class="hero-title">প্ল্যানার নিয়ম</div>
-      <div class="hero-sub">এই পেজে নিচের revenue, opex, capex তথ্য শুধু দেখা যাবে। এগুলো পরিবর্তন করতে সংশ্লিষ্ট সেকশনে যান।</div>
+      <div class="hero-title">এই পাতায় কী করবেন</div>
+      <div class="hero-sub">এই পাতায় শুধু পরিকল্পনার বড় সেটিংস বদলাবেন। আয়, মাসিক খরচ আর শুরুর খরচ দেখতে পাবেন, কিন্তু বদলাতে হলে তাদের আলাদা পাতায় যেতে হবে।</div>
     </div>
     <div class="card-grid grid-2">
       <div class="card">
-        <div class="card-title">যেগুলো এখানে এডিট করা যাবে</div>
-        <div class="form-group"><label class="form-label">CAPEX কত বছরে amortize হবে</label><input class="form-input" id="planAmortizationYears" type="number" min="1" max="10" value="3"></div>
+        <div class="card-title">এখানে যা বদলাতে পারবেন</div>
+        <div class="form-group"><label class="form-label">শুরুর খরচ কত বছরে ভাগ হবে</label><input class="form-input" id="planAmortizationYears" type="number" min="1" max="10" value="3"></div>
         <div class="planner-actions">
-          <button class="btn btn-primary" onclick="applyPlannerControls()">Planner Update করুন</button>
+          <button class="btn btn-primary" onclick="applyPlannerControls()">আপডেট করুন</button>
           <button class="btn btn-outline" onclick="switchToPage('dashboard')">ড্যাশবোর্ডে দেখুন</button>
         </div>
-        <div id="planSummary" class="plan-summary-box">Tax, inflation, payback target, growth ও buffer `সেটিংস` ট্যাব থেকে নিয়ন্ত্রণ করুন।</div>
+        <div id="planSummary" class="plan-summary-box">কর, জিনিসপত্রের দাম বাড়া, লাভে যেতে কত মাস লাগবে, আয় বাড়ার গতি আর হাতে রাখা টাকার নিয়ম `সেটিংস` পাতায় বদলাতে পারবেন।</div>
       </div>
       <div class="card">
-        <div class="card-title">Revenue/OPEX/CAPEX (Read-only)</div>
+        <div class="card-title">আয়, খরচ, শুরুর টাকা</div>
         <div id="plannerReadonly" class="planner-readonly"></div>
-        <div class="readonly-hint" style="margin-top:12px">এই সংখ্যাগুলো পরিবর্তন করতে `Revenue`, `OPEX`, `CAPEX` সেকশনে গিয়ে এডিট করুন।</div>
+        <div class="readonly-hint" style="margin-top:12px">এই সংখ্যা বদলাতে হলে `আয়ের উৎস`, `মাসিক খরচ`, `প্রাথমিক বিনিয়োগ` পাতায় যান।</div>
       </div>
     </div>
   </div>
@@ -388,7 +388,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- REVENUE & SETTINGS -->
   <div class="page" id="page-revenue">
     <div class="page-header">
-      <div><div class="page-title" id="revenuePageTitle">আয়ের উৎস ও সেটিংস</div><div class="page-subtitle" id="revenuePageSubtitle">কোথা থেকে আয় আসবে সেটা সেট করুন</div></div>
+      <div><div class="page-title" id="revenuePageTitle">আয়ের পথ</div><div class="page-subtitle" id="revenuePageSubtitle">আপনার ব্যবসায় কোন কোন জায়গা থেকে টাকা আসবে তা লিখুন</div></div>
       <button class="btn btn-primary" onclick="openModal('revenue')" data-html2canvas-ignore="true">+ নতুন আয় উৎস</button>
     </div>
     <div class="card">
@@ -397,8 +397,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card-grid grid-2">
       <div class="card chart-card"><div class="card-title">আয়ের পূর্বাভাস</div><canvas id="chartRevenue"></canvas></div>
       <div class="card">
-        <div class="card-title">গ্লোবাল প্যারামিটার</div>
-        <div class="readonly-hint">Tax, inflation, payback target, growth, utilization এবং working capital buffer `সেটিংস` ট্যাব থেকে নিয়ন্ত্রণ করুন।</div>
+        <div class="card-title">এই পাতার দরকারি কথা</div>
+        <div class="readonly-hint">কর, জিনিসপত্রের দাম বাড়া, লাভে যেতে কত মাস লাগবে, আয় বাড়ার গতি, কাজের ব্যবহার হার আর হাতে রাখা টাকার নিয়ম `সেটিংস` পাতায় বদলান।</div>
       </div>
     </div>
   </div>
@@ -406,10 +406,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <!-- SETTINGS -->
   <div class="page" id="page-settings">
     <div class="page-header">
-      <div><div class="page-title">গ্লোবাল সেটিংস</div><div class="page-subtitle">ট্যাক্স, মুদ্রাস্ফীতি, payback target এবং buffer এক জায়গা থেকে নিয়ন্ত্রণ</div></div>
+      <div><div class="page-title">সব জরুরি সেটিংস</div><div class="page-subtitle">কর, দাম বাড়া, লাভে যেতে কত মাস লাগবে আর হাতে কত টাকা রাখবেন তা এক জায়গা থেকে ঠিক করুন</div></div>
     </div>
     <div class="card" style="margin-bottom:4px">
-      <div class="card-title">Business Model Setup</div>
+      <div class="card-title">ব্যবসার ধরন বেছে নিন</div>
       <div class="form-group">
         <label class="form-label">আপনার ব্যবসার ধরন</label>
         <select class="form-input" id="businessTypeSelect" onchange="updateBusinessType(this.value)">
@@ -419,28 +419,28 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <option value="custom">কাস্টম/মিক্সড মডেল</option>
         </select>
       </div>
-      <div class="readonly-hint" id="businessTypeHint">যে business model বাছবেন, app সেই অনুযায়ী labels, guidance, আর planning hints দেখাবে।</div>
+      <div class="readonly-hint" id="businessTypeHint">আপনি যে ধরনের ব্যবসা বাছবেন, এই অ্যাপ সেই ধরন অনুযায়ী কথা বলবে আর হিসাব সাজিয়ে দেখাবে।</div>
       <div class="preset-grid">
         <div class="preset-card">
           <h4>সার্ভিস</h4>
           <p>এজেন্সি, কনসালটিং, ক্লিনিক, আইটি সার্ভিস, ট্রেনিং, স্টুডিও</p>
-          <button class="btn btn-outline" onclick="applyBusinessPreset('service')">এই মডেল নিন</button>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('service')">এটা নিন</button>
         </div>
         <div class="preset-card">
           <h4>ট্রেডিং</h4>
           <p>হোলসেল, ডিস্ট্রিবিউশন, দোকান, সাপ্লাই, সাধারণ কেনাবেচা</p>
-          <button class="btn btn-outline" onclick="applyBusinessPreset('trading')">এই মডেল নিন</button>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('trading')">এটা নিন</button>
         </div>
         <div class="preset-card">
           <h4>ই-কমার্স</h4>
           <p>Facebook shop, Shopify, Daraz, own website, D2C brand</p>
-          <button class="btn btn-outline" onclick="applyBusinessPreset('ecommerce')">এই মডেল নিন</button>
+          <button class="btn btn-outline" onclick="applyBusinessPreset('ecommerce')">এটা নিন</button>
         </div>
       </div>
     </div>
     <div class="card-grid grid-2">
       <div class="card">
-        <div class="card-title">Financial Controls</div>
+        <div class="card-title">টাকার নিয়ম</div>
         <div class="slider-group">
           <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">ট্যাক্স (%)</span><span style="color:var(--accent)" id="taxLabel">15%</span></div>
           <input id="taxRange" type="range" min="0" max="40" value="15" oninput="updateState('taxRate', this.value); renderSettingsPanel()">
@@ -450,7 +450,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <input id="inflationRange" type="range" min="0" max="20" value="5" oninput="updateState('inflationRate', this.value); renderSettingsPanel()">
         </div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Payback Target (মাস)</span><span style="color:var(--accent)" id="paybackLabel">12</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">কত মাসে শুরুর টাকা উঠাতে চান</span><span style="color:var(--accent)" id="paybackLabel">12</span></div>
           <input id="paybackRange" type="range" min="3" max="48" value="12" oninput="updateState('targetProfitMonths', this.value); renderSettingsPanel()">
         </div>
         <div class="slider-group">
@@ -458,7 +458,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
           <input id="growthRange" type="range" min="0" max="30" value="3" oninput="updateState('globalGrowth', this.value); renderSettingsPanel()">
         </div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">গড় Utilization (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">কাজ/বিক্রির ব্যবহার হার (%)</span><span style="color:var(--accent)" id="utilLabel">80%</span></div>
           <input id="utilRange" type="range" min="0" max="100" value="80" oninput="updateState('globalUtil', this.value); renderSettingsPanel()">
         </div>
         <div class="slider-group">
@@ -467,18 +467,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
         </div>
       </div>
       <div class="card">
-        <div class="card-title">Capital Buffer</div>
+        <div class="card-title">হাতে রাখা টাকা</div>
         <div class="slider-group">
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">Working Capital Buffer (মাস)</span><span style="color:var(--accent)" id="bufferLabel">3</span></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px"><span class="form-label">কত মাসের খরচ হাতে রাখতে চান</span><span style="color:var(--accent)" id="bufferLabel">3</span></div>
           <input id="bufferRange" type="range" min="1" max="12" value="3" oninput="updateState('reserveMonths', this.value); renderSettingsPanel()">
         </div>
-        <div id="settingsSummary" class="plan-summary-box">Global settings summary এখানে দেখাবে।</div>
+        <div id="settingsSummary" class="plan-summary-box">এই সেটিংস বদলালে তার প্রভাব এখানে দেখা যাবে।</div>
       </div>
     </div>
     <div class="card" style="margin-top:4px">
       <div class="page-header" style="margin-bottom:16px">
-        <div><div class="card-title" style="margin-bottom:4px">Exclusions</div><div class="page-subtitle">যে খরচগুলো ROI multiple হিসাব থেকে বাদ দিতে চান</div></div>
-        <button class="btn btn-secondary" onclick="openModal('exclusion')">+ Exclusion যোগ করুন</button>
+        <div><div class="card-title" style="margin-bottom:4px">আলাদা করে দেখাতে চান এমন খরচ</div><div class="page-subtitle">কিছু খরচ চাইলে আলাদা করে রাখতে পারবেন, যাতে মূল ফলাফলে সেগুলো আলাদা বোঝা যায়</div></div>
+        <button class="btn btn-secondary" onclick="openModal('exclusion')">+ নতুন খরচ যোগ করুন</button>
       </div>
       <div id="exclusionManager"></div>
     </div>
@@ -490,9 +490,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     
     <div class="card-grid grid-3">
       <div class="card roi-hero-card">
-        <div class="card-title">বার্ষিক Return on Investment</div>
+        <div class="card-title">বিনিয়োগে বছরে কত লাভ</div>
         <div style="color:var(--accent)" id="roiBig">0%</div>
-        <div class="kpi-sub" id="roiSub">Calculating...</div>
+        <div class="kpi-sub" id="roiSub">হিসাব হচ্ছে...</div>
       </div>
       <div class="card roi-pl-card" style="grid-column: span 2;">
         <div class="card-title">লাভ-ক্ষতির টেবিল</div>
@@ -500,7 +500,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       </div>
     </div>
     <div class="card chart-card chart-tall">
-      <div class="card-title">3 বছরের মোট নিট লাভ (Break-even Tracker)</div>
+      <div class="card-title">3 বছরে মোট কত লাভ থাকবে</div>
       <canvas id="chart3Year"></canvas>
     </div>
     <div class="card chart-card chart-tall">
@@ -510,7 +510,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="card snapshot-card">
       <div class="snapshot-head">
         <h3>সামারি স্ন্যাপশট</h3>
-        <p>প্রথম বছর, প্রথম 36 মাসের cumulative, adjusted net profit এবং ROI multiple</p>
+        <p>প্রথম বছর আর 3 বছরের মোট লাভের সহজ ছবি</p>
       </div>
       <div class="snapshot-wrap">
         <div class="snapshot-grid">
@@ -570,29 +570,29 @@ const BUSINESS_MODELS = {
   service: {
     label: 'সার্ভিস বিজনেস',
     shortLabel: 'সার্ভিস',
-    focus: 'ক্লায়েন্ট, মার্জিন, পুনরাবৃত্ত আয়',
-    hero: 'সার্ভিস ব্যবসার লাভ, capacity, আর cashflow দ্রুত বুঝুন।',
+    focus: 'ক্লায়েন্ট, লাভ, আবার কাজ পাওয়া',
+    hero: 'সার্ভিস ব্যবসায় কত আয় হবে, কত লাভ থাকবে আর হাতে কত টাকা থাকবে তা সহজে দেখুন।',
     revenueName: 'সেবা/অফার',
     price: 'প্রতি সেবা/প্যাকেজ দাম',
-    qty: 'মাসে client / project / booking',
-    util: 'capacity use (%)',
-    growth: 'মাসিক client growth',
+    qty: 'মাসে কাস্টমার/কাজের সংখ্যা',
+    util: 'কাজের ব্যবহার হার (%)',
+    growth: 'মাসে কাস্টমার বাড়ার হার',
     monthly: 'মাসিক আয়',
     modalName: 'সেবা/অফারের নাম',
-    modalQty: 'মাসে client / booking সংখ্যা',
+    modalQty: 'মাসে কাস্টমার/কাজের সংখ্যা',
     variableLabel: 'ডেলিভারি খরচ / ভ্যারিয়েবল খরচ (%)',
     suggested: { globalUtil: 75, globalGrowth: 4, variableCostRate: 15, reserveMonths: 3 }
   },
   trading: {
     label: 'ট্রেডিং/হোলসেল',
     shortLabel: 'ট্রেডিং',
-    focus: 'স্টক টার্নওভার, gross margin, working capital',
-    hero: 'পণ্য কেনাবেচা, margin, stock rotation আর working capital plan করুন।',
+    focus: 'পণ্য ঘোরা, লাভ, হাতে টাকা',
+    hero: 'পণ্য কেনাবেচায় কত বিক্রি হবে, কত লাভ থাকবে আর কত টাকা আটকে যাবে তা বুঝে পরিকল্পনা করুন।',
     revenueName: 'পণ্য/ক্যাটাগরি',
     price: 'প্রতি ইউনিট বিক্রয় দাম',
     qty: 'মাসে বিক্রয় ইউনিট',
-    util: 'sell-through / sales efficiency (%)',
-    growth: 'মাসিক বিক্রয় growth',
+    util: 'বিক্রির গতি (%)',
+    growth: 'মাসিক বিক্রি বাড়ার হার',
     monthly: 'মাসিক বিক্রয়',
     modalName: 'পণ্য/ক্যাটাগরির নাম',
     modalQty: 'মাসে বিক্রয় ইউনিট',
@@ -602,15 +602,15 @@ const BUSINESS_MODELS = {
   ecommerce: {
     label: 'ই-কমার্স',
     shortLabel: 'ই-কমার্স',
-    focus: 'AOV, conversion, fulfillment, marketing efficiency',
-    hero: 'SKU, order volume, delivery cost, ad cost আর online growth ধরেই plan করুন।',
-    revenueName: 'SKU / offer / channel',
-    price: 'AOV / প্রতি অর্ডার মূল্য',
-    qty: 'মাসে order সংখ্যা',
-    util: 'conversion / fulfillment efficiency (%)',
-    growth: 'মাসিক order growth',
+    focus: 'অর্ডার, ডেলিভারি, বিজ্ঞাপন, লাভ',
+    hero: 'অনলাইনে কত অর্ডার আসবে, ডেলিভারিতে কত খরচ হবে আর শেষে কত লাভ থাকবে তা বুঝে পরিকল্পনা করুন।',
+    revenueName: 'পণ্য/অফার/বিক্রির জায়গা',
+    price: 'প্রতি অর্ডারের গড় দাম',
+    qty: 'মাসে অর্ডার সংখ্যা',
+    util: 'অর্ডার ঠিকমতো শেষ হওয়ার হার (%)',
+    growth: 'মাসিক অর্ডার বাড়ার হার',
     monthly: 'মাসিক বিক্রয়',
-    modalName: 'SKU / offer / channel নাম',
+    modalName: 'পণ্য/অফার/বিক্রির জায়গার নাম',
     modalQty: 'মাসে order সংখ্যা',
     variableLabel: 'COGS + delivery + packaging (%)',
     suggested: { globalUtil: 70, globalGrowth: 5, variableCostRate: 55, reserveMonths: 4 }
@@ -618,13 +618,13 @@ const BUSINESS_MODELS = {
   custom: {
     label: 'কাস্টম/মিক্সড',
     shortLabel: 'কাস্টম',
-    focus: 'multiple income model, blended margin, custom planning',
-    hero: 'একাধিক revenue model মিশিয়ে নিজের মতো করে full SME financial plan করুন।',
+    focus: 'একাধিক আয়ের পথ, মিশ্র লাভ, নিজের মতো হিসাব',
+    hero: 'একাধিক আয়ের পথ একসাথে ধরে নিজের মতো করে পুরো ব্যবসার টাকার পরিকল্পনা করুন।',
     revenueName: 'আয়ের উৎস',
     price: 'প্রতি ইউনিট দাম',
     qty: 'মাসিক পরিমাণ',
     util: 'ব্যবহারের হার (%)',
-    growth: 'মাসিক growth',
+    growth: 'মাসিক বাড়ার হার',
     monthly: 'মাসিক আয়',
     modalName: 'আয়ের উৎসের নাম',
     modalQty: 'মাসে ইউনিট/অর্ডার/ক্লায়েন্ট',
@@ -785,12 +785,12 @@ function isLoanLike(item) {
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
-  if (netProfit < 0) items.push({ level: 'danger', title: 'লোকসান সতর্কতা', body: 'ব্যবসা এখনো লোকসানে। আগামী 30 দিনে খরচ কমিয়ে বেশি মার্জিনের বিক্রিতে জোর দিন।' });
+  if (netProfit < 0) items.push({ level: 'danger', title: 'লোকসান হচ্ছে', body: 'এখনো লাভ হচ্ছে না। তাই খরচ কমানো আর বেশি লাভের কাজে জোর দেওয়া দরকার।' });
   if (margin < 12) items.push({ level: 'warn', title: 'কম মার্জিন', body: `Net margin ${margin.toFixed(1)}%। 15%+ টার্গেট করুন।` });
-  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'ব্রেক-ইভেন দেরি', body: `টার্গেট ${target} মাস, কিন্তু প্রক্ষেপণ ${breakEven} মাস। growth বা price revise করুন।` });
-  if (gap > 0) items.push({ level: 'danger', title: 'ফান্ডিং ঘাটতি', body: `আনুমানিক ঘাটতি ${fmt(gap)}। ধাপে ধাপে ফান্ডিং প্ল্যান দরকার।` });
-  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'ক্যাশ রানওয়ে ঝুঁকি', body: `ক্যাশ রানওয়ে ${runwayNum.toFixed(1)} মাস। জরুরি cash plan করুন।` });
-  if (items.length === 0) items.push({ level: 'success', title: 'স্থিতিশীল অবস্থা', body: 'বড় কোনো সতর্কতা নেই। নিয়ন্ত্রিতভাবে scale-up করা নিরাপদ।' });
+  if (breakEven && breakEven > target) items.push({ level: 'warn', title: 'লাভে যেতে দেরি হচ্ছে', body: `আপনি ${target} মাস ভাবছেন, কিন্তু হিসাব বলছে ${breakEven} মাস লাগতে পারে।` });
+  if (gap > 0) items.push({ level: 'danger', title: 'টাকার ঘাটতি আছে', body: `আনুমানিক ঘাটতি ${fmt(gap)}। তাই বাড়তি টাকা বা কম খরচের পরিকল্পনা দরকার।` });
+  if (Number.isFinite(runwayNum) && runwayNum < 3) items.push({ level: 'danger', title: 'হাতে টাকা কম', body: `এভাবে চললে হাতে থাকা টাকা প্রায় ${runwayNum.toFixed(1)} মাস চলবে।` });
+  if (items.length === 0) items.push({ level: 'success', title: 'অবস্থা মোটামুটি ভালো', body: 'এই মুহূর্তে বড় ঝুঁকি চোখে পড়ছে না।' });
   return items;
 }
 function getExpenseLeakItems() {
@@ -800,10 +800,10 @@ function getExpenseLeakItems() {
     .map(item => ({ ...item, share: (item.monthly / total) * 100 }))
     .sort((a, b) => b.monthly - a.monthly);
   const leaks = ranked.filter(item => item.share >= 25).slice(0, 3);
-  if (!leaks.length) return [{ title: 'সুসমন্বিত খরচ', body: 'OPEX distribution balanced আছে। বড় leak দেখা যাচ্ছে না।' }];
+  if (!leaks.length) return [{ title: 'খরচ মোটামুটি ঠিক আছে', body: 'মাসিক খরচে বড় কোনো একপাশে চাপ দেখা যাচ্ছে না।' }];
   return leaks.map(item => ({
     title: `${item.name} (${item.share.toFixed(1)}%)`,
-    body: `মাসিক ${fmt(item.monthly)}। এই খাতে 8-12% optimize করলে cashflow improve হবে।`
+    body: `মাসিক ${fmt(item.monthly)}। এই খরচ একটু কমাতে পারলে হাতে বেশি টাকা থাকবে।`
   }));
 }
 
@@ -863,7 +863,7 @@ function renderBusinessModelUI() {
   if (revenueGrowthHeader) revenueGrowthHeader.innerText = model.growth;
   if (revenueMonthlyHeader) revenueMonthlyHeader.innerText = model.monthly;
   if (businessTypeSelect) businessTypeSelect.value = state.businessType;
-  if (businessTypeHint) businessTypeHint.innerText = `${model.label} এর জন্য recommended focus: ${model.focus}. preset apply করলে suggested assumptions auto বসে যাবে।`;
+  if (businessTypeHint) businessTypeHint.innerText = `${model.label} এর জন্য আমরা এই জিনিসগুলোকে বেশি গুরুত্ব দিচ্ছি: ${model.focus}। চাইলে এক ক্লিকে সাজানো হিসাব বসিয়ে নিতে পারবেন।`;
 }
 
 function renderDashboard() {
@@ -970,7 +970,7 @@ function renderROI() {
   
   document.getElementById('roiBig').innerText = annualROI.toFixed(1) + '%';
   document.getElementById('roiBig').style.color = annualROI >= 0 ? 'var(--accent)' : 'var(--danger)';
-  document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট CAPEX ${fmt(totalCapex())} ভিত্তিতে হিসাব` : 'ROI দেখতে CAPEX যোগ করুন';
+  document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট শুরুর টাকা ${fmt(totalCapex())} ধরে এই হিসাব করা হয়েছে` : 'এই হিসাব দেখতে শুরুর খরচ যোগ করুন';
 
   document.getElementById('plBody').innerHTML = `
     <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(f.rev*12)}/বছর</td></tr>
@@ -1146,7 +1146,7 @@ function renderSettingsPanel() {
 
   const f = getFinancials(0);
   const be = breakEvenMonths();
-  settingsSummary.innerText = `${model.label} mode active। Break-even: ${be ? `${be} months (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | Target payback: ${state.targetProfitMonths.toFixed(0)} months | Buffer target: ${fmt(reserveTarget())} | ${model.variableLabel.replace(' (%)','')}: ${state.variableCostRate.toFixed(0)}%`;
+  settingsSummary.innerText = `${model.label} চালু আছে। লাভে যেতে সময়: ${be ? `${be} মাস (${breakEvenDateLabel(be)})` : 'এখনো হয়নি'} | শুরুর টাকা তুলতে চাওয়া সময়: ${state.targetProfitMonths.toFixed(0)} মাস | হাতে রাখা টাকার লক্ষ্য: ${fmt(reserveTarget())} | ${model.variableLabel.replace(' (%)','')}: ${state.variableCostRate.toFixed(0)}%`;
 }
 
 // ==================== CHART.JS INTEGRATION ====================
@@ -1674,17 +1674,17 @@ function buildPrintableReport(mode = 'full') {
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
       <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
-      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংক উপযোগী আর্থিক রিপোর্ট' : 'ফিন্যান্সিয়াল প্ল্যানিং রিপোর্ট'} | Model: ${model.label}</div>
+      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংকের জন্য রিপোর্ট' : 'ব্যবসার টাকার পরিকল্পনার রিপোর্ট'} | ব্যবসার ধরন: ${model.label}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:16px;font-weight:700;">এক্সিকিউটিভ সারাংশ</div>
+      <div style="font-size:16px;font-weight:700;">সহজ সারাংশ</div>
       <div style="font-size:12px;line-height:1.8;margin-top:6px;">
         মাসিক আয়: <strong>${fmt(monthZero.rev)}</strong> |
         মাসিক নিট লাভ: <strong>${fmt(monthZero.netProfit)}</strong> |
         বার্ষিক ROI: <strong>${annualROI.toFixed(1)}%</strong><br>
-        Break-even: <strong>${breakEven ? `${breakEven} months (${breakEvenDate})` : 'এখনো হয়নি'}</strong> |
-        Net Margin: <strong>${margin.toFixed(1)}%</strong>
+        লাভে যেতে সময়: <strong>${breakEven ? `${breakEven} মাস (${breakEvenDate})` : 'এখনো হয়নি'}</strong> |
+        লাভের হার: <strong>${margin.toFixed(1)}%</strong>
       </div>
     </div>
     <div style="margin-bottom:16px;">
@@ -1700,22 +1700,22 @@ function buildPrintableReport(mode = 'full') {
         ['বিষয়', 'টাকার পরিমাণ', 'মন্তব্য'],
         [
           ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX + ট্যাক্স'],
-          ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসের revenue'],
+          ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসে যত আয় হবে'],
           ['প্রথম বছরের নিট লাভ', fmt(snapshot.year1NetProfit), 'খরচ ও কর বাদ দিয়ে'],
-          ['প্রথম 36 মাসের cumulative net profit', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
-          ['প্রথম 36 মাসের adjusted net profit', fmt(snapshot.adjusted3YearNet), 'Exclusions বাদ দিয়ে']
+          ['প্রথম 36 মাসের মোট লাভ', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
+          ['প্রথম 36 মাসের ঠিক করা লাভ', fmt(snapshot.adjusted3YearNet), 'আলাদা রাখা খরচ বাদ দিয়ে']
         ]
       )}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
         <div style="border:1px solid #222;background:#fff3a6;padding:14px 16px;">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;">প্রথম বছরের মোট বিনিয়োগের তুলনায় ROI</div>
           <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsYear1Investment.toFixed(1)}x</div>
-          <div style="font-size:11px;">সব খরচ ও adjustment বাদ দেওয়ার পর</div>
+          <div style="font-size:11px;">সব খরচ বাদ দেওয়ার পর</div>
         </div>
         <div style="border:1px solid #222;background:#ffe96f;padding:14px 16px;">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;">CAPEX-এর তুলনায় ROI</div>
           <div style="font-size:44px;font-weight:800;line-height:1;margin:8px 0;">${snapshot.roiVsCapex.toFixed(1)}x</div>
-          <div style="font-size:11px;">নির্বাচিত exclusions বাদ দিয়ে</div>
+          <div style="font-size:11px;">আলাদা রাখা খরচ বাদ দিয়ে</div>
         </div>
       </div>
     </div>
