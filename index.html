@@ -168,8 +168,8 @@ nav{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
 .profile-card{margin-top:12px;background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:12px}
 .profile-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .profile-title{font-size:12px;font-weight:700;color:#fff}
-.profile-status{font-size:11px;color:var(--text2);text-align:right}
-.profile-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px}
+.profile-status{font-size:11px;color:var(--text2);text-align:right;min-height:16px}
+.profile-meta{font-size:11px;color:var(--text2);line-height:1.6;margin-top:8px;word-break:break-word}
 .profile-actions{display:flex;gap:8px;margin-top:10px}
 .profile-actions .btn{flex:1;min-width:0}
 .sidebar-session{padding:0 16px 14px}
@@ -892,8 +892,8 @@ function updateProfileUI() {
   if (!statusEl || !metaEl || !openBtn || !logoutBtn || !sessionActions) return;
 
   if (!hasSupabaseConfig()) {
-    statusEl.innerText = 'Supabase লাগবে';
-    metaEl.innerText = 'Profile save চালু করতে Supabase URL আর Anon Key বসাতে হবে।';
+    statusEl.innerText = '';
+    metaEl.innerText = 'Account system এখন চালু নেই।';
     openBtn.innerText = 'Setup লাগবে';
     logoutBtn.classList.add('auth-hidden');
     sessionActions.classList.add('auth-hidden');
@@ -901,14 +901,14 @@ function updateProfileUI() {
   }
 
   if (authState.user) {
-    statusEl.innerText = authState.syncEnabled ? 'প্রোফাইলে সেভ হচ্ছে' : 'ডাটা লোড হচ্ছে';
-    metaEl.innerText = `${authState.user.email || ''}${state.businessName ? `\nBusiness: ${state.businessName}` : ''}`;
+    statusEl.innerText = '';
+    metaEl.innerText = authState.user.email || '';
     openBtn.classList.add('auth-hidden');
     logoutBtn.classList.remove('auth-hidden');
     sessionActions.classList.remove('auth-hidden');
   } else {
     statusEl.innerText = 'সাইন ইন করা হয়নি';
-    metaEl.innerText = 'Sign Up করলে আপনার business information আর সব হিসাব আপনার নিজের প্রোফাইলে সেভ থাকবে।';
+    metaEl.innerText = 'Sign Up বা Login করে শুরু করুন।';
     openBtn.innerText = 'Sign Up / Login';
     openBtn.classList.remove('auth-hidden');
     logoutBtn.classList.add('auth-hidden');
