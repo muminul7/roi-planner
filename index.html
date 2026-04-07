@@ -658,6 +658,88 @@ function categoryLabel(value) {
   };
   return map[value] || value;
 }
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function sanitizeText(value, fallback = '') {
+  return String(value ?? fallback).replace(/\s+/g, ' ').trim().slice(0, 120) || fallback;
+}
+function sanitizeNumber(value, fallback = 0, min = 0, max = 1e12) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.min(max, Math.max(min, num));
+}
+function sanitizeInteger(value, fallback = 0, min = 0, max = 1200) {
+  return Math.round(sanitizeNumber(value, fallback, min, max));
+}
+function sanitizeChoice(value, allowed, fallback) {
+  return allowed.includes(value) ? value : fallback;
+}
+function sanitizeId(value) {
+  const text = String(value ?? '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 40);
+  return text || uid();
+}
+function sanitizeCapexItem(item) {
+  return {
+    id: sanitizeId(item?.id),
+    name: sanitizeText(item?.name, 'নতুন CAPEX'),
+    category: sanitizeChoice(item?.category, ['যন্ত্রপাতি', 'সফটওয়্যার', 'ফার্নিচার', 'অন্যান্য'], 'অন্যান্য'),
+    amount: sanitizeNumber(item?.amount, 0, 0, 1e12),
+    amortization: sanitizeInteger(item?.amortization, 3, 1, 20)
+  };
+}
+function sanitizeOpexItem(item) {
+  return {
+    id: sanitizeId(item?.id),
+    name: sanitizeText(item?.name, 'নতুন খরচ'),
+    category: sanitizeChoice(item?.category, ['ভাড়া', 'বেতন', 'মার্কেটিং', 'অন্যান্য'], 'অন্যান্য'),
+    monthly: sanitizeNumber(item?.monthly, 0, 0, 1e12)
+  };
+}
+function sanitizeRevenueItem(item) {
+  return {
+    id: sanitizeId(item?.id),
+    name: sanitizeText(item?.name, 'নতুন আয়ের উৎস'),
+    price: sanitizeNumber(item?.price, 0, 0, 1e12),
+    qty: sanitizeInteger(item?.qty, 1, 1, 1000000),
+    useGlobal: Boolean(item?.useGlobal),
+    utilization: sanitizeNumber(item?.utilization, 80, 0, 100),
+    growth: sanitizeNumber(item?.growth, 3, 0, 100)
+  };
+}
+function sanitizeExclusionItem(item) {
+  return {
+    id: sanitizeId(item?.id),
+    name: sanitizeText(item?.name, 'নতুন আলাদা খরচ'),
+    rate: sanitizeNumber(item?.rate, 0, 0, 1e12),
+    unit: sanitizeChoice(item?.unit, ['monthly', 'once', 'yearly'], 'monthly')
+  };
+}
+function sanitizeState(input = {}) {
+  return {
+    ...state,
+    ...input,
+    businessName: sanitizeText(input.businessName, 'আমার ব্যবসা'),
+    businessType: sanitizeChoice(input.businessType, Object.keys(BUSINESS_MODELS), 'service'),
+    globalUtil: sanitizeNumber(input.globalUtil, 80, 0, 100),
+    globalGrowth: sanitizeNumber(input.globalGrowth, 3, 0, 100),
+    taxRate: sanitizeNumber(input.taxRate, 15, 0, 100),
+    inflationRate: sanitizeNumber(input.inflationRate, 5, 0, 100),
+    variableCostRate: sanitizeNumber(input.variableCostRate, 0, 0, 100),
+    openingCash: sanitizeNumber(input.openingCash, 0, 0, 1e12),
+    reserveMonths: sanitizeInteger(input.reserveMonths, 3, 0, 36),
+    targetProfitMonths: sanitizeInteger(input.targetProfitMonths, 12, 1, 120),
+    capex: Array.isArray(input.capex) ? input.capex.map(sanitizeCapexItem) : [],
+    opex: Array.isArray(input.opex) ? input.opex.map(sanitizeOpexItem) : [],
+    revenue: Array.isArray(input.revenue) ? input.revenue.map(sanitizeRevenueItem) : [],
+    exclusions: Array.isArray(input.exclusions) ? input.exclusions.map(sanitizeExclusionItem) : []
+  };
+}
 function currentBusinessModel() {
   return BUSINESS_MODELS[state.businessType] || BUSINESS_MODELS.custom;
 }
@@ -775,10 +857,6 @@ function reserveTarget() {
 function fundingGap() {
   const requiredCapital = totalCapex() + reserveTarget();
   return Math.max(0, requiredCapital - (state.openingCash || 0));
-}
-function isLoanLike(item) {
-  const text = `${item?.name || ''} ${item?.category || ''}`.toLowerCase();
-  return /(loan|emi|debt|bank|installment|kisti|ঋণ|লোন|কিস্তি|ব্যাংক)/i.test(text);
 }
 function buildAlertItems({ netProfit, margin, breakEven, target, gap, runwayNum }) {
   const items = [];
@@ -922,7 +1000,7 @@ function renderDashboard() {
 
     expertEl.innerHTML = `
       <div class="expert-title">আর্থিক পরামর্শ</div>
-      <div class="expert-body">${recommendations.map((r, i) => `${i + 1}. ${r}`).join('<br>')}</div>
+      <div class="expert-body">${recommendations.map((r, i) => `${i + 1}. ${escapeHTML(r)}`).join('<br>')}</div>
     `;
   }
   const alertRoot = document.getElementById('alertSystem');
@@ -937,8 +1015,8 @@ function renderDashboard() {
     });
     alertRoot.innerHTML = alertItems.map(item => `
       <div class="alert-item ${item.level}">
-        <div class="alert-title">${item.title}</div>
-        <div class="alert-body">${item.body}</div>
+        <div class="alert-title">${escapeHTML(item.title)}</div>
+        <div class="alert-body">${escapeHTML(item.body)}</div>
       </div>
     `).join('');
   }
@@ -947,17 +1025,17 @@ function renderDashboard() {
     const leaks = getExpenseLeakItems();
     leakRoot.innerHTML = leaks.map((item, idx) => `
       <div class="alert-item warn">
-        <div class="alert-title">${idx + 1}. ${item.title}</div>
-        <div class="alert-body">${item.body}</div>
+        <div class="alert-title">${idx + 1}. ${escapeHTML(item.title)}</div>
+        <div class="alert-body">${escapeHTML(item.body)}</div>
       </div>
     `).join('');
   }
 }
 
 function renderTables() {
-  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${c.name}</td><td><span class="badge badge-warning">${categoryLabel(c.category)}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">${ICONS.trash}</button></td></tr>`).join('');
-  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${o.name}</td><td><span class="badge badge-warning">${categoryLabel(o.category)}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">${ICONS.trash}</button></td></tr>`).join('');
-  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('capexBody').innerHTML = state.capex.map(c=>`<tr><td>${escapeHTML(c.name)}</td><td><span class="badge badge-warning">${escapeHTML(categoryLabel(c.category))}</span></td><td>${fmt(c.amount)}</td><td>${c.amortization} বছর</td><td>${fmt(c.amount/(c.amortization*12))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('capex','${c.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('opexBody').innerHTML = state.opex.map(o=>`<tr><td>${escapeHTML(o.name)}</td><td><span class="badge badge-warning">${escapeHTML(categoryLabel(o.category))}</span></td><td>${fmt(o.monthly)}</td><td>${fmt(o.monthly*12)}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('opex','${o.id}')">${ICONS.trash}</button></td></tr>`).join('');
+  document.getElementById('revenueBody').innerHTML = state.revenue.map(r=>`<tr><td>${escapeHTML(r.name)}</td><td>${fmt(r.price)}</td><td>${r.qty}</td><td>${r.useGlobal?'সবার জন্য একই':r.utilization+'%'}</td><td>${r.useGlobal?'সবার জন্য একই':r.growth+'%'}</td><td>${fmt(r.price*r.qty*((r.useGlobal?state.globalUtil:r.utilization)/100))}</td><td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('revenue','${r.id}')">${ICONS.trash}</button></td></tr>`).join('');
 }
 
 function renderROI() {
@@ -1017,9 +1095,9 @@ function renderROI() {
         <tbody>
           ${state.exclusions.map(item => `
             <tr>
-              <td>${item.name}</td>
+              <td>${escapeHTML(item.name)}</td>
               <td class="snapshot-amount">${fmt(item.rate)}</td>
-              <td>${exclusionUnitLabel(item.unit)}</td>
+              <td>${escapeHTML(exclusionUnitLabel(item.unit))}</td>
               <td class="snapshot-amount">${fmt(exclusionCumulative(item, 36))}</td>
             </tr>
           `).join('')}
@@ -1045,9 +1123,9 @@ function renderExclusions() {
         <tbody>
           ${state.exclusions.map(item => `
             <tr>
-              <td>${item.name}</td>
+              <td>${escapeHTML(item.name)}</td>
               <td>${fmt(item.rate)}</td>
-              <td>${exclusionUnitLabel(item.unit)}</td>
+              <td>${escapeHTML(exclusionUnitLabel(item.unit))}</td>
               <td>${fmt(exclusionCumulative(item, 36))}</td>
               <td data-html2canvas-ignore="true"><button class="btn btn-outline" style="padding:4px 8px" onclick="deleteItem('exclusions','${item.id}')">${ICONS.trash}</button></td>
             </tr>
@@ -1078,12 +1156,12 @@ function renderPlannerPanel() {
     <div class="readonly-block">
       <div class="readonly-label">${model.shortLabel} Revenue (মাসিক)</div>
       <div class="readonly-value">${fmt(monthlyRevNow)}</div>
-      <div class="readonly-hint">${state.revenue.length} টি revenue stream</div>
+      <div class="readonly-hint">${state.revenue.length} টি আয়ের উৎস</div>
     </div>
     <div class="readonly-block">
       <div class="readonly-label">OPEX (মাসিক)</div>
       <div class="readonly-value">${fmt(totalOpex())}</div>
-      <div class="readonly-hint">${state.opex.length} টি opex আইটেম</div>
+      <div class="readonly-hint">${state.opex.length} টি খরচের আইটেম</div>
     </div>
     <div class="readonly-block">
       <div class="readonly-label">CAPEX (মোট)</div>
@@ -1566,27 +1644,30 @@ function openModal(type) {
 }
 
 function saveEntry() {
-  let name = document.getElementById('mName').value.trim();
-  let val = parseFloat(document.getElementById('mVal').value);
+  let name = sanitizeText(document.getElementById('mName').value, '');
+  let val = sanitizeNumber(document.getElementById('mVal').value, NaN, 0, 1e12);
   if (!name || Number.isNaN(val)) return showFlash('সব ঘর পূরণ করুন');
 
   if(currentModalType==='capex') {
-    const amortization = Math.max(1, parseInt(document.getElementById('mAmo').value || '1', 10));
-    state.capex.push({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization});
+    const amortization = sanitizeInteger(document.getElementById('mAmo').value || '1', 3, 1, 20);
+    state.capex.push(sanitizeCapexItem({id:uid(), name, category:document.getElementById('mCat').value, amount:val, amortization}));
   }
-  else if(currentModalType==='opex') state.opex.push({id:uid(), name, category:document.getElementById('mCat').value, monthly:val});
+  else if(currentModalType==='opex') state.opex.push(sanitizeOpexItem({id:uid(), name, category:document.getElementById('mCat').value, monthly:val}));
   else if(currentModalType==='revenue') {
-    const qty = Math.max(1, parseInt(document.getElementById('mQty').value || '1', 10));
-    state.revenue.push({id:uid(), name, price:val, qty, useGlobal:document.getElementById('mGlobal').checked, utilization:80, growth:3});
+    const qty = sanitizeInteger(document.getElementById('mQty').value || '1', 1, 1, 1000000);
+    state.revenue.push(sanitizeRevenueItem({id:uid(), name, price:val, qty, useGlobal:document.getElementById('mGlobal').checked, utilization:80, growth:3}));
   }
-  else if(currentModalType==='exclusion') state.exclusions.push({id:uid(), name, rate:val, unit:document.getElementById('mUnit').value});
+  else if(currentModalType==='exclusion') state.exclusions.push(sanitizeExclusionItem({id:uid(), name, rate:val, unit:document.getElementById('mUnit').value}));
 
   document.getElementById('entryModal').classList.remove('open');
   renderAll();
 }
 
 function deleteItem(type, id) { state[type] = state[type].filter(i=>i.id!==id); renderAll(); }
-function updateState(key, val) { state[key] = parseFloat(val); renderAll(); }
+function updateState(key, val) {
+  state[key] = sanitizeNumber(val, 0, 0, 1000000);
+  renderAll();
+}
 function switchToPage(page) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1609,20 +1690,6 @@ function applyPlannerControls() {
 }
 
 // ==================== PDF & CLOUD SAVING ====================
-function reportHealthScore(annualROI, margin, breakEvenMonths) {
-  let score = 50;
-  if (annualROI >= 60) score += 25;
-  else if (annualROI >= 30) score += 18;
-  else if (annualROI >= 10) score += 10;
-  else if (annualROI < 0) score -= 15;
-  if (margin >= 30) score += 15;
-  else if (margin >= 15) score += 8;
-  else if (margin < 5) score -= 10;
-  if (breakEvenMonths && breakEvenMonths <= 12) score += 10;
-  if (!breakEvenMonths) score -= 8;
-  return Math.max(0, Math.min(100, Math.round(score)));
-}
-
 function buildActionNotes(monthZero, annualROI, margin, breakEvenMonths) {
   const notes = [];
   if (monthZero.netProfit < 0) notes.push('খরচ নিয়ন্ত্রণ জরুরি: কম মার্জিন সেবা কমিয়ে high-ticket offer বাড়ান।');
@@ -1634,8 +1701,8 @@ function buildActionNotes(monthZero, annualROI, margin, breakEvenMonths) {
 }
 
 function buildDocTable(headers, rows) {
-  const thead = `<thead><tr>${headers.map(h => `<th style="text-align:left;padding:8px;border:1px solid #333;background:#f2f2f2;">${h}</th>`).join('')}</tr></thead>`;
-  const tbody = `<tbody>${rows.map(row => `<tr>${row.map(c => `<td style="padding:8px;border:1px solid #333;vertical-align:top;">${c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  const thead = `<thead><tr>${headers.map(h => `<th style="text-align:left;padding:8px;border:1px solid #333;background:#f2f2f2;">${escapeHTML(h)}</th>`).join('')}</tr></thead>`;
+  const tbody = `<tbody>${rows.map(row => `<tr>${row.map(c => `<td style="padding:8px;border:1px solid #333;vertical-align:top;">${escapeHTML(c)}</td>`).join('')}</tr>`).join('')}</tbody>`;
   return `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">${thead}${tbody}</table>`;
 }
 
@@ -1648,11 +1715,6 @@ function buildPrintableReport() {
   const margin = monthZero.rev > 0 ? (monthZero.netProfit / monthZero.rev) * 100 : 0;
   const breakEven = breakEvenMonths();
   const breakEvenDate = breakEvenDateLabel(breakEven);
-  const fundingNeed = fundingGap();
-  const loanService = state.opex
-    .filter(item => isLoanLike(item))
-    .reduce((sum, item) => sum + item.monthly, 0);
-  const dscr = loanService > 0 ? ((year1.netProfit / 12) + loanService) / loanService : null;
   const notes = buildActionNotes(monthZero, annualROI, margin, breakEven);
 
   const months = Array.from({ length: 12 }, (_, i) => {
@@ -1670,8 +1732,8 @@ function buildPrintableReport() {
   root.style.fontFamily = 'Arial, Hind Siliguri, sans-serif';
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
-      <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
-      <div style="font-size:12px;margin-top:4px;">ব্যবসার টাকার পরিকল্পনার রিপোর্ট | ব্যবসার ধরন: ${model.label}</div>
+      <div style="font-size:24px;font-weight:700;">${escapeHTML(state.businessName || 'ROI Planner Report')}</div>
+      <div style="font-size:12px;margin-top:4px;">ব্যবসার টাকার পরিকল্পনার রিপোর্ট | ব্যবসার ধরন: ${escapeHTML(model.label)}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
@@ -1686,7 +1748,7 @@ function buildPrintableReport() {
     </div>
     <div style="margin-bottom:16px;">
       <div style="font-size:16px;font-weight:700;">আর্থিক পরামর্শ</div>
-      <div style="font-size:12px;line-height:1.8;margin-top:6px;">${notes.map((n, i) => `${i + 1}. ${n}`).join('<br>')}</div>
+      <div style="font-size:12px;line-height:1.8;margin-top:6px;">${notes.map((n, i) => `${i + 1}. ${escapeHTML(n)}`).join('<br>')}</div>
     </div>
   `;
 
@@ -1757,7 +1819,7 @@ function buildPrintableReport() {
   if (state.exclusions.length) {
     root.innerHTML += `
       <div style="margin-bottom:16px;">
-        <div style="font-size:16px;font-weight:700;">Exclusions</div>
+        <div style="font-size:16px;font-weight:700;">আলাদা রাখা খরচ</div>
         ${buildDocTable(
           ['আইটেম', 'রেট', 'ইউনিট', '36 মাস cumulative'],
           state.exclusions.map(item => [
@@ -1805,18 +1867,22 @@ async function downloadProfessionalPDF() {
 function saveStateLocal() { localStorage.setItem('roiplanner_pro', JSON.stringify(state)); }
 function loadState() {
   const p = new URLSearchParams(location.search);
-  if(p.get('data')) { try { Object.assign(state, JSON.parse(atob(decodeURIComponent(p.get('data'))))); } catch(e){} }
-  else {
-    const s = localStorage.getItem('roiplanner_pro');
-    if(s) Object.assign(state, JSON.parse(s));
+  if (p.has('data')) {
+    p.delete('data');
+    const cleanQuery = p.toString();
+    history.replaceState({}, '', `${location.pathname}${cleanQuery ? `?${cleanQuery}` : ''}${location.hash}`);
   }
+  let loaded = {};
+  const s = localStorage.getItem('roiplanner_pro');
+  if (s) {
+    try {
+      loaded = JSON.parse(s);
+    } catch (e) {
+      loaded = {};
+    }
+  }
+  state = sanitizeState(loaded);
   normalizeCurrency();
-  if (!Number.isFinite(state.variableCostRate)) state.variableCostRate = 0;
-  if (!Number.isFinite(state.openingCash)) state.openingCash = 0;
-  if (!Number.isFinite(state.reserveMonths)) state.reserveMonths = 3;
-  if (!Number.isFinite(state.targetProfitMonths)) state.targetProfitMonths = 12;
-  if (!state.businessType || !BUSINESS_MODELS[state.businessType]) state.businessType = 'service';
-  if (!Array.isArray(state.exclusions)) state.exclusions = [];
 }
 
 function showFlash(msg) {
@@ -1842,7 +1908,7 @@ window.addEventListener('resize', () => {
   resizeTimer = setTimeout(() => scheduleChartDraw(20), 120);
 });
 
-document.getElementById('businessName').addEventListener('input', e => { state.businessName = e.target.value; renderAll(); });
+document.getElementById('businessName').addEventListener('input', e => { state.businessName = sanitizeText(e.target.value, 'আমার ব্যবসা'); renderAll(); });
 window.onload = () => {
   loadState();
   document.getElementById('businessName').value = state.businessName;
