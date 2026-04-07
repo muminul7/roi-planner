@@ -159,6 +159,11 @@ nav{flex:1;min-height:0;overflow-y:auto;padding:12px 0}
 .exclusion-total{font-size:13px;color:var(--text2)}
 .exclusion-table td,.exclusion-table th{font-size:12px}
 .empty-mini{font-size:12px;color:var(--text2);padding:10px 0}
+.knowledge-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.knowledge-card{background:var(--surface3);border:1px solid var(--border);border-radius:14px;padding:18px}
+.knowledge-term{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;font-family:'Plus Jakarta Sans','Hind Siliguri',sans-serif}
+.knowledge-meaning,.knowledge-use{font-size:13px;color:var(--text2);line-height:1.75}
+.knowledge-use{margin-top:8px}
 
 .data-table{width:100%;border-collapse:collapse}
 .data-table th{text-align:left;font-size:11px;font-weight:600;color:#b7bfce;text-transform:uppercase;padding:12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#182131;z-index:1}
@@ -201,7 +206,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   .page{padding:14px;padding-bottom:calc(18px + env(safe-area-inset-bottom));gap:14px}
   .page-header{flex-direction:column;align-items:flex-start;gap:10px;margin-bottom:0}
   .page-header .btn{width:100%}
-  .grid-2,.grid-3,.grid-4,.insight-grid,.planner-readonly,.preset-grid{grid-template-columns:1fr}
+  .grid-2,.grid-3,.grid-4,.insight-grid,.planner-readonly,.preset-grid,.knowledge-grid{grid-template-columns:1fr}
   .snapshot-grid{grid-template-columns:1fr}
   #page-dashboard #dashKPIs{grid-template-columns:repeat(2,minmax(0,1fr))}
   .quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -291,6 +296,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
     <div class="nav-item" data-page="settings"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg></span>সেটিংস</div>
     <div class="nav-item" data-page="roi"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M7 16l4-4 3 3 5-7"/></svg></span>ROI সারাংশ</div>
     <div class="nav-item" data-page="scenarios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 16l3-4 2 2 3-5"/></svg></span>কী হলে কী হবে</div>
+    <div class="nav-item" data-page="knowledge"><span class="icon"><svg viewBox="0 0 24 24"><path d="M4 5h12a3 3 0 0 1 3 3v11H7a3 3 0 0 0-3 3z"/><path d="M7 5v17"/><path d="M11 9h4M11 13h4"/></svg></span>Knowledge</div>
   </nav>
   <div class="sidebar-footer">
     <button class="btn btn-primary" onclick="downloadProfessionalPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>পূর্ণ রিপোর্ট PDF</button>
@@ -529,6 +535,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   <div class="page" id="page-scenarios">
     <div class="page-header"><div><div class="page-title">কি হলে কী হবে</div><div class="page-subtitle">খারাপ-মাঝারি-ভালো অবস্থায় লাভ কত হয় দেখুন</div></div></div>
     <div class="card chart-card"><div class="card-title">সিনারিও তুলনা</div><canvas id="chartScenarios"></canvas></div>
+  </div>
+
+  <div class="page" id="page-knowledge">
+    <div class="page-header"><div><div class="page-title">Knowledge</div><div class="page-subtitle">এই অ্যাপে ব্যবহার করা financial term-গুলোর সহজ বাংলা মানে ও ব্যবহার</div></div></div>
+    <div class="knowledge-grid" id="knowledgeGrid"></div>
   </div>
 </main>
 
@@ -905,7 +916,7 @@ function getFinancials(monthIdx, revMult=1, costMult=1) {
 function renderAll() {
   normalizeCurrency();
   document.getElementById('dashTitle').innerText = state.businessName;
-  renderBusinessModelUI(); renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions();
+  renderBusinessModelUI(); renderDashboard(); renderTables(); renderROI(); renderPlannerPanel(); renderSettingsPanel(); renderExclusions(); renderKnowledge();
   drawCharts(); saveStateLocal();
 }
 function renderBusinessModelUI() {
@@ -953,9 +964,9 @@ function renderDashboard() {
   const runwayNum = runwayMonthsNumber(f.netProfit);
   const gap = fundingGap();
   document.getElementById('dashKPIs').innerHTML = `
-    <div class="kpi"><div class="kpi-label">মাসিক আয়</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
-    <div class="kpi"><div class="kpi-label">মাসিক মোট খরচ</div><div class="kpi-value">${fmt(f.costs)}</div></div>
-    <div class="kpi"><div class="kpi-label">নিট লাভ (ট্যাক্স পর)</div><div class="kpi-value ${f.netProfit>=0?'success':'danger'}">${fmt(f.netProfit)}</div></div>
+    <div class="kpi"><div class="kpi-label">Monthly Revenue</div><div class="kpi-value accent">${fmt(f.rev)}</div></div>
+    <div class="kpi"><div class="kpi-label">Monthly Cost</div><div class="kpi-value">${fmt(f.costs)}</div></div>
+    <div class="kpi"><div class="kpi-label">Net Profit (After Tax)</div><div class="kpi-value ${f.netProfit>=0?'success':'danger'}">${fmt(f.netProfit)}</div></div>
     <div class="kpi"><div class="kpi-label">বার্ষিক ROI</div><div class="kpi-value ${annualROI>=0?'accent':'danger'}">${annualROI.toFixed(1)}%</div></div>
   `;
   document.getElementById('dashTips').innerHTML = `
@@ -1049,11 +1060,11 @@ function renderROI() {
   document.getElementById('roiSub').innerText = totalCapex() > 0 ? `মোট শুরুর টাকা ${fmt(totalCapex())} ধরে এই হিসাব করা হয়েছে` : 'এই হিসাব দেখতে শুরুর খরচ যোগ করুন';
 
   document.getElementById('plBody').innerHTML = `
-    <tr><td>মোট আয়</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(year1.revenue)}/বছর</td></tr>
-    <tr><td>খরচ + Amortization</td><td>${fmt(f.costs)}/মাস</td><td>${fmt(year1.opex + totalCapex())}/বছর</td></tr>
-    <tr><td>ট্যাক্স-পূর্ব লাভ</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(year1.netProfit + year1.tax)}/বছর</td></tr>
-    <tr><td style="color:var(--danger)">কর্পোরেট ট্যাক্স (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(year1.tax)}/বছর</td></tr>
-    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">নিট লাভ (হাতে থাকে)</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${year1.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(year1.netProfit)}/বছর</td></tr>
+    <tr><td>Revenue</td><td class="accent">${fmt(f.rev)}/মাস</td><td>${fmt(year1.revenue)}/বছর</td></tr>
+    <tr><td>Cost + Amortization</td><td>${fmt(f.costs)}/মাস</td><td>${fmt(year1.opex + totalCapex())}/বছর</td></tr>
+    <tr><td>Gross Profit</td><td>${fmt(f.grossProfit)}/মাস</td><td>${fmt(year1.netProfit + year1.tax)}/বছর</td></tr>
+    <tr><td style="color:var(--danger)">Corporate Tax (${state.taxRate}%)</td><td style="color:var(--danger)">-${fmt(f.tax)}/মাস</td><td style="color:var(--danger)">-${fmt(year1.tax)}/বছর</td></tr>
+    <tr style="border-top:2px solid var(--border)"><td style="font-weight:700">Net Profit</td><td style="font-weight:700; color:${f.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(f.netProfit)}/মাস</td><td style="font-weight:700; color:${year1.netProfit>=0?'var(--success)':'var(--danger)'}">${fmt(year1.netProfit)}/বছর</td></tr>
   `;
 
   const snapshotTable = document.getElementById('summarySnapshotTable');
@@ -1068,10 +1079,10 @@ function renderROI() {
         </thead>
         <tbody>
           <tr><td>প্রথম বছরের মোট বিনিয়োগ</td><td class="snapshot-amount">${fmt(snapshot.totalInvestment1Year)}</td><td class="snapshot-remark">CAPEX + প্রথম বছরের OPEX + ট্যাক্স</td></tr>
-          <tr><td>প্রথম বছরের মোট আয়</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">প্রথম 12 মাসের revenue</td></tr>
-          <tr><td>প্রথম বছরের নিট লাভ</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">আয় - মোট খরচ - কর</td></tr>
-          <tr><td>প্রথম 36 মাসের cumulative net profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative3YearNet)}</td><td class="snapshot-remark">১ম + ২য় + ৩য় বছর মিলিয়ে</td></tr>
-          <tr><td>প্রথম 36 মাসের adjusted net profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted3YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
+          <tr><td>প্রথম বছরের Revenue</td><td class="snapshot-amount">${fmt(snapshot.year1GrossRevenue)}</td><td class="snapshot-remark">প্রথম 12 মাসের Revenue</td></tr>
+          <tr><td>প্রথম বছরের Net Profit</td><td class="snapshot-amount">${fmt(snapshot.year1NetProfit)}</td><td class="snapshot-remark">Revenue - Cost - Tax</td></tr>
+          <tr><td>প্রথম 36 মাসের Cumulative Net Profit</td><td class="snapshot-amount">${fmt(snapshot.cumulative3YearNet)}</td><td class="snapshot-remark">১ম + ২য় + ৩য় বছর মিলিয়ে</td></tr>
+          <tr><td>প্রথম 36 মাসের Adjusted Net Profit</td><td class="snapshot-amount">${fmt(snapshot.adjusted3YearNet)}</td><td class="snapshot-remark">Exclusions বাদ দিয়ে</td></tr>
         </tbody>
       </table>
     `;
@@ -1084,7 +1095,7 @@ function renderROI() {
       <div class="snapshot-highlight">
         <div class="snapshot-highlight-label">CAPEX-এর তুলনায় ROI</div>
         <div class="snapshot-highlight-value">${snapshot.roiVsCapex.toFixed(1)}x</div>
-        <div class="snapshot-highlight-note">শুধু মোট CAPEX-এর তুলনায় adjusted হিসাব</div>
+        <div class="snapshot-highlight-note">শুধু মোট CAPEX-এর তুলনায় Adjusted হিসাব</div>
       </div>
     `;
     exclusionTotal.innerText = `36 মাস cumulative: ${fmt(totalExclusions(36))}`;
@@ -1137,6 +1148,39 @@ function renderExclusions() {
   `;
 }
 
+function renderKnowledge() {
+  const root = document.getElementById('knowledgeGrid');
+  if (!root) return;
+  const terms = [
+    { term: 'ROI', meaning: 'ROI মানে Return on Investment। আপনি যে টাকা শুরুতে ঢেলেছেন, তার তুলনায় কত লাভ ফিরছে সেটা বুঝায়।', use: 'কোন ব্যবসায় টাকা দিলে সেটা লাভ দিচ্ছে কি না, আর লাভের গতি কেমন, সেটা বুঝতে ROI কাজে লাগে।' },
+    { term: 'CAPEX', meaning: 'CAPEX মানে Capital Expenditure। ব্যবসা শুরু বা বড় করার জন্য একবারে যে শুরুর খরচ হয়, সেটাই CAPEX।', use: 'মেশিন, ফার্নিচার, সফটওয়্যার, সেটআপ খরচ বা দোকান সাজানোর মতো খরচ CAPEX হিসেবে ধরা হয়।' },
+    { term: 'OPEX', meaning: 'OPEX মানে Operating Expense। প্রতি মাসে ব্যবসা চালাতে নিয়মিত যে খরচ হয়, সেটা OPEX।', use: 'ভাড়া, বেতন, মার্কেটিং, ইন্টারনেট, বিদ্যুৎ, অফিস খরচ এসব OPEX-এর মধ্যে পড়ে।' },
+    { term: 'Revenue', meaning: 'Revenue মানে মোট বিক্রি বা মোট আয়। কোনো খরচ বাদ দেওয়ার আগের আয়কে Revenue বলে।', use: 'ব্যবসায় কত টাকা ঢুকছে সেটা বুঝতে Revenue দেখা হয়।' },
+    { term: 'Gross Profit', meaning: 'Gross Profit হলো Revenue থেকে সরাসরি খরচ ও মূল খরচ বাদ দিলে যা থাকে।', use: 'আপনার পণ্য/সেবা আসলে কতটা লাভজনক, সেটা আগে Gross Profit দেখে বোঝা যায়।' },
+    { term: 'Net Profit', meaning: 'Net Profit হলো সব খরচ আর Tax বাদ দেওয়ার পর হাতে আসল যে লাভ থাকে।', use: 'মাস শেষে আসলেই লাভ হচ্ছে কি না, সেটা বুঝতে Net Profit সবচেয়ে জরুরি।' },
+    { term: 'Tax', meaning: 'Tax হলো সরকারের জন্য দিতে হওয়া কর। লাভ থাকলে তার একটা অংশ Tax হিসেবে যেতে পারে।', use: 'Tax ধরলে হিসাব বাস্তবসম্মত হয়, কারণ হাতে থাকা লাভ আসলেই কত থাকবে সেটা বোঝা যায়।' },
+    { term: 'Break-even', meaning: 'Break-even হলো সেই সময়, যখন মোট আয় আর মোট খরচ সমান হয়ে যায়। তার পর থেকে ব্যবসা লাভে যেতে শুরু করে।', use: 'কত মাস পরে ব্যবসা লোকসান কাটিয়ে দাঁড়াবে, সেটা বুঝতে Break-even দেখা হয়।' },
+    { term: 'Growth', meaning: 'Growth মানে সময়ের সাথে আয়, বিক্রি বা কাস্টমার বাড়ার হার।', use: 'আগামী মাসগুলোতে ব্যবসা কত দ্রুত বড় হতে পারে, সেটা Growth ধরে হিসাব করা হয়।' },
+    { term: 'Margin', meaning: 'Margin মানে বিক্রি বা আয়ের কত শতাংশ লাভ হিসেবে থাকছে।', use: 'Margin কম হলে বুঝতে হবে খরচ বেশি বা দাম কম। Margin ভালো হলে ব্যবসা বেশি শক্তিশালী হয়।' },
+    { term: 'Variable Cost', meaning: 'Variable Cost হলো সেই খরচ, যেটা বিক্রি বা কাজ বাড়লে বাড়ে, কমলে কমে।', use: 'ডেলিভারি খরচ, প্যাকেজিং, কাঁচামাল, প্রতি অর্ডারের খরচ এগুলো Variable Cost হতে পারে।' },
+    { term: 'COGS', meaning: 'COGS মানে Cost of Goods Sold। বিক্রি হওয়া পণ্য বানাতে বা কিনতে সরাসরি যে খরচ হয়, সেটাই COGS।', use: 'ট্রেডিং বা ই-কমার্স ব্যবসায় আসল পণ্যের খরচ বুঝতে COGS খুব দরকারি।' },
+    { term: 'Amortization', meaning: 'Amortization মানে বড় একবারের খরচকে কয়েক মাস বা কয়েক বছরে ভাগ করে হিসাব করা।', use: 'CAPEX এক মাসেই চাপ না দিয়ে ধাপে ধাপে ধরতে Amortization ব্যবহার করা হয়।' },
+    { term: 'Inflation', meaning: 'Inflation মানে সময়ের সাথে জিনিসপত্রের দাম বা খরচ বেড়ে যাওয়া।', use: 'ভবিষ্যতের খরচ বাস্তবের কাছাকাছি ধরতে Inflation হিসাবের মধ্যে রাখা হয়।' },
+    { term: 'Cumulative', meaning: 'Cumulative মানে একটার পর একটা যোগ হতে হতে মোট কত হলো।', use: '৩ বছর মিলিয়ে মোট লাভ, মোট আয় বা মোট খরচ বুঝতে Cumulative হিসাব লাগে।' },
+    { term: 'Adjusted Net Profit', meaning: 'Adjusted Net Profit হলো Net Profit থেকে কিছু আলাদা রাখা বা special খরচ বাদ দিয়ে পাওয়া ফল।', use: 'মূল ব্যবসা আসলে কেমন করছে সেটা পরিষ্কার দেখতে Adjusted Net Profit কাজে লাগে।' },
+    { term: 'Reserve', meaning: 'Reserve হলো জরুরি সময়ের জন্য হাতে রেখে দেওয়া নিরাপদ টাকা।', use: 'কয়েক মাস খারাপ গেলেও ব্যবসা যেন বন্ধ না হয়, তাই Reserve রাখা হয়।' },
+    { term: 'Funding Gap', meaning: 'Funding Gap মানে ব্যবসা চালাতে যত টাকা দরকার আর হাতে যত টাকা আছে, এই দুইয়ের ঘাটতি।', use: 'আরও টাকা লাগবে কি না, কম খরচে কাজ চালাতে হবে কি না, সেটা বুঝতে Funding Gap দেখা হয়।' },
+    { term: 'Cash Runway', meaning: 'Cash Runway মানে হাতে থাকা টাকা দিয়ে আর কত মাস ব্যবসা চালানো যাবে।', use: 'লোকসান চললে হাতে থাকা টাকা কতদিন টিকবে, এটা বুঝতে Cash Runway খুব জরুরি।' }
+  ];
+  root.innerHTML = terms.map(item => `
+    <div class="knowledge-card">
+      <div class="knowledge-term">${item.term}</div>
+      <div class="knowledge-meaning"><strong>মানে:</strong> ${item.meaning}</div>
+      <div class="knowledge-use"><strong>কাজে লাগবে:</strong> ${item.use}</div>
+    </div>
+  `).join('');
+}
+
 function renderPlannerPanel() {
   const readonlyRoot = document.getElementById('plannerReadonly');
   const summaryEl = document.getElementById('planSummary');
@@ -1170,9 +1214,9 @@ function renderPlannerPanel() {
       <div class="readonly-hint">মাসিক amortized: ${fmt(amortizedCapexMonthly)}</div>
     </div>
     <div class="readonly-block">
-      <div class="readonly-label">বর্তমান Break-even</div>
+      <div class="readonly-label">Current Break-even</div>
       <div class="readonly-value">${be ? be + ' মাস' : 'এখনো হয়নি'}</div>
-      <div class="readonly-hint">নিট লাভ: ${fmt(f.netProfit)} /মাস</div>
+      <div class="readonly-hint">Net Profit: ${fmt(f.netProfit)} /মাস</div>
     </div>
   `;
 
@@ -1760,10 +1804,10 @@ function buildPrintableReport() {
         ['বিষয়', 'টাকার পরিমাণ', 'মন্তব্য'],
         [
           ['প্রথম বছরের মোট বিনিয়োগ', fmt(snapshot.totalInvestment1Year), 'CAPEX + ১ম বছরের OPEX + ট্যাক্স'],
-          ['প্রথম বছরের মোট আয়', fmt(snapshot.year1GrossRevenue), '12 মাসে যত আয় হবে'],
-          ['প্রথম বছরের নিট লাভ', fmt(snapshot.year1NetProfit), 'খরচ ও কর বাদ দিয়ে'],
-          ['প্রথম 36 মাসের মোট লাভ', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
-          ['প্রথম 36 মাসের ঠিক করা লাভ', fmt(snapshot.adjusted3YearNet), 'আলাদা রাখা খরচ বাদ দিয়ে']
+          ['প্রথম বছরের Revenue', fmt(snapshot.year1GrossRevenue), '12 মাসে যত Revenue হবে'],
+          ['প্রথম বছরের Net Profit', fmt(snapshot.year1NetProfit), 'খরচ ও Tax বাদ দিয়ে'],
+          ['প্রথম 36 মাসের Cumulative Net Profit', fmt(snapshot.cumulative3YearNet), '১ম + ২য় + ৩য় বছর মিলিয়ে'],
+          ['প্রথম 36 মাসের Adjusted Net Profit', fmt(snapshot.adjusted3YearNet), 'আলাদা রাখা খরচ বাদ দিয়ে']
         ]
       )}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
