@@ -294,8 +294,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   </nav>
   <div class="sidebar-footer">
     <button class="btn btn-primary" onclick="downloadProfessionalPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg></span>পূর্ণ রিপোর্ট PDF</button>
-    <button class="btn btn-secondary" onclick="downloadInvestorBankPDF()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V6l7-3 7 3v4"/><path d="M6 10v8M10 10v8M14 10v8M18 10v8"/><path d="M3 21h18"/></svg></span>ইনভেস্টর/ব্যাংক রিপোর্ট</button>
-    <button class="btn btn-outline" onclick="shareLink()"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 1 0 7 7l1-1"/></svg></span>লিংক শেয়ার</button>
   </div>
 </aside>
 
@@ -318,7 +316,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
       <button class="btn btn-secondary" onclick="switchToPage('opex')">খরচ অপটিমাইজ করুন</button>
       <button class="btn btn-ghost" onclick="switchToPage('settings')">গ্লোবাল সেটিংস টিউন করুন</button>
       <button class="btn btn-secondary mobile-only" onclick="downloadProfessionalPDF()">পূর্ণ রিপোর্ট PDF</button>
-      <button class="btn btn-outline mobile-only" onclick="downloadInvestorBankPDF()">ইনভেস্টর/ব্যাংক রিপোর্ট</button>
     </div>
     <div class="card-grid grid-4" id="dashKPIs"></div>
     <div class="insight-grid" id="dashTips"></div>
@@ -1642,7 +1639,7 @@ function buildDocTable(headers, rows) {
   return `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;">${thead}${tbody}</table>`;
 }
 
-function buildPrintableReport(mode = 'full') {
+function buildPrintableReport() {
   const monthZero = getFinancials(0);
   const year1 = year1Financials();
   const snapshot = getSummarySnapshot();
@@ -1674,7 +1671,7 @@ function buildPrintableReport(mode = 'full') {
   root.innerHTML = `
     <div style="border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:16px;">
       <div style="font-size:24px;font-weight:700;">${state.businessName || 'ROI Planner Report'}</div>
-      <div style="font-size:12px;margin-top:4px;">${mode === 'investor' ? 'ইনভেস্টর/ব্যাংকের জন্য রিপোর্ট' : 'ব্যবসার টাকার পরিকল্পনার রিপোর্ট'} | ব্যবসার ধরন: ${model.label}</div>
+      <div style="font-size:12px;margin-top:4px;">ব্যবসার টাকার পরিকল্পনার রিপোর্ট | ব্যবসার ধরন: ${model.label}</div>
       <div style="font-size:11px;margin-top:4px;">Generated: ${new Date().toLocaleDateString('en-GB')} | Currency: BDT</div>
     </div>
     <div style="margin-bottom:16px;">
@@ -1774,45 +1771,21 @@ function buildPrintableReport(mode = 'full') {
     `;
   }
 
-  if (mode === 'investor') {
-    root.innerHTML += `
-      <div style="margin-bottom:16px;page-break-before:always;">
-        <div style="font-size:16px;font-weight:700;">ইনভেস্টর/ব্যাংক Snapshot</div>
-        ${buildDocTable(
-          ['মেট্রিক', 'মান'],
-          [
-            ['বার্ষিক নিট লাভ', fmt(year1.netProfit)],
-            ['ফান্ডিং প্রয়োজন', fmt(fundingNeed)],
-            ['Break-even Target', breakEven ? `${breakEven} months (${breakEvenDate})` : 'এখনো হয়নি'],
-            ['DSCR', dscr ? dscr.toFixed(2) : 'N/A'],
-            ['Opening Cash', fmt(state.openingCash || 0)],
-            ['Reserve Target', fmt(reserveTarget())]
-          ]
-        )}
-      </div>
-    `;
-  }
-
   return root;
 }
-
-function downloadInvestorBankPDF() {
-  return downloadProfessionalPDF('investor');
-}
-
-async function downloadProfessionalPDF(mode = 'full') {
+async function downloadProfessionalPDF() {
   if (typeof html2pdf === 'undefined') {
     showFlash('PDF library failed to load');
     return;
   }
   showFlash('Printable PDF তৈরি হচ্ছে...');
-  const exportRoot = buildPrintableReport(mode);
+  const exportRoot = buildPrintableReport();
   document.body.appendChild(exportRoot);
 
   try {
     const opt = {
       margin: [10, 10, 10, 10],
-      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}${mode === 'investor' ? '_investor_bank_report' : '_full_report'}.pdf`,
+      filename: `${(state.businessName || 'roi_planner').replace(/\s+/g,'_')}_full_report.pdf`,
       image: { type: 'jpeg', quality: 0.95 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -1826,13 +1799,6 @@ async function downloadProfessionalPDF(mode = 'full') {
   } finally {
     exportRoot.remove();
   }
-}
-
-function shareLink() {
-  normalizeCurrency();
-  const d = btoa(JSON.stringify({ ...state, currency: 'BDT' }));
-  const url = location.href.split('?')[0] + '?data=' + encodeURIComponent(d);
-  navigator.clipboard.writeText(url).then(()=>showFlash('লিংক কপি হয়েছে'));
 }
 
 // ==================== INIT & EVENT LISTENERS ====================
